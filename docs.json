@@ -59,7 +59,13 @@
                       "integrations/storage/gcp",
                       "integrations/storage/storj"
                       ]
-          }       
+          },  
+          {
+            "group": "Social Logins",
+            "pages": ["integrations/login/twitter",
+                      "integrations/login/google"
+                      ]
+          }  
         ]
       },
       {
