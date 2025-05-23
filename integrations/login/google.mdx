@@ -1,0 +1,62 @@
+---
+title: 'Google Login Auth'
+sidebarTitle: 'Google'
+description: 'Let your users to login and register using their own Google accounts for simplicity'
+---
+
+## Introduction
+
+Davinci AI provides you a solution to let your users login using multiple different social media accounts that they use on a daily basis. 
+
+## Configure Google
+To let users to login and register using their Google accounts, follow the steps below:
+
+<Steps>
+  <Step title="Step 1">
+     Visit [Google API Console](https://console.developers.google.com/) page.
+  </Step>
+  <Step title="Step 2">
+    Once you are logged in your Google console, create a **new project** or use your existing one.
+     <img src="/images/login/google/g-1.jpg" />
+  </Step>
+  <Step title="Step 3">
+    If you are creating a new project, provide a **Project name** and click save.
+    <img src="/images/login/google/g-2.jpg" />
+  </Step>
+  <Step title="Step 4">
+    Next, click **Credentials** on the side menu then **Create Credentials** -> **OAuth client ID**.
+   <img src="/images/login/google/g-3.jpg" />
+  </Step>
+  <Step title="Step 5">
+    Click on **configure** button.
+    <img src="/images/login/google/g-4.jpg" />
+  </Step>
+  <Step title="Step 6">
+     On the OAuth Concent screen click **External** and click next afterwards provide all required informaiton there.
+  </Step>
+  <Step title="Step 7">
+     Fill in the required fields as needed, and replace **YOUR-DOMAIN-NAME.com** with your domain and make sure that there are no typos in any of the inputs, click create afterwards.
+    <img src="/images/login/google/g-5.jpg" />
+  </Step>
+  <Step title="Step 8">
+     Copy the provided **Client ID** and **Client Secret** somewhere.
+  </Step>
+  <Step title="Step 9">
+   Go to **Admin Panel** -> **General Settings** -> **Auth Settings** page, this is where you configure all social media login accounts and settings. 
+   1. First, enable **Login via Social Media** (OAuth)
+    <img src="/images/login/twitter/t-7.png" />
+   2. Next, include your Google API keys and enter your domain name there as well if it not shown already for you.
+    <img src="/images/login/google/g-5.png" />
+  </Step>
+  <Step title="Step 10">
+    After you are done with configurations, click on **Save** button. 
+  </Step>
+</Steps>
+
+<Check>
+Congratulations! You have successfully comleted the Login and Registration with Google process.
+</Check>
+
+
+
+
