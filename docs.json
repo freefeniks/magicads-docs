@@ -71,6 +71,7 @@
       {
         "group": "Core Features",
         "pages": [
+          "core/personal-api",          
           "core/models",          
           "core/voiceover",          
           "core/images"          
