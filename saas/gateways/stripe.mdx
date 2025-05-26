@@ -1,4 +1,114 @@
 ---
 title: 'Stripe'
-description: 'Mintlify gives you complete control over the look and feel of your documentation using the mint.json file'
+description: 'Learn how to seamlessly integrate Stripe payments into your Davinci AI platform, enabling secure and convenient transactions for your users.'
 ---
+
+<Warning>Stripe payment gateway is part of SaaS feature, hence requires to have Extended License</Warning>
+
+<Note>Stripe supports both `Prepaid` and `Subscription` plans in Davinci AI</Note>
+
+## Introduction
+
+Integrating Stripe with Davinci AI allows you to offer a widely recognized and trusted payment solution for your users. This guide will walk you through the process of setting up Stripe payments, from creating your Stripe account to configuring webhooks.
+
+## Step 1: Set Up Your Stripe Account
+
+If you haven’t already, sign up for a Stripe account:
+
+- Visit the [Stripe](https://stripe.com/) website and click on **Sign Up** button
+- Follow the prompts to create and verify your business account
+- Complete any additional verification steps required by Stripe
+
+
+## Step 2: Obtain Stripe API Credentials
+
+To connect Davinci AI with PayPal, you’ll need to retrieve your API credentials:
+
+<Steps>
+  <Step title="Step 1">
+    Log in to your [Stripe Dashboard](https://dashboard.stripe.com/)    
+  </Step>
+  <Step title="Step 2">
+    Once you are logged in, on the left menu panel click on **Developers** tab, next select **API keys** tab there. Copy your **Publishable Key** and **Secret Key**.
+    <Note>Keep your Secret Key confidential! Never share it publicly.</Note>
+    <Warning>Make sure you are not in your sandbox environment, Stripe provides different API keys for Live vs Sandbox environments. Live API keys always start with `pl_live_` and `sk_live_`, sanbox keys start with `pk_test_` and `sk_test_`.</Warning>
+  </Step>
+  <Step title="Step 3">
+    Next, click on the **Webhooks** tab, if you don't have new Stripe Workbench turned on yet, simply turn it on, you can select default settings there. <br />
+    After you have enabled workbench, you are ready to proceed. Click on **Add Destination** button. 
+  </Step>
+   <Step title="Step 4">
+    Next, make sure to have API version set **2024-06-20** and selected listed events below:
+    - invoice.paid
+    - invoice.payment_failed
+    - customer.subscription_deleted
+    After you are done with settings, click on **Continue** button. 
+     <img src="/images/saas/stripe/stripe-1.png" />
+  </Step>
+  <Step title="Step 5">
+    On the next step for webhook setup, select **Webhook endpoint** as a destination type. Click **Continue** button afterwards. 
+    <img src="/images/saas/stripe/stripe-2.png" />
+  </Step>
+  <Step title="Step 6">
+    Next, fill in your **Endpoint URL**, the URL will be following **https://YOUR_DOMAIN_NAME/webhooks/stripe**. Afterwards click on **Create Destination** button. 
+     <img src="/images/saas/stripe/stripe-3.png" />
+  </Step>
+   <Step title="Step 7">
+    At the final step you will be shown **Destination details** information, copy your **Webhook Signing secret** key. 
+     <img src="/images/saas/stripe/stripe-4.png" />
+  </Step>
+  <Step title="Step 8">
+    Now, go back to the **Admin Panel** -> **Finance Management** -> **Finance Settings** page and select **Stripe** from the list.  
+  </Step>
+  <Step title="Step 9">
+    Include your API keys that you copied earlier into **Stripe Key** - (Publishable key), **Stripe Secret Key** - (Secret Key), **Stripe Webhook Secret**. <br />
+    Make sure that your **Stipe Webhook URI** matched to what you have included in your stripe account.   
+    <img src="/images/saas/stripe/stripe-5.png" />
+  </Step>
+  <Step title="Step 10">
+    Depending on for which type of payment plans you want your users to be able to use Stripe, turn on **Use Stripe Prepaid** and **Use Stripe Subscription** checkboxes. <br />
+    Once you are done with settings, click on **Save** button. 
+    <Warning>Please note that at this point all `Subscription plans` require you to create separate `product ids` for each created subscription plan. Refer to additional section below on that. </Warning>
+  </Step>
+  <Step title="Step 11">
+    <Check>
+      Congratulations! You have successfully completed setting up Stripe API keys for Davinci AI.
+    </Check>
+  </Step>
+</Steps>
+
+## Step 3: Setting up Subscription Plan
+
+At the moment, subscription plans require you to include **Stripe Product ID** during plan creation, soon it will be removed. 
+To create proper product id for your subscription plan, follow the steps below. 
+
+<Steps>
+  <Step title="Step 1">
+    Log in to your [Stripe Dashboard](https://dashboard.stripe.com/)    
+  </Step>
+  <Step title="Step 2">
+    Once you are logged in, on the left menu click on **Product Catalog** tab and click on **Create Product** button. 
+  </Step>
+  <Step title="Step 3">
+    Provide product **Name** and since it is a subscription plan, select **Recurring** and set target **Amount** that matches the one you want to put in your subscription plan, then select the **Billing period** to be matching with your subscription plan, like **Monthly** or **Yearly**. <br />
+    After you are done with configuration, click on **Add product** button. 
+    <img src="/images/saas/stripe/stripe-6.png" />
+  </Step>
+   <Step title="Step 4">
+    After you have successfully created a product, it will be visible in the main **Product catalog** list. Find your newly created product in the list and click on it. 
+     <img src="/images/saas/stripe/stripe-7.png" />
+  </Step>
+  <Step title="Step 5">
+    Once you are on the product details page, under the **Pricing** section, click on the `...` and select **Copy Price ID**, now you have copied your price id. 
+    <img src="/images/saas/stripe/stripe-8.png" />
+  </Step>
+  <Step title="Step 6">
+    Now go back to your subscription plan that you were creating or edit the existing one, and under **Payment Gateways Plan IDs**, include your stripe price id for **Stripe Price ID** input field. Configure rest of the subscription plan settings and click on **Save** button. 
+     <img src="/images/saas/stripe/stripe-9.png" />
+  </Step>
+  <Step title="Step 11">
+    <Check>
+      Congratulations! You have successfully completed setting up Subscription plan that can be processed with Stripe Gateway.
+    </Check>
+  </Step>
+</Steps>
