@@ -1,37 +1,46 @@
 ---
 title: 'SMTP Configuration'
 sidebarTitle: "SMTP"
-description: 'Essential steps to configure your Davinci AI installation for optimal performance and functionality.'
+description: 'Configure your SMTP settings for sending outgoing emails form Davinci AI, such as email verification, support ticket creation, payment statuses etc'
 ---
 
-## Setting Up the Cron Job
+## Setting Up SMTP settings
 
-A cron job is essential for automating recurring tasks in Davinc AI, particularly for renewing subscription usages.
+In order to be able to standard sending emails, we highly recommend you to use SMTP settings of your hosting that is related to your domain. 
 
-### Frequency and Interval
-- **Recommended Interval**: The cron task should run once per minute for optimal performance.
-<Note>Some hosting providers may limit cron tasks to a minimum interval of 5 minutes. In such cases, CRON tasks will still work as needed, but there might be a slight delay of up to 5 minutes.</Note>
+<Warning>Please note that some hostings have different smtp settings per domain, so play close attention to that</Warning>
 
-### Configuring the Cron Task
+To set up smtp settings follow these steps:
 
-To set up the cron job, add the following entry to your server’s crontab:
-
+<Steps>
+  <Step title="Step 1">
+    Go to **Admin Panel** -> **General Settings** -> **SMTP Settings** page.     
+  </Step>
+  <Step title="Step 2">
+    Fill up the following required fields:
 ```php
-* * * * * /usr/local/bin/php /path/to/app/root/artisan schedule:run
+SMTP Host
+SMTP Port
+SMTP Encryption
+SMTP EMail Login (Username)
+SMTP EMail Password
+SMTP Sender Email Address
+SMTP Sender Name 
 ```
-This command runs the Laravel schedule command in your Davinci AI installation directory every minute.
+<br />
+    <img src="/images/advanced/smtp/smtp-1.png" />
+  </Step>
+  <Step title="Step 3">
+    Once you have filled in all required fields based on your SMTP settings of your hosting, click on the **Test** button to check if you provided settings are valid. 
+    <img src="/images/advanced/smtp/smtp-2.png" />
+  </Step>
+  <Step title="Step 4">
+    If all the provided information is accurate, you will see a success message, that means your SMTP settings was setup correct and working properly. If you don't see success message, then please double check your SMTP settings based on your hosting settings. 
+    <img src="/images/advanced/smtp/smtp-3.png" />
+    <Tip>For `SMTP User Passowrd`, make sure to generate a `random` password.</Tip>
 
-<Note>Replace `/path/to/app/root/` with the actual path to your Davinci AI application’s root directory.</Note>
-
-<Warning>Double check that `/usr/local/bin/php` is needed path where your php bin folder is located. Every hosting is different hence it might differ from hosting provider to hosting provider. </Warning>
-
-
-## Troubleshooting Cron Issues
-
-If you encounter problems with running CRON Jobs:
-
-1. Verify the cron task configuration is correct.
-2. Check your server logs for any error messages related to the cron job or renewal process.
-3. Ensure that the PHP path `/usr/local/bin/php` is correct for your server.
-
-If issues persist, consult with your server administrator. They can help diagnose server-specific problems, verify cron job configurations, and ensure proper file permissions. If you still need assistance after consulting your server administrator, please don’t hesitate to contact our support team directly for further guidance.
+  </Step>
+  <Step title="Step 5">
+    <Check>Congratulations! You have successfully configured the SMTP settings for Davinci AI</Check>
+  </Step>
+</Steps>
