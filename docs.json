@@ -161,7 +161,8 @@
           "advanced/restapi",   
           "advanced/smtp",       
           "advanced/cron",       
-          "advanced/sitemap"       
+          "advanced/sitemap",       
+          "advanced/cache"       
         ]
       },
       {
