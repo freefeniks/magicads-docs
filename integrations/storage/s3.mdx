@@ -1,0 +1,120 @@
+---
+title: 'Amazon S3 Storage Integration'
+sidebarTitle: 'Amazon S3'
+description: 'Offload your media inputs and results to Amazon S3 Storage'
+---
+
+## Introduction
+
+Davinci AI’s allows you to integrate cloud storages to store results of various media related features of the script. This allows you to make sure that you always have sufficent storage space for your customers.
+Using cloud storage option also minimizes the latency for your user to access their media results as data could be avaiable via CDN framework of the cloud vendors.  
+
+
+## Create Amazon S3 Bucket
+To be able to use your Amazon S3 bucket, follow these steps to setup integration.
+
+<Steps>
+  <Step title="Step 1">
+    If you don’t have a AWS account, [sign up here](https://www.aws.com/)
+  </Step>
+  <Step title="Step 2">
+    Once you are logged into your AWS Management Console, select **Amazon S3** from the menu list or from the search field.
+  </Step>
+  <Step title="Step 3">
+     On the Amazon S3 page, select **General Purpose Buckets** on the left menu panel and then click on the **Create bucket** button. 
+     <Warning>Please note that all s3 buckets are `region` specific, so make sure you are selecting the right AWS region for you on the top right corner.</Warning>
+     <img src="/images/storage/s3/s-1.png" />
+  </Step>
+  <Step title="Step 4">
+    Next fill in the following information:
+    1. For **Bucket Type** select **General purpose** and provide a valid **Bucket name**.
+    <Note>Note that all Amazon S3 bucket names are unique at global scale, so come up with something creative but easy to remember for yourself</Note>
+    <img src="/images/storage/s3/s-2.png" />
+    2. Under **Object Ownership**, select **ACLs enabled** and for **Object Ownership** select **Object writer**.
+     <img src="/images/storage/s3/s-3.png" />
+    3. For **Block Publicc Access for this bucket** deselect **Block all public access** for this bucket. 
+     <img src="/images/storage/s3/s-4.png" />
+    4. You can leave rest of the settings in their default stages and click on the **Crate bucket** button. 
+  </Step>
+  <Step title="Step 5">
+     Now you have your S3 bucket created, pay close attention to the **region**, you will need to specify the region id as well along with the bucket name in the Davinci AI settings page. 
+    <br />
+    Click on your newly crated bucket name. 
+    <img src="/images/storage/s3/s-5.png" />
+  </Step>
+  <Step title="Step 6">
+    Once you are on the selected bucket page, click on the **Permissions** tab and scroll down to **Cross-origin resource sharing (CORS)** section. 
+  </Step>
+  <Step title="Step 7">
+    Enter following **CORS configuration** and click on **Save changes** button. 
+    ```php
+    [
+    {
+        "AllowedHeaders": [
+            "*"
+        ],
+        "AllowedMethods": [
+            "POST",
+            "PUT",
+            "GET",
+            "HEAD",
+            "DELETE"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": [
+            "ETag"
+        ],
+        "MaxAgeSeconds": 30000
+    }
+]
+```
+<br />
+Once saved, your CORS section will look like following:
+    <img src="/images/storage/s3/s-6.png" />
+  </Step>
+  <Step title="Step 8">
+    Login to Davinci AI using your admin credentials. 
+  </Step>
+  <Step title="Step 9">
+    In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
+  </Step>
+  <Step title="Step 10">
+    Click on **AWS** tab there. 
+    <img src="/images/storage/s3/s-7.png" />
+  </Step>
+  <Step title="Step 11">
+    Enter your newly created **Amazon S3 Bucket Name** and select the **AWS Region** where the bucket is located. 
+    <Warning>It is important to seelct the exact region where Amazon S3 bucket was created</Warning>
+    <img src="/images/storage/s3/s-8.png" />
+  </Step>
+  <Step title="Step 12">
+    Enter valid **Access Key** and **Secret Access Key** for IAM user with **S3FullAccess** policy attached. <br />
+    For creating AWS IAM user, [refer to this link](/integrations/ai/aws)
+  </Step>
+  <Step title="Step 13">
+    Once you are done with your settings, click on **Save** button. 
+  </Step>
+</Steps>
+
+<Check>
+Congratulations! You have successfully comleted the Amazon S3 setup process.
+</Check>
+
+## Davinci AI Tools which supports storing results in Amazon S3
+
+Following AI tools can be store results in Amazon S3 Storage
+<Note>Support for more AI tools will be added soon, we are actively working on that</Note>
+
+1. **AI Voiceover** 
+2. **AI Images**
+2. **AI Speech to Text**
+
+<Info>Via AI Settings page in Admin Panel, you can set default cloud storage vendor for each of the supported AI tools individually</Info>
+
+
+
+
+
+
