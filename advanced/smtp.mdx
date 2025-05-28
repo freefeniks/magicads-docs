@@ -1,0 +1,37 @@
+---
+title: 'SMTP Configuration'
+sidebarTitle: "SMTP"
+description: 'Essential steps to configure your Davinci AI installation for optimal performance and functionality.'
+---
+
+## Setting Up the Cron Job
+
+A cron job is essential for automating recurring tasks in Davinc AI, particularly for renewing subscription usages.
+
+### Frequency and Interval
+- **Recommended Interval**: The cron task should run once per minute for optimal performance.
+<Note>Some hosting providers may limit cron tasks to a minimum interval of 5 minutes. In such cases, CRON tasks will still work as needed, but there might be a slight delay of up to 5 minutes.</Note>
+
+### Configuring the Cron Task
+
+To set up the cron job, add the following entry to your server’s crontab:
+
+```php
+* * * * * /usr/local/bin/php /path/to/app/root/artisan schedule:run
+```
+This command runs the Laravel schedule command in your Davinci AI installation directory every minute.
+
+<Note>Replace `/path/to/app/root/` with the actual path to your Davinci AI application’s root directory.</Note>
+
+<Warning>Double check that `/usr/local/bin/php` is needed path where your php bin folder is located. Every hosting is different hence it might differ from hosting provider to hosting provider. </Warning>
+
+
+## Troubleshooting Cron Issues
+
+If you encounter problems with running CRON Jobs:
+
+1. Verify the cron task configuration is correct.
+2. Check your server logs for any error messages related to the cron job or renewal process.
+3. Ensure that the PHP path `/usr/local/bin/php` is correct for your server.
+
+If issues persist, consult with your server administrator. They can help diagnose server-specific problems, verify cron job configurations, and ensure proper file permissions. If you still need assistance after consulting your server administrator, please don’t hesitate to contact our support team directly for further guidance.
