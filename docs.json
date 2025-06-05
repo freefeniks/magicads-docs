@@ -158,6 +158,7 @@
           "advanced/language",
           "advanced/streaming",
           "advanced/google-analytics",
+          "advanced/google-maps",
           "advanced/restapi",   
           "advanced/smtp",       
           "advanced/cron",       

@@ -1,0 +1,89 @@
+---
+title: 'Google Integration'
+sidebarTitle: 'Google'
+description: 'Enhance your Davinci AI platform with advanced text-to-speech capabilities of Google Cloud Platform. This guide walks you through setting up and leveraging powerful voice generation feature of GCP.'
+---
+
+## Introduction
+
+Davinci AI’s Google integration unlocks a world of AI-powered voice capabilities for your platform with hundreds of supported languages and dialects and several hundreds of Neural and Standard voices in various combinations.
+
+
+## Connect GCP Account
+To be able to use your GCP API for **AI Voiceover** feature, follow these steps to setup integration.
+
+<Steps>
+  <Step title="Step 1">
+    Go to the [Google Cloud Platform](https://cloud.google.com/) page, and get yourself registered in case if you don't have an account already.
+  </Step>
+  <Step title="Step 2">
+    Once you are logged into your GCP account, click on the **New Project** button on the top left corner, and provide **project name** as you prefer.
+    <img src="/images/ai/google/gcp-1.png" />
+  </Step>
+  <Step title="Step 3">
+    Afterwards search for **Text to Speech** keyword, and select **Cloud Text to Speech API** from the list.
+    <img src="/images/ai/google/gcp-2.png" />
+  </Step>
+   <Step title="Step 4">
+    Next, enable **Cloud Text to Speech API**.
+    <img src="/images/ai/google/gcp-3.png" />
+  </Step>
+  <Step title="Step 5">
+     Afterwards, on the left menu panel, go to **API & Services** -> **Credentials**.
+    <img src="/images/ai/google/gcp-4.png" />
+  </Step>
+  <Step title="Step 6">
+    Once you are on the **Credentials** page, click on **+ Create Credentials** and select **Service account** from the list.
+    <img src="/images/ai/google/gcp-5.png" />
+  </Step>
+  <Step title="Step 7">
+    Provide **Service account name** and **Service account description**.
+     <img src="/images/ai/google/gcp-6.png" />
+  </Step>
+  <Step title="Step 8">
+    Next, click on your newly created Service account name.
+     <img src="/images/ai/google/gcp-7.png" />
+  </Step>
+  <Step title="Step 9">
+    Under **Keys** tab, select **Add Key** -> **Create new key**.
+     <img src="/images/ai/google/gcp-8.png" />
+  </Step>
+  <Step title="Step 10">
+    Select **JSON** as key type. Click **Create** button, it will store in on your desktop.
+    <Warning>Make sure you store this json file outside of your /public folder in Davinci AI, it must be stored in a secure place accessible only to you on your hosting server.</Warning>
+     <img src="/images/ai/google/gcp-9.png" />
+  </Step>
+  <Step title="Step 11">
+    Now go back to Davinci AI, login as Admin, and under **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
+  </Step>
+  <Step title="Step 12">
+    Click on **Google** tab there. 
+    <img src="/images/ai/google/gcp-10.png" />
+  </Step>
+  <Step title="Step 13">
+    Under **GCP configuration File Path** Include the **absolute path** for the json based on your hosting structure. JSON file must be stored outside of your /public folder in your domain. Show full path for the JSON file including JSON filename. Here is an example for cPanel: 
+    ```php
+    /home/MY_USERNAME/MY_DOMAIN_PATH/json_file_name.json
+    ``` 
+    <br />
+    Also make sure that you have turned on the **Activate GCP Voices** checkbox.
+    <Note>You don't have to use `GCP Storage Bucket Name` for AI Voiceover feature of for anything else, it is purely optional, but if you still want to use it as cloud storage option, refer to the Cloud Storage section for GCP Bucket instructions.</Note>
+    <img src="/images/ai/google/gcp-11.png" />
+  </Step>
+  <Step title="Step 14">
+    After you are done with configurations, click on **Save** button. 
+  </Step>
+</Steps>
+
+<Check>
+Congratulations! You have successfully completed the GCP setup process for **AI Voiceover** feature.
+</Check>
+
+## Use GCP with AI Voiceover
+
+You need to list which vendors you want to be available in the AI Voicever feature. For detailed instructions on AI Voiceover configuration please refer to the [AI Voiceover](/core/voiceover) tab. 
+
+
+
+
+

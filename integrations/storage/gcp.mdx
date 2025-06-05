@@ -1,0 +1,103 @@
+---
+title: 'GCP Storage Integration'
+sidebarTitle: 'GCP'
+description: 'Offload your media inputs and results to Google Cloud Buckets'
+---
+
+## Introduction
+
+Davinci AI’s allows you to integrate cloud storages to store results of various media related features of the script. This allows you to make sure that you always have sufficent storage space for your customers.
+Using cloud storage option also minimizes the latency for your user to access their media results as data could be avaiable via CDN framework of the cloud vendors.  
+
+
+## Connect GCP Account
+To be able to use your GCP Bucket, follow these steps to setup integration.
+
+<Steps>
+  <Step title="Step 1">
+    Go to the [Google Cloud Platform](https://cloud.google.com/) page, and get yourself registered in case if you don't have an account already.
+  </Step>
+  <Step title="Step 2">
+    Once you are logged into your GCP account, click on the **New Project** button on the top left corner, and provide **project name** as you prefer.
+    <img src="/images/ai/google/gcp-1.png" />
+  </Step>
+  <Step title="Step 1">
+    Next, search for **storage** keyword and select **Cloud Storage** from the list. 
+    <img src="/images/storage/gcp/gcp-storage-1.png" />
+  </Step>
+  <Step title="Step 2">
+    Within the **Storage** service click on **Create Bucket**
+    <img src="/images/storage/gcp/gcp-storage-2.png" />
+  </Step>
+  <Step title="Step 3">
+     Specify bucket name as needed and click **Create Bucket**.
+     <img src="/images/storage/r2/r2-2.png" />
+  </Step>
+  <Step title="Step 4">
+    After your bucket is created, click on the **Manage R2 API Toneks** link.
+    <img src="/images/storage/r2/r2-3.png" />
+  </Step>
+  <Step title="Step 5">
+     It will redirect you to your API Tokens page and click on **Create API Token** button.
+    <img src="/images/storage/r2/r2-4.png" />
+  </Step>
+  <Step title="Step 6">
+     Provide Token name as needed, in Permission section select **Object Read & Write** and specify if you want this token to be valid of a specific bucket or all your buckets afterwards click on **Create API Token** button.
+    <img src="/images/storage/r2/r2-5.png" />
+  </Step>
+  <Step title="Step 7">
+    In the next page copy your **Access Keys ID**, **Secret Access Key** and your **Endpoint URL** and click finish button. 
+    <img src="/images/storage/r2/r2-6.png" />
+  </Step>
+   <Step title="Step 8">
+    You will also need to get your **Public URL**, select your bucket and click on **Settings** tab 
+    <img src="/images/storage/r2/r2-7.png" />
+  </Step>
+  <Step title="Step 9">
+    You have 2 options to get your public url, choose either one that you prefer **Custom Domain** (Requires further configuration, fully up to you to configure) or **Public R2.dev Bucket URL** (You need to set Allow Access and simply copy) q
+    <img src="/images/storage/r2/r2-8.png" />
+  </Step>
+  <Step title="Step 10">
+    Login to Davinci AI using your admin credentials. 
+  </Step>
+  <Step title="Step 11">
+    In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
+  </Step>
+  <Step title="Step 12">
+    Click on **Cloudflare** tab there. 
+    <img src="/images/storage/r2/r2-9.png" />
+  </Step>
+  <Step title="Step 10">
+    Fill in following required input field:
+    - **Cloudflare R2 Access Key** 
+    - **Cloudflare R2 Secret Access Key** 
+    - **Cloudflare R2 Bucket Name** 
+    - **Cloudflare R2 Endpoint** 
+    - **Cloudflare R2 Public URL** 
+    <img src="/images/storage/r2/r2-10.png" />
+  </Step>
+  <Step title="Step 12">
+    After you are done with configurations, click on **Save** button. 
+  </Step>
+</Steps>
+
+<Check>
+Congratulations! You have successfully comleted the Cloudflare R2 setup process.
+</Check>
+
+## Davinci AI Tools which supports storing results in Cloudflare R2
+
+Following AI tools can be store results in Cloudflare R2 Storage
+<Note>Support for more AI tools will be added soon, we are actively working on that</Note>
+
+1. **AI Voiceover** 
+2. **AI Images**
+2. **AI Speech to Text**
+
+<Info>Via AI Settings page in Admin Panel, you can set default cloud storage vendor for each of the supported AI tools individually</Info>
+
+
+
+
+
+
