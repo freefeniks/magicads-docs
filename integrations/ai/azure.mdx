@@ -1,0 +1,79 @@
+---
+title: 'Azure Integration'
+sidebarTitle: 'Azure'
+description: 'Enhance your Davinci AI platform with advanced text-to-speech capabilities of Azure. This guide walks you through setting up and leveraging powerful voice generation feature Microsoft Azure.'
+---
+
+## Introduction
+
+Davinci AI’s Azure integration unlocks a world of AI-powered voice capabilities for your platform with hundreds of supported languages and dialects and several hundreds of Neural voices in various combinations.
+
+
+## Connect Azure Account
+To be able to use your Azure API for **AI Voiceover** feature, follow these steps to setup integration.
+
+<Steps>
+  <Step title="Step 1">
+    Go to the [Azure home](https://azure.microsoft.com/en-us/) page.
+  </Step>
+  <Step title="Step 2">
+    Create new account and afterwards sigin into your **Azure Portal** under your Profile on the top right corner.
+  </Step>
+  <Step title="Step 3">
+    Click on **Create a resource**.
+    <img src="/images/ai/azure/azure-1.png" />
+  </Step>
+   <Step title="Step 4">
+    Next, search for keyword: **speech** and select the first Speech service from Azure. 
+    <img src="/images/ai/azure/azure-2.png" />
+  </Step>
+  <Step title="Step 5">
+    Afterwards, click **Create** button.
+    <img src="/images/ai/azure/azure-3.png" />
+  </Step>
+  <Step title="Step 6">
+    Next, fill in the required information:
+    - **Name**: Any string to identify this resource
+    - **Subscription**: Free Trial (default) (You can change it if you want to)
+    - **Location**: select Azure region as you prefer. Warning! Not every language/voice is available in all Azure regions, we strongly recommend to consider either US East or West Europe regions.
+    - **Pricing Tier**: Free F0 is good for starting only, it has limitation in concurrency, refer to Azure Documentations to get exact numbers. Standard S0 will start billing.
+    - **Resrouce Group**: Any string to group your resources.
+    <img src="/images/ai/azure/azure-4.png" />
+  </Step>
+  <Step title="Step 7">
+    You are almost there, on this the next page click on Click here to manage keys.
+     <img src="/images/ai/azure/azure-5.png" />
+  </Step>
+  <Step title="Step 8">
+    Copy one of the **Keys** as you prefer, also take a not of the **Region** name.
+    <Note>Always keep your API keys in a secure place</Note>
+     <img src="/images/ai/azure/azure-6.png" />
+  </Step>
+  <Step title="Step 9">
+    Now go back to Davinci AI, login as Admin, and under **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
+  </Step>
+  <Step title="Step 10">
+    Click on **Azure** tab there. 
+    <img src="/images/ai/azure/azure-7.png" />
+  </Step>
+  <Step title="Step 11">
+    Include your **Azure Key** and select your **Azure Region**, make sure to turn on **Activate Azure Voices** checkbox.  
+    <img src="/images/ai/azure/azure-8.png" />
+  </Step>
+  <Step title="Step 12">
+    After you are done with configurations, click on **Save** button. 
+  </Step>
+</Steps>
+
+<Check>
+Congratulations! You have successfully completed the Azure setup process for **AI Voiceover** feature.
+</Check>
+
+## Use Azure with AI Voiceover
+
+You need to list which vendors you want to be available in the AI Voicever feature. For detailed instructions on AI Voiceover configuration please refer to the [AI Voiceover](/core/voiceover) tab. 
+
+
+
+
+

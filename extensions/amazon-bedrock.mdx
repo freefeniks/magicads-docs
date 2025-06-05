@@ -1,52 +1,52 @@
 ---
 title: 'Amazon Bedrock'
 icon: aws
-description: 'Setup AI Textract to automatically retrieve text, handwriting, and data from scanned documents'
+description: 'Amazon Bedrock extension provides a unified API that gives you access to many different AI models through a single endpoint'
 ---
 
 <Check>
-This is a free extension available for anyone
+This is a `free` extension available for anyone
 </Check>
+
+<Card title="Supported LLM Models" >
+- Amazon | Nova Pro
+- Amazon | Nova Lite
+- Amazon | Nova Micro
+- More will be added soon...
+</Card>
+
+<Note>Please note that at the moment we have added support for main Amazon Nova models in AI Writer and AI Chat feature, other models will be supported soon with Amazon Bedrock.</Note>
 
 ## Introduction
 
-AI Textract automatically retrieves text, handwriting, and data from scanned documents, surpassing basic optical character recognition (OCR) by interpreting and extracting information from forms and tables. Unlike many organizations that rely on labor-intensive manual extraction from PDFs, images (PNG | JPEG), tables, and forms — or use basic OCR tools requiring frequent manual adjustments—AI Textract employs machine learning to process any document type efficiently, delivering precise results without human intervention in mere minutes rather than hours or days. Additionally, its Receipt Analyze feature can detect vendor names embedded in logos without explicit labels and extract items, quantities, and prices even from unstructured line items lacking column headers.
+Amazon Bedrock provices access to state of the art models via single API endpoint, it one of the most secure and rapidly growing services at AWS. 
 
 ## Extension Configuration
-To be able to use AI Textract feature, follow these steps to setup AI Textract Extension.
+To be able to use Amazon Bedrock feature, follow these steps to setup Amazon Bedrock Extension.
 
 <Steps>
   <Step title="Step 1">
-    Go to the **Marketplace** in **Admin Panel** and install **AI Textract** extension after successfully purchasing it first.     
-    <img src="/images/extensions/textract/textract-1.png" />    
+    Go to the **Marketplace** in **Admin Panel** and install **Amazon Bedrock** extension.     
+    <img src="/images/extensions/bedrock/b-4.png" />    
   </Step>
   <Step title="Step 2">
-    After installation is completed, go to **AI Settings** page in Admin Panel and click on **Extensions** tab there. Click on **AI Textract** there. 
-    <img src="/images/extensions/textract/textract-2.png" />
+    After installation is completed, go to **AI Settings** page in Admin Panel and click on **Extensions** tab there. Click on **Amazon Bedrock** there. 
+    <img src="/images/extensions/bedrock/b-5.png" />
   </Step>
   <Step title="Step 3">
    You will need to include following required AWS credentials:
    - **AWS Access Key**
    - **AWS Secret Access Key**
-   - **AWS S3 Bucket Name**
    - **AWS Region**
     <br />
-    To create IAM user with **Access Key** and **Secret Access Key** refer to the **AWS IAM User Creation** intructions below. 
-    <br />
-    To create Amazon S3 bucket, [refer to this page](/integrations/storage/s3)
-    <img src="/images/extensions/textract/textract-3.png" />
+    To create IAM user with **Access Key** and **Secret Access Key** refer to the **AWS IAM User Creation** intructions below and then continue from this current step. 
+     <img src="/images/extensions/bedrock/b-6.png" />
   </Step>
-   <Step title="Step 4">
-    Next, turn on the checkboxes for **AI Textract Feature** and **AI Textract Free Tier Access** 
-    <Note>If you don't turn on AI Textract Free Tier Access, then users who did not subscribe to any subscription plan where you have AI Textract feature enabled, will not have any access to this feature</Note>
-   You have also full control on the maximum file sizes that are allowed, which are **PNG | JPEG | PDF** and also control how much media credits are needed to process each task.  
-     <img src="/images/extensions/textract/textract-4.png" />
-  </Step>
-  <Step title="Step 5">
+  <Step title="Step 4">
     After you are done with the configuration, click on the **Save** button. 
   </Step>
-  <Step title="Step 6">
-    <Check>Congratulations! You have successfully completed the AI Textract extension configuration. Proceed to the section below on how to use it.</Check> 
+  <Step title="Step 5">
+    <Check>Congratulations! You have successfully completed the Amazon Bedrock extension configuration. Proceed to the section below on how to use it.</Check> 
   </Step>
 </Steps>
 
@@ -65,12 +65,11 @@ By default all access to IAM users are denied, except for the root user. Make su
     <img src="/images/ai/aws/polly/iam-1.png" />
     2. On the **Set permissions** page, specify how you want to assign permissions to this set of new users. Choose **Attach policies directly option**. It will show you all the availalbe policies. 
     <br /> Select and add following 2 policies:
-    - **AmazonS3FullAccess**
-    - **AmazonTextractFullAccess**
+    - **AmazonBedrockFullAccess**
     <br />Click on **Next** button afterwards
     3. On the **Review and create** step, you should see following policies being added.
     Click on **Create User** button.
-    <img src="/images/extensions/textract/textract-5.png" />
+    <img src="/images/extensions/bedrock/b-1.png" />
   </Step>
   <Step title="Step 3">
     Once you have created a new IAM user, he will be available at the **Users** list. Click on your newly created user. You will be shown full details of that newly created user. Next:
@@ -82,34 +81,33 @@ By default all access to IAM users are denied, except for the root user. Make su
     4. Copy your **Access Key** and **Secret Access key** and store them in a secure place.
   </Step>
   <Step title="Step 4">
-    Next, go back to **Step 3** of **Extension Configuration** section above and continue. 
+    Next, you need to enable target models in **Amazon Bedrock** service itself in your **AWS account**. 
   </Step>
   <Step title="Step 5">
+    In the homepage of your **AWS Management Console** search for **Amazon Bedrock** and click on it. 
+    <img src="/images/extensions/bedrock/b-2.png" />
+  </Step>
+  <Step title="Step 6">
+    And in your Amazon Bedrock page, on the right menu panel, at the bottom of the menu list under **Bedrock configurations** list, click on **Model Access**. tab. It will show all the models that are available to you in your target reion. 
+    Request access to following models: 
+    - Nova Premier
+    - Nova Pro
+    - Nova Lite
+    - Nova Micro
+    <Note>Please pay close attention to your `AWS Region` on the top right corner, all enabled models are region specific.</Note>
+    <img src="/images/extensions/bedrock/b-3.png" />
+  </Step>
+  <Step title="Step 7">
+    This concludes your Amazon Bedrock setup, you now have Nova models accessible in your selected **AWS Region**. 
+  </Step>
+  <Step title="Step 8">
+    Next, go back to **Step 3** of **Extension Configuration** section above and continue. 
+  </Step>
+  <Step title="Step 9">
     You have completed the AWS IAM creation process. 
   </Step>
 </Steps>
 
 ## How to Use
 
-Using AI Textract is an easy task. You can extract text and data from **PNG | JPEG | PDF** files. Simply select and upload your target file and click 
-<Warning>For processing `PDF` files, you need to setup your `CRON` job correctly, refer to the CRON Job tab in the docs for further details.</Warning>
-
-Get started:
-1. After successful installation and configuration of AI Textract extension, go to the User Panel and click on AI Textract tab. 
-1. Next, select and upload your target document
-<img src="/images/extensions/textract/textract-6.png" />
-2. You can set optional features as well, such as:
-- **Workbook Name**
-- **File Language**
-- **Form Detection** in case if you will have forms in your file
-- **Table Detection** in case if you will have any tables in your file
-- **Receipt Processing** in case if the file you want to upload is a scan copy of a teceipt
-3. Next, click on **Textract** button, it will start the anylyzing process
-4. Once processing is completed, results will be available under **Textract Tasks** section. 
-<img src="/images/extensions/textract/textract-7.png" />
-5. You can click on the **View** icon as well, and you will be shown the result.
-<img src="/images/extensions/textract/textract-8.png" />
-6. You can also download the results in CSV format and in row JSON formats.
-<img src="/images/extensions/textract/textract-9.png" />
-
-<Check>Congratulations! You have successfully processed your first document with AI Textract.</Check> 
+Using Amazon Bedrock is an easy task. We have created a detailed intructions on how to use AI Models [here](/core/models), make sure that all steps above are completed first with Amazon Bedrock setup.  

@@ -25,6 +25,48 @@ This command runs the Laravel schedule command in your Davinci AI installation d
 
 <Warning>Double check that `/usr/local/bin/php` is needed path where your php bin folder is located. Every hosting is different hence it might differ from hosting provider to hosting provider. </Warning>
 
+## Set up CRON job in Cpanel
+
+<Warning>Every hosting provider might have different CRON setup page and different path for PHP bin directory. Instructions below are provided based on our hosting - Namecheap, so path to `PHP Bin` and path to script can be different. Check with your hosting provider if you are not aware how to setup similar CRON job in your environment.</Warning>
+
+### Configuring the Cpanel Cron Job
+
+<Steps>
+  <Step title="Step 1">
+    In your **Cpanel** find **CRON Jobs** option, it could be under **Advanced** panel as shown in the image. 
+    <img src="/images/advanced/cron/cron-1.png" />   
+  </Step>
+  <Step title="Step 2">
+    In the **CRON Jobs** panel add a New Cron Job. Select the minimum time that your hosting provider allows you to run a Cron Job (minimum you can get is 1 minute). 
+    <Warning> Not every hosting provider allows you to run Cron Jobs every minute, for example shared servers of hosting provider (Namecheap) allows to run only every 5 minute.</Warning>
+  </Step>
+  <Step title="Step 3">
+    Copy paste the command show in the first red box into the **Command** field.
+    ```php
+    /usr/local/bin/php /home/username/YOUR_DOMAIN_PATH/artisan schedule:run
+    ```
+    <br/>
+    <Warning>Please note that above path of PHP bin directory and path for the directory can be different in your case. You might want to check with your provider to figure out where PHP bin folder is located in your hosting provider.</Warning>
+    <img src="/images/advanced/cron/cron-2.png" />
+  </Step>
+  <Step title="Step 4">
+  After creating a CRON Job successfully you will see it listed among your **Current Cron Jobs list** in your Namecheap hosting platform for example:
+   <img src="/images/advanced/cron/cron-3.png" />
+   </Step>
+   <Step title="Step 5">
+    In case if your hosting allows you to enter entire CRON job command at ones, you can enter it in the following way (Keep in mind that if your hosting allows you to run tasks every minute, you will need to change */5 to */1):
+  ```php
+  */5 * * * * /usr/local/bin/php /home/username/YOURDOMAINPATH/artisan schedule:run
+  ```
+  </Step>
+  <Step title="Step 6">
+    <Check>You have successfully configured the CRON via Cpanel for Davinci AI</Check>
+  </Step>
+</Steps> 
+
+## Set up CRON job in Plesk
+
+You might want to follow [these instructions](https://support.plesk.com/hc/en-us/articles/115003121073-How-to-add-a-scheduled-task-in-Plesk-UI-using-crontab-syntax-) for Plesk at least on the setup part
 
 ## Troubleshooting Cron Issues
 
