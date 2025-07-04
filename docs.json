@@ -79,7 +79,9 @@
       },
       {
         "group": "SaaS Features",
+        
         "pages": [
+           "saas/saas-business",
           {
             "group": "Payment Gateways",
             "pages": ["saas/gateways/stripe",
