@@ -103,6 +103,7 @@
           "saas/subscription-plan",
           "saas/prepaid-plan",
           "saas/referral",
+          "saas/wallet",
           "saas/finance-settings"          
         ]
       },
