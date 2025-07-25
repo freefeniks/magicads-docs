@@ -25,7 +25,8 @@
             "group": "Installation",
             "pages": ["installation/main"
                     ]
-          }
+          },
+          "extended-license"
         ]
       },
       {
