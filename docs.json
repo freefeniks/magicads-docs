@@ -38,11 +38,12 @@
                       "integrations/ai/anthropic",
                       "integrations/ai/xai",
                       "integrations/ai/deepseek",
-                      "integrations/ai/google",
+                      "integrations/ai/gemini",
                       "integrations/ai/elevenlabs",
                       "integrations/ai/stability",
                       "integrations/ai/azure",
-                      "integrations/ai/aws"
+                      "integrations/ai/aws",
+                      "integrations/ai/google"
                       ]
           },
           {
