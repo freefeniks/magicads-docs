@@ -1,6 +1,220 @@
 ---
 title: 'AI Photo Studio'
 icon: photo-film
-description: 'Mintlify gives you complete control over the look and feel of your documentation using the mint.json file'
+description: 'AI Photo Studio, powered by Stable Diffusion, is a cutting-edge software designed to transform your photography experience.'
 ---
 
+<Warning>This is a **Paid** extension that you need to first purchase via **Marketplace**</Warning>
+
+## Introduction
+
+**AI Photo Studio**, powered by **Stable Diffusion**, is a cutting-edge software designed to transform your photography experience. Leveraging state-of-the-art AI technology, our platform seamlessly enhances and edits your photos with professional precision. Whether you're a seasoned photographer or a casual user, AI Photo Studio provides intuitive tools for Reimagining, Inpainting, Outpainting, Searching and Replacing, and more, all powered by the robust capabilities of stable diffusion algorithms. With AI Photo Studio, you can effortlessly turn ordinary photos into stunning visual masterpieces, exploring creativity with a user-friendly interface that adapts to your unique style and artistic vision. Experience the future of photo editing with intelligent features that deliver unparalleled quality and creativity.
+
+<Card title="Included Features" >
+- ReImagine
+- Same Style Image
+- Erase Objects
+- Inpaint Image
+- Outpaint Image
+- Search and Replace
+- Remove Background
+- Sketch to Image
+- Structure to Image
+- Conservative Upscale
+- Creative Upscale
+- Convert to 3D
+- Text to Image
+- More will be added soon...
+</Card>
+
+
+## Extension Configuration
+
+<Steps>
+  <Step title="Step 1">
+    Go to the **Marketplace** in **Admin Panel** and install **AI Photo Studio** extension after successfully purchasing it first.     
+    <img src="/images/extensions/photo-studio/p-1.png" />    
+  </Step>
+  <Step title="Step 2">
+    After installation is completed, go to **AI Settings** page in Admin Panel and click on **Extensions** tab there. Click on **AI Photo Studio** there. 
+    <img src="/images/extensions/photo-studio/p-2.png" />
+  </Step>
+  <Step title="Step 3">
+    Go to <a href="https://platform.stability.ai/" target="_blank">stability.ai</a> website, sign up with them and get your **API Key** on your profile page after you successfully complete the registration process on their website.
+    <Note>Store your Stable Diffusion API key securely and never share it publicly.</Note>
+  </Step>
+   <Step title="Step 4">
+   To control the settings of **AI Photo Studio** exension, return to **AI Settings** page in Admin Panel and click on the **Extensions** tab, and select **AI Photo Studio** extension.
+    1. Enter your **Stability API Key**. 
+    2. Turn on the checkboxes for **Photo Studio Feature** and **Photo Studio Free Tier Access** 
+    <Note>If you don't turn on Photo Studio Free Tier Access, then users who did not subscribe to any subscription plan where you have Photo Studio feature enabled, will not have any access to this feature</Note>
+    3. After you are done with configuration, click on the **Save** button.
+    <img src="/images/extensions/photo-studio/p-3.png" />
+  </Step> 
+  <Step title="Step 5">
+    With the **Set AI Photo Studio Feature Credits** button, you can set how much media credits each photo studio task will require. Davinci AI gives you full control on how you want to charge your users based on media tasks. 
+    <img src="/images/extensions/photo-studio/p-4.png" />
+  </Step>
+  <Step title="Step 6">
+  <Check>
+ You now have completed the AI Photo Studio extension configuration. Proceed to the section below on how to use it.
+</Check>
+    
+  </Step>
+</Steps>
+
+## How to Use
+Using AI Photo Studio extension is very easy and straightforward. 
+
+1. Go to **AI Photo Studio** in User panel. 
+2. Select your preferred **task** from the dropdown list.
+3. Upload **Target Image**, must be in **PNG | JPEG | WEBP** formats. It is the image you want to add effects based on the task selected and provided prompt. 
+4. Enter you **prompt**, this will be your instructions on what to do with the target image uploaded earlier.  
+5. Click **Generate** button and that is it. 
+6. You can also set following features in the **Advanced Settings** section:
+- Negative Prompt - what not to show or touch in the image
+- Creativity
+- Control Strength
+- Seed
+ <img src="/images/extensions/photo-studio/p-5.png" /> 
+
+## Explanation of Photo Studio tasks
+
+### ReImagine
+
+This mode also generates an image from text but uses an existing image as the starting point. 
+
+### Same Style Image
+
+This service extracts stylistic elements from an input image (target image) and uses it to guide the creation of an output image based on the prompt. The result is a new image in the same style as the control image.
+
+Example: 
+
+1. Target Image:
+<img src="/images/extensions/photo-studio/style-1.png" /> 
+
+2. Prompt: `cat in the forest`
+<img src="/images/extensions/photo-studio/style-2.png" />
+
+### Erase Objects
+
+The Erase service removes unwanted objects, such as blemishes on portraits or items on desks, using image masks.
+
+Example:
+
+1. Target Image with mask zone:
+<img src="/images/extensions/photo-studio/erase-1.png" />
+
+2. Result:
+<img src="/images/extensions/photo-studio/erase-2.png" />
+
+
+### Inpaint Image
+
+Intelligently modify images by filling in or replacing specified areas with new content based on the content of a "mask" image.
+
+Example:
+
+1. Target image with mask zone:
+<img src="/images/extensions/photo-studio/inpaint-1.png" />
+
+2. Prompt: `artificer of time and space`
+<img src="/images/extensions/photo-studio/inpaint-2.png" />
+
+
+### Outpaint Image
+
+The Outpaint service inserts additional content in an image to fill in the space in any direction. Compared to other automated or manual attempts to expand the content in an image, the Outpaint service should minimize artifacts and signs that the original image has been edited.
+
+Example:
+
+1. Target image:
+<img src="/images/extensions/photo-studio/outpaint-1.png" />
+
+2. Result:
+<img src="/images/extensions/photo-studio/outpaint-2.png" />
+
+
+### Search and Replace
+
+The Search and Replace service is a specific version of inpainting that does not require a mask. Instead, users can leverage a `search_prompt` to identify an object in simple language to be replaced. The service will automatically segment the object and replace it with the object requested in the prompt.
+
+Example:
+
+1. Target image
+<img src="/images/extensions/photo-studio/search-1.png" />
+
+2. Prompt: `a victorian queen standing in the forest, looking at the viewer`.
+<img src="/images/extensions/photo-studio/search-2.png" />
+
+
+### Remove Background
+
+The Remove Background service accurately segments the foreground from an image and implements and removes the background.
+
+Example:
+
+1. Target image
+<img src="/images/extensions/photo-studio/bg-1.png" />
+
+2. Result
+<img src="/images/extensions/photo-studio/bg-2.png" />
+
+### Sketch to Image
+
+This service offers an ideal solution for design projects that require brainstorming and frequent iterations. It upgrades rough hand-drawn sketches to refined outputs with precise control. For non-sketch images, it allows detailed manipulation of the final appearance by leveraging the contour lines and edges within the image.
+
+Example:
+
+1. Target Image
+<img src="/images/extensions/photo-studio/sketch-1.png" />
+
+2. Prompt: `a creepy wooden cathedral in the forest`
+<img src="/images/extensions/photo-studio/sketch-2.png" />
+
+
+### Structure to Image
+
+This service excels in generating images by maintaining the structure of an input image, making it especially valuable for advanced content creation scenarios such as recreating scenes or rendering characters from models.
+
+Example:
+
+1. Target Image
+<img src="/images/extensions/photo-studio/structure-1.png" />
+
+2. Prompt: `a victorian toad covered in gems standing in the forest, looking at the viewer`
+<img src="/images/extensions/photo-studio/structure-2.png" />
+
+
+### Conservative Upscale
+
+Takes images between 64x64 and 1 megapixel and upscales them all the way to 4K resolution. Put more generally, it can upscale images ~20-40x times while preserving all aspects. Conservative Upscale minimizes alterations to the image and should not be used to reimagine an image.
+
+1. Target Image
+<img src="/images/extensions/photo-studio/conversative-1.png" />
+
+2. Result
+<img src="/images/extensions/photo-studio/conversative-2.png" />
+
+
+### Creative Upscale
+
+Takes images between 64x64 and 1 megapixel and upscales them all the way to 4K resolution. Put more generally, it can upscale images ~20-40x times while preserving, and often enhancing, quality. Creative Upscale works best on highly degraded images and is not for photos of 1mp or above as it performs heavy reimagining (controlled by creativity scale).
+
+1. Target Image
+<img src="/images/extensions/photo-studio/creative-1.png" />
+
+2. Prompt: `This dreamlike digital art captures a vibrant, kaleidoscopic bird in a lush rainforest`
+<br/>Result: https://colab.research.google.com/github/stability-ai/stability-sdk/blob/main/nbs/Stable_Image_API_Public.ipynb#scrollTo=vIzPj82p46wM
+
+
+### Text to Image
+
+Most advanced text to image generation service, Stable Image Ultra creates the highest quality images with unprecedented prompt understanding. Ultra excels in typography, complex compositions, dynamic lighting, vibrant hues, and overall cohesion and structure of an art piece. Made from the most advanced models, including Stable Diffusion 3.5, Ultra offers the best of the Stable Diffusion ecosystem.
+
+Example:
+
+1. Prompt: `dark high contrast render of a psychedelic tree of life illuminating dust in a mystical cave.`
+
+2. Result:
+<img src="/images/extensions/photo-studio/ultra.png" />
