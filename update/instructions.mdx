@@ -7,6 +7,30 @@ description: 'Follow update instructions as listed below for each version.'
 
 <Warning>Always test on your dev & test environment first before upgrading your production domain. Your license does allow you to install on a locahost/subdomain for dev & test.</Warning>
 
+<Update label="Upgrade to v7.9" description="09/08/2025">
+
+  <Note>Make sure that all steps for previous update version is completed before proceeding with this one in case if you didn't do a fresh install of the previous version</Note>
+
+  ## Update process for v7.9
+
+  <Steps>
+    <Step title="Step 1">  
+      Go to the **Upgrade Software** tab in **Admin Panel**, and click on the **Download & Install Upgrade** button. It will start the upgrade process. 
+      <Note>Some upgrade packages can be up to 120MB in size, depending on your Internet bandwidth, download and installation time will vary</Note>
+    </Step>
+    <Step title="Step 2">
+      After installation of update package is successfully completed, type in your browser: 
+      ```php
+      https://YOUR_DOMAIN_NAME/app/admin/update/now 
+      ```
+      and hit **Enter** button. It will run the migration and seeder commands behind the scenes to update the database tables.
+    </Step>
+    <Step title="Step 3">
+      <Check>You have successfully completed the upgrade process</Check>
+    </Step>  
+  </Steps>
+</Update>
+
 <Update label="Upgrade to v7.8" description="29/07/2025">
 
   <Note>Make sure that all steps for previous update version is completed before proceeding with this one in case if you didn't do a fresh install of the previous version</Note>

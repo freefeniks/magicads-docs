@@ -1,73 +1,81 @@
 ---
 title: 'AI Images Setup'
 sidebarTitle: 'AI Images'
-description: 'Enhance your Davinci AI platform with advanced Text to Speech generation capabilities. This guide walks you through setting up and leveraging AI Voiceover feature to synthesize text to speech.'
+description: 'Generate state of the art images in various shapes and form with AI Images feature of Davinci AI.'
 ---
 
 ## Introduction
 
-Davinci AI’s AI Voiceover features unlocks advanced text to speech generation capabilities for your platform. With access to cutting edge solutions for 5 different AI Vendors, you can synthesize text to speech in thousands of different voices and in more than 140 different languages and dialects.
+Davinci AI’s AI Images features unlocks advanced image generation capabilities for your platform. With access to cutting edge solutions for 5 different AI Vendors, you can create varous types of AI images.
 
-### List of Text to Speech vendors
+### List of AI Images vendors
 
-<Card title="Supported AI vendors" >
-- Google Cloud Platfrom - Text to Speech Service
-- Microsoft Azure - Text to Speech Service
-- Amazon Web Services - Text to Speech Service
-- IBM Cloud - Text to Speech Service
-- Elevenlabs - Text to Speech Service
+<Card title="Supported AI vendors and models" >
+- OpenAI - Dalle 3 HD
+- OpenAI - Dalle 3
+- OpenAI - Dalle 2
+- Stability - Stable Diffusion Ultra
+- Stability - Stable Diffusion Core
+- Stability - Stable Diffusion 3.5 Large
+- Stability - Stable Diffusion 3.5 Large Turbo
+- Stability - Stable Diffusion 3.5 Medium
+- Stability - SDXL 1.0
+- Stability - Stable Diffusion v1.6
+- Midjourney - Fast
+- Midjourney - Relax
+- Midjourney - Turbo
+- Fal AI - FLUX.1 [pro]
+- Fal AI - FLUX.1 [schnell]
+- Fal AI - FLUX.1 [dev]
+- Clipdrop
 </Card>
 
-## Setup AI Voiceover 
+<Card title="Supported Cloud Storages" >
+- Local Server Storage
+- Amazon S3
+- Google Cloud Storage
+- Wasabi Cloud
+- Storj
+- Cloudflare R2
+- Dropbox
+</Card>
 
-To be able to use AI Voicover feature, follow these steps to setup integration.
+## Setup AI Images
+
+To be able to use AI Images feature, follow these steps to setup integration.
 
 <Steps>
-  <Step title="Step 1: Configure AI Vendors">
-    Star with configuration of preferred cloud vendors. AI Voiceover supports **GCP**, **Azure**, **AWS**, **Elevenlabs**, **IBM** vendors. <br />
+  <Step title="Step 1: Configure AI Image Vendors">
+    Star with configuration of preferred cloud vendors. AI Images supports **OpenAI**, **Stable Diffusion**, **Midjourney** (Paid), **Fal AI**, **Clipdrop** vendors. <br />
     You can configure and enable any comination of these vendors. 
     <Note>You can activate only 1 vendor or all of them at the same time as needed</Note>
-    <Warning>Please note that only the Voices and Languages of the activated vendor(s) will be available for your users.</Warning>
+    <Warning>Please note that only the models of the activated vendor(s) will be available for your users.</Warning>
 
-    ### Configure preferred AI Voiceover Vendors
+    ### Configure preferred AI Images Vendors
 
-    Use each link to get a detailed step by step guide for setting up each vendor
+    Use each link to get a detailed step by step guide for setting AI Image vendors that come as extensions.
 
     <CardGroup cols={2}>
       <Card
-        title="Google Cloud Platform"
+        title="Midjourney"
         horizontal
-        href="/integrations/ai/google"
+        href="/extensions/midjourney"
       >
-        Setup TTS feature of GCP
+        Setup Midjourney models
       </Card>
       <Card
-        title="Microsoft Azure"
+        title="Fal AI"
         horizontal
-        href="/integrations/ai/azure"
+        href="/extensions/flux"
       >
-        Setup TTS feature of Azure
+        Setup FLUX models
       </Card>
       <Card
-        title="Amazon Web Services"
+        title="Clipdrop"
         horizontal
-        href="/integrations/ai/aws"
+        href="/extensions/clipdrop"
       >
-        Setup TTS feature of AWS
-      </Card>
-       <Card
-        title="Elevenlabs"
-        horizontal
-        href="/integrations/ai/elevenlabs"
-      >
-        Setup TTS feature of Elevenlabs
-      </Card>
-       <Card
-        title="IBM Watson"
-        horizontal
-        href="/extensions/ibm"
-      >
-        Setup TTS feature of IBM
+        Setup Clipdrop model
       </Card>
     </CardGroup>
     
