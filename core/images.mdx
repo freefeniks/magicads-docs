@@ -53,93 +53,106 @@ To be able to use AI Images feature, follow these steps to setup integration.
 
     ### Configure preferred AI Images Vendors
 
-    Use each link to get a detailed step by step guide for setting AI Image vendors that come as extensions.
+    Use each link to get a detailed step by step guide for setting AI Image vendors including the ones that come as extensions.
 
     <CardGroup cols={2}>
+      <Card
+        title="OpenAI"
+        horizontal
+        href="/integrations/ai/openai"
+      >
+      Setup OpenAI models 
+      </Card>
+      <Card
+        title="Stability AI"
+        horizontal
+        href="/integrations/ai/stability"
+      >
+      Setup Stability AI models 
+      </Card>
       <Card
         title="Midjourney"
         horizontal
         href="/extensions/midjourney"
       >
-        Setup Midjourney models
+        Setup Midjourney models `(Extension)`
       </Card>
       <Card
         title="Fal AI"
         horizontal
         href="/extensions/flux"
       >
-        Setup FLUX models
+        Setup FLUX models `(Extension)`
       </Card>
       <Card
         title="Clipdrop"
         horizontal
         href="/extensions/clipdrop"
       >
-        Setup Clipdrop model
+        Setup Clipdrop model `(Extension)`
       </Card>
     </CardGroup>
     
   </Step>
-  <Step title="Step 2: Configure FFMPEG Codec">
-    As most shared hostings providers do not allow you to run **ffmpeg codec**, script comes with one included. Follow these steps to configure it accordingly:
-    <Note>FFPEG codec is needed to merge end results into a single audio file, or to add background music into an audio file etc</Note>
-    
-    1. Make sure you have php `shell_exec` command enabled in your hosting. 
-      <Warning>As stated in the [requirements](/requirements) section, it is an important feature that must be enabled in your php settings</Warning>
-    2. In the root directory of your domain, go to **vendor** -> **ffmpeg** folder. 
-    3. Right click on the **ffmpeg** codec there and select **Change Permission**
-      <img src="/images/core/voiceover/ffmpeg-1.png" />
-    4. Change file permission of ffmpeg to be executable by anyone
-      <img src="/images/core/voiceover/ffmpeg-2.png" />
-    5. This completes the configuration of ffmpeg codec.
+  <Step title="Step 2">
+    After you configured vendors and included their APIs go to the **Admin Panel** -> **AI Settings** -> **General AI Settings** and scroll down to **AI Image Settings** section. 
+    <img src="/images/core/images/1.png" />
+    1. Turn on **AI Image Feature** checkbox.
+    2. Under **AI Image Vendors** dropdown, inlcude list of AI vendors that you want your users to have access to. You can also control it via Subscription Plan in case if you have Extended License. 
+    <Note>Only models of the enabled vendors will be visible for your end users</Note> 
   </Step>
-  <Step title="Step 3: Configure AI Voicever feature">
-    Next, enable the AI Voiceover feature itself. 
-    1. Login to Davinci AI using your admin credentials.
-    2. In **Admin Panel**, navigate to **AI Settings** -> **General AI Settings** tab.
-    3. Under **AI Voiceover Settings** section
-     <img src="/images/core/voiceover/voiceover-1.png" />
-      - Turn on the **AI Voiceover Feature** Checkbox
-      - Enable/Disable **SSML Effects**, these are additional voice effect features
-        <Note>Please note that not all vendors support each and every SSML effect. SSML effects change dynamically based on the selected voice automatically</Note> 
-      - Set **Default Storage for AI Voiceovers** for storing your end results in different storage options. Make sure you configure those cloud storage options first before selecting them. 
-      - Set **Default Language** for all new users that are yet to register. Users can change it afterwards to their preferred ones via **My Accounts** -> **Set Defaults** page. 
-      - Set **Default Voice** for all new users that are yet to register. Users can change it afterwards to their preferred ones via **My Accounts** -> **Set Defaults** page. 
-      - Set **Maximum Total Characters Synthesize Limit** for all of your users, both Free Tier and Subscribers. 
-        <Note>Maximum supported characters per single synthesize task can be up to 100000 characters. Each voice (textarea) has a limitation of up to 5000 characters, and you can combine up to 20 voices in a single task (20 voices x 5000 textarea limit = 100000).</Note>
-      - Set **Maximum Concurrent Voices Limit** for all your users, both Free Tier and Subscribers. 
-        <Note>You can mix up to 20 different voices in a single synthesize task. Each voice can synthesize up to 5000 characters, total characters can not exceed the limit set by Maximum Characters Synthesize Limit field.</Note>
-    4. Once you are done with configurations, click on **Save** button. 
+  <Step title="Step 3">
+    You can also select the default storage where the generated results will be stored under **Default Storage for AI Images**.
+    <Warning>In case if you plan to use cloud storage to store results, make sure it is properly configured first.</Warning>
+    <img src="/images/core/images/2.png" />
   </Step>
-   <Step title="Step 4: List allowed Vendors for AI Voiceover">
-    Davinci AI allows you to dynamically configure which TTS vendors you want to give access to your users. For example you can allow only 1 vendor for your Free Tier users, but enable all for Subscribers. This gives you sophisticated flexibility in feature and cost control. 
-    
-    ### List for Free Tier users
-    
-    1. In **Admin Panel**, navigate to **AI Settings** -> **Free Trial Features** tab.
-    2. Under **AI Voiceover Vendors Access** dropdown list, select which TTS vendors you want your Free Tier users to have access to. Make sure you have configured those vendors properly first. 
-    <img src="/images/core/voiceover/voiceover-2.png" />
-    3. Once you are done with configurations, click on **Save** button. 
-
-    ### List for Subscrbers 
-
-    1. In **Admin Panel**, navigate to **Finance Management** -> **Subscription Plans** tab.
-    2. Click on **Create New Subscription Plan** button, or **Edit** your existing ones. 
-    3. Under **Supported AI Voiceover Vendors** dropdown, select all the vendors that you want your Subscribers to have access to. 
-    <img src="/images/core/voiceover/voiceover-3.png" />
-    4. After you are done with further configurations, click on **Save** button. 
-    <Warning>Please note that Subscription plans are only available for Extneded License users</Warning>
+   <Step title="Step 4">
+   You can also set image task credits for each model under **Set AI Image Model Credits** button. 
+    <Note>It contains only models that come natively with the script, the ones that come as extensions needs to be configured on those extension setup pages respectively.</Note> 
+  </Step>
+   <Step title="Step 5">
+   If you want your free tier users to also have access to models, go to **Admin Panel** -> **AI Settings** -> **Free Trial Features** tab and turn on **AI Image Feature Access (for Non-Subscrbers)** checkbox. 
+   <img src="/images/core/images/3.png" />
+    <Note>For Subscribers, you can list completely different models and limit free tier users with only few AI vendor access.</Note> 
+  </Step>
+  <Step title="Step 6">
+   <Check>
+Congratulations! You have successfully completed the AI Images setup process.
+</Check>
   </Step>
 </Steps>
 
-<Check>
-Congratulations! You have successfully completed the AI Voiceover setup process.
-</Check>
 
-## How to Use AI Voiceover
 
-After you have configured your respective cloud vendors, these intructions explain you how to synthesize text into audio in various formats.
+## How to Use AI Images
 
+After you have configured your respective AI vendors and setup rest of the settings as explained, go to **User Panel** -> **AI Images** tab. 
+
+1. On the right side menu panel, you can see your control panel. 
+<img src="/images/core/images/5.png" />
+2. You can set following settings on the control panel:
+- Change your image model
+- Set number of images to generated
+- Set image resolution
+- Set image style
+- Set image lighthing style
+- Set image medium
+- Set image mood
+- Select image artist name
+3. Next, enter your image prompt that you want to generate and click on the **Generate** button.
+<img src="/images/core/images/6.png" /> 
+4. And you can see your image generated, if you click on **View** button, you can see all the details and settings related to that image. 
+<img src="/images/core/images/7.png" /> 
+
+## How to Create Image Prompts
+
+You can also create default prompts that everyone would be able to use. To create one, follow the intructions below. 
+1. Go to the **Admin Panel** -> **AI Management** -> **AI Image Prompts** tab, and click on **Create New Prompt** button. 
+<img src="/images/core/images/8.png" /> 
+2. Provide prompt **Title** and the **Prompt** itself and click on **Create** button. 
+<img src="/images/core/images/9.png" /> 
+3. That is it, now your prompt is available under AI Images page. Simply click on the **Prompts** link there, and it will show you the list of created prompts. 
+<img src="/images/core/images/10.png" />
 
 
 
