@@ -154,7 +154,11 @@
           "extensions/perplexity",
           "extensions/chat-share",
           "extensions/realtime-chat",
-          "extensions/external-chat"            
+          "extensions/external-chat",           
+          "extensions/speechify-tts",           
+          "extensions/speechify-clone",           
+          "extensions/live-notification",           
+          "extensions/onboarding-pro"          
         ]
       },
       {
