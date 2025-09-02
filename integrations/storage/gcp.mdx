@@ -21,73 +21,118 @@ To be able to use your GCP Bucket, follow these steps to setup integration.
     Once you are logged into your GCP account, click on the **New Project** button on the top left corner, and provide **project name** as you prefer.
     <img src="/images/ai/google/gcp-1.png" />
   </Step>
-  <Step title="Step 1">
+  <Step title="Step 3">
     Next, search for **storage** keyword and select **Cloud Storage** from the list. 
     <img src="/images/storage/gcp/gcp-storage-1.png" />
   </Step>
-  <Step title="Step 2">
+  <Step title="Step 4">
     Within the **Storage** service click on **Create Bucket**
     <img src="/images/storage/gcp/gcp-storage-2.png" />
   </Step>
-  <Step title="Step 3">
-     Specify bucket name as needed and click **Create Bucket**.
-     <img src="/images/storage/r2/r2-2.png" />
-  </Step>
-  <Step title="Step 4">
-    After your bucket is created, click on the **Manage R2 API Toneks** link.
-    <img src="/images/storage/r2/r2-3.png" />
-  </Step>
   <Step title="Step 5">
-     It will redirect you to your API Tokens page and click on **Create API Token** button.
-    <img src="/images/storage/r2/r2-4.png" />
+     Specify bucket name as needed and click **Create Bucket**. Provide unique bucket name. (it must be globally unique, hence you might want to add random digits/letters if needed)
+     <img src="/images/storage/gcp/gcp-storage-3.png" />
   </Step>
   <Step title="Step 6">
-     Provide Token name as needed, in Permission section select **Object Read & Write** and specify if you want this token to be valid of a specific bucket or all your buckets afterwards click on **Create API Token** button.
-    <img src="/images/storage/r2/r2-5.png" />
+     For the next step select Region
+     <img src="/images/storage/gcp/gcp-storage-4.png" />
   </Step>
   <Step title="Step 7">
-    In the next page copy your **Access Keys ID**, **Secret Access Key** and your **Endpoint URL** and click finish button. 
-    <img src="/images/storage/r2/r2-6.png" />
+      For the next step select Standard, or if you are familar with GCP storage types you can select alternate options as well as needed
+    <img src="/images/storage/gcp/gcp-storage-5.png" />
   </Step>
-   <Step title="Step 8">
-    You will also need to get your **Public URL**, select your bucket and click on **Settings** tab 
-    <img src="/images/storage/r2/r2-7.png" />
+  <Step title="Step 8">
+     Set versioning and encryption as needed or leave it with default values.
+   <img src="/images/storage/gcp/gcp-storage-6.png" />
   </Step>
   <Step title="Step 9">
-    You have 2 options to get your public url, choose either one that you prefer **Custom Domain** (Requires further configuration, fully up to you to configure) or **Public R2.dev Bucket URL** (You need to set Allow Access and simply copy) q
-    <img src="/images/storage/r2/r2-8.png" />
+    Select Fine Grained for access control.
+     <img src="/images/storage/gcp/gcp-storage-7.png" />
   </Step>
-  <Step title="Step 10">
-    Login to Davinci AI using your admin credentials. 
+   <Step title="Step 10">
+    Now when your bucket is successfully created you need to provide access to that. For that we need to create a Role. Go to IAM & Admin and select Roles
+    <img src="/images/storage/gcp/role-1.png" />
   </Step>
   <Step title="Step 11">
+   Click on Create Role
+    <img src="/images/storage/gcp/role-2.png" />
+  </Step>
+  <Step title="Step 12">
+    Provide a Role Title to be able to identify it later.
+    <img src="/images/storage/gcp/role-3.png" />
+  </Step>
+  <Step title="Step 13">
+    Click on Add Permissions.
+    <img src="/images/storage/gcp/role-3.png" />
+  </Step>
+  <Step title="Step 14">
+    Search by keyword storage and select storage.bucket.list. 
+    <img src="/images/storage/gcp/role-4.png" />
+  </Step>
+  <Step title="Step 15">
+     Also select following object level permissions as well as shown in the image.
+      <img src="/images/storage/gcp/role-5.png" />
+  </Step>
+  <Step title="Step 16">
+    Final result should look like in the image and click Create.
+    <img src="/images/storage/gcp/role-6.png" />
+  </Step>
+  <Step title="Step 17">
+    Now you need to create Create Service Credentials. Go to API & Credentials and click on Create Credentials
+    <img src="/images/storage/gcp/gcp-7.png" />
+  </Step>
+  <Step title="Step 18">
+    Click on + Create Credentials and select Service account from the list.
+    <img src="/images/storage/gcp/gcp-5.png" />
+  </Step>
+  <Step title="Step 19">
+    1 - Provide Service account name and Service account description (optional).
+    <img src="/images/storage/gcp/gcp-6.png" />
+  </Step>
+  <Step title="Step 20">
+    2 - Click on Select a Role and find your role that you created previously to access GCP Storage Bucket.
+    <img src="/images/storage/gcp/gcp-8.png" />
+  </Step>
+  <Step title="Step 21">
+    3 - You can leave this step with defaults unless you want to add addtional user(s) and click Done.
+    <img src="/images/storage/gcp/role-9.png" />
+  </Step>
+  <Step title="Step 22">
+     Select your newly created Service Account, under Actions tab select Manage Keys.
+    <img src="/images/storage/gcp/key-1.png" />
+  </Step>
+  <Step title="Step 23">
+    Under Keys tab, select Add Key -> Create new key.
+    <img src="/images/storage/gcp/gcp-8.png" />
+  </Step>
+  <Step title="Step 24">
+      Select JSON as key type. Click Create, it will store in on your desktop.
+    <img src="/images/storage/gcp/gcp-9.png" />
+  </Step>
+  <Step title="Step 25">
+    Now, Login to Davinci AI using your admin credentials. 
+  </Step>
+  <Step title="Step 26">
     In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
   </Step>
-  <Step title="Step 12">
-    Click on **Cloudflare** tab there. 
-    <img src="/images/storage/r2/r2-9.png" />
+  <Step title="Step 27">
+    Click on **Google** tab there. 
+    <img src="/images/storage/gcp/google.png" />
   </Step>
-  <Step title="Step 10">
-    Fill in following required input field:
-    - **Cloudflare R2 Access Key** 
-    - **Cloudflare R2 Secret Access Key** 
-    - **Cloudflare R2 Bucket Name** 
-    - **Cloudflare R2 Endpoint** 
-    - **Cloudflare R2 Public URL** 
-    <img src="/images/storage/r2/r2-10.png" />
+  <Step title="Step 28">
+     Include the path for the json file and your GCP bucket name. JSON file must be stored outside of your Public folder. Show full path for the JSON file including JSON filename based on your hosting file structure. Here is an example for cPanel: '/home/username/public_html/gcpjsonfilename.json'. Click save button afterwards. 
+    <img src="/images/storage/gcp/google-2.png" />
   </Step>
-  <Step title="Step 12">
-    After you are done with configurations, click on **Save** button. 
-  </Step>
+  
 </Steps>
 
 <Check>
-Congratulations! You have successfully comleted the Cloudflare R2 setup process.
+Congratulations! You have successfully comleted the Google Cloud Bucket setup process.
 </Check>
 
-## Davinci AI Tools which supports storing results in Cloudflare R2
+## Davinci AI Tools which supports storing results in GCP Bucket
 
-Following AI tools can be store results in Cloudflare R2 Storage
+Following AI tools can be store results in Google Cloud Storage
 <Note>Support for more AI tools will be added soon, we are actively working on that</Note>
 
 1. **AI Voiceover** 
