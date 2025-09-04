@@ -158,7 +158,9 @@
           "extensions/speechify-tts",           
           "extensions/speechify-clone",           
           "extensions/live-notification",           
-          "extensions/onboarding-pro"          
+          "extensions/onboarding-pro",          
+          "extensions/telegram",     
+          "extensions/whatsapp"     
         ]
       },
       {
