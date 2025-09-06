@@ -194,7 +194,7 @@
         },
         {
           "anchor": "Support Tickets",
-          "href": "https://berkine.ticksy.com",
+          "href": "https://support.berkine.net/",
           "icon": "square-info"
         },
         {
@@ -213,7 +213,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "https://berkine.ticksy.com/"
+        "href": "https://support.berkine.net/"
       }
     ],
     "primary": {
