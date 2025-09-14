@@ -1,0 +1,94 @@
+---
+title: 'Whatsapp Bot'
+icon: whatsapp
+description: 'Extend your External Chatbots to support Whatsapp bots, one of the popular messenger platforms in the world.'
+---
+
+<Warning>This is a **Paid** extension that you need to first purchase via **Marketplace**</Warning>
+
+<Warning>This extension requires you to have first External Chatbot extension installed</Warning>
+
+## Introduction
+
+Whatsapp extension enables the integration of external chatbots with Whatsapp, facilitating a seamless and secure messaging experience on a reputable and widely utilized platform. Have your chatbots fully trained to take care of your Whatsapp bots efficiently as you prefer. Your bot adeptly manages conversations. Add your Whatsapp channel with just a few clicks and you are fully setup. Please note: This extension requires to have External Chatbot extension.
+
+## Extension Configuration
+To be able to use Whatsapp Bot feature, follow these steps to setup Whatsapp Extension.
+
+<Steps>
+  <Step title="Step 1">
+    Go to the **Marketplace** in **Admin Panel** and install **Whatsapp** extension after successfully purchasing it first.     
+    <img src="/images/extensions/whatsapp/w-1.png" />    
+  </Step>
+  <Step title="Step 2">
+    After installation is completed, go to **AI Settings** page in Admin Panel and click on **Extensions** tab there. Click on **Whatsapp** there. 
+    <img src="/images/extensions/whatsapp/w-2.png" />
+  </Step>
+   <Step title="Step 3">
+    **Whatsapp** extension settings page is the main configuration of this extension. 
+    1. You can control the maximum allowed whatsapp bots under **Total Allowed Whatsapp Bots** field, this value will be applicable to all users who are not subscribed to any subscription plans. You can also set custom values as needed in the Subscription plans, and those limits will apply to the subscribers of that plan. 
+    2. Turn on the checkboxes for **Whatsapp Feature** and **Whatsapp Free Tier Access** 
+    <Note>If you don't turn on Whatsapp Free Tier Access, then users who did not subscribe to any subscription plan where you have Whatsapp feature enabled, will not have any access to this feature</Note>
+    3. After you are done with configuration, click the **Save** button.  
+    <img src="/images/extensions/whatsapp/w-3.png" />
+  </Step>
+  <Step title="Step 5">
+    <Check>Congratulations! You have successfully completed the Whatsapp extension configuration. Proceed to the section below on how to use it.</Check> 
+  </Step>
+</Steps>
+
+## How to Use
+
+After properly configuring your Whatsapp settings, you can start including your Whatsapp Channels into your External Chatbots, for that, go to **External Chatbot** extension in the **User Panel**.
+
+1. Create your External Chatbot as needed, which is explained [here](/extensions/external-chat)
+2. Under the **Step 5** you will see a new **Channels** feature. Click on **Whatsapp** from there.
+<img src="/images/extensions/whatsapp/w-4.png" />
+3. Now enter your **Whatsapp Bot Name** to identify it later, **Phone Number ID** and your **Access Token**, and **Webhook Verify Token**. If you don't know where to get them, refer to the Whatsapp **Business API** section below, it explains on how to configure your Whatsapp Business API. After entering your data, click on **Add Channel** button. 
+<Note>After entering your Whatsapp credentials, you can use `Test Configuration` button to check your entered credentials are valid or not</Note>
+<img src="/images/extensions/whatsapp/w-5.png" />
+
+
+## Whatsapp Business API
+
+The following are the steps for getting your Whatsapp Phone ID, Access Token and rest of the required inputs for whatsapp settings:
+
+1. Sign up for a [Meta Developer Account](https://developers.facebook.com/)
+2. Create a **Meta App**. Once you are logged in, click on **My Apps** and click **Create App** button. 
+  <img src="/images/extensions/whatsapp/w-6.png" />
+3. Once app creation wizards starts, at **App details** section, provide **App name** and **App contact email** details as preferred. Click on **Next** button afterwards.
+  <img src="/images/extensions/whatsapp/w-7.png" />
+4. At the **Use Cases** section, select **Other** and click on **Next** button. 
+  <img src="/images/extensions/whatsapp/w-8.png" />
+5. Next, for the **App type**, select **Business** and click on **Next** button.
+<img src="/images/extensions/whatsapp/w-9.png" /> 
+6. Next, check your app name and email address and select your **Business Portfolio**, in case if you haven't created one, you need to created one. You will be asked to create one when you will add Whatsapp product. Click on **Create App** button. 
+<Warning>Meta requires to have a Business Portfolio for using Whatsapp Business API</Warning>
+<img src="/images/extensions/whatsapp/w-10.png" /> 
+7. Next, add **Whatsapp** product to your app, click on the **Set up** button next to Whatsapp. 
+  <img src="/images/extensions/whatsapp/w-11.png" />
+8. It will ask you to select your **Whatsapp Business Portfolio**, if you don't have one, you can click on the **learn more** link there, or follow this official [meta tutorial](https://www.facebook.com/business/help/1710077379203657) on it. 
+<img src="/images/extensions/whatsapp/w-12.png" />
+9. Once you have created Whatsapp Business Portfolio successfully, return to step 7, and click on set up button. This time you will be able to select your newly created **Business Portfolio**, select it and click on **Continue** button. 
+<img src="/images/extensions/whatsapp/w-13.png" />
+10. Next you will be redirected to Whatsapp Quickstart page, click on the **Start Using the API** button. 
+<img src="/images/extensions/whatsapp/w-14.png" />
+11. From here, you can generate you **Access Token**, add phone numbers and webhooks and do further setup as needed. 
+<Warning>Access token you generate from here is only a temporary access token, for creating permanent token, refer to step 14 below.</Warning>
+<img src="/images/extensions/whatsapp/w-15.png" />
+12. In **Step 1** - Add your phone number in the **From** field and copy your **Phone Number ID**. You can put some numbers into **To** field to do some testing as needed. <br/> <br/>
+13. In **Step 3** - Click on **Configure Webhook** button. 
+- For **Callback URL** - include: 
+```php
+      https://YOUR_DOMAIN_NAME/app/webhook/whatsapp
+```
+- For **Verify Token** - enter your own preferred string, it must be at least 8 characters. 
+- Once done, click on **Verify and Save** button. 
+<img src="/images/extensions/whatsapp/w-16.png" />
+<Note>Before setting up callback url, make sure that you have installed the Whatsapp extension in the Davinci AI</Note>
+14. In **Step 3** - there is also an option to create **Permanent token** (that is your Access Token but will be available permanently either for 60 days or forever depending on which option you choose).
+Click on the [Learn how to create a permanent token](https://developers.facebook.com/docs/whatsapp/business-management-api/get-started#1--acquire-an-access-token-using-a-system-user-or-facebook-login) and follow the steps explained there. If you are the sole owner of your **WhatsApp Business Accounts**, you can opt-in for **System User Access Tokens** option as explained there, but it is fully up to you to choose. 
+<img src="/images/extensions/whatsapp/w-17.png" />
+15. Rest of the steps are fully up to you to set, such as billing etc, they are not covered by us as does not play any role in the API itself, but they are important to have your Whatsapp Business Account to run smoothly and that you don't hit any of the Meta rate limits. 
+16. Now, copy paste your **Phone Number ID**, **Access Token**, **Webhook Verify Token** into Whatsapp Channel in Davinci AI and click on **Add Channel** button. 
+17. This completes the Whatsapp Business Account setup. 
