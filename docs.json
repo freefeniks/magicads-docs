@@ -160,7 +160,8 @@
           "extensions/live-notification",           
           "extensions/onboarding-pro",          
           "extensions/telegram",     
-          "extensions/whatsapp"     
+          "extensions/whatsapp",     
+          "extensions/lemonfox"     
         ]
       },
       {
