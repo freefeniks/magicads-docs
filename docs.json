@@ -155,6 +155,7 @@
           "extensions/chat-share",
           "extensions/realtime-chat",
           "extensions/external-chat",           
+          "extensions/external-analytics",           
           "extensions/speechify-tts",           
           "extensions/speechify-clone",           
           "extensions/live-notification",           
@@ -162,7 +163,7 @@
           "extensions/telegram",     
           "extensions/whatsapp",     
           "extensions/lemonfox",     
-          "extensions/nano-banana"     
+          "extensions/nano-banana"   
         ]
       },
       {
