@@ -163,7 +163,9 @@
           "extensions/telegram",     
           "extensions/whatsapp",     
           "extensions/lemonfox",     
-          "extensions/nano-banana"   
+          "extensions/nano-banana",   
+          "extensions/human-agent",   
+          "extensions/voice-chatbot"   
         ]
       },
       {
