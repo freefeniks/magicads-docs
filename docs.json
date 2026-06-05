@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "maple",
-  "name": "Davinci AI",
+  "name": "Magic Ads",
   "colors": {
     "primary": "#0D9373",
     "light": "#07C983",
@@ -193,7 +193,7 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Buy Davinci AI",
+          "anchor": "Buy Magic Ads",
           "href": "https://1.envato.market/gbM0b5",
           "icon": "box-open"
         },
@@ -201,11 +201,6 @@
           "anchor": "Support Tickets",
           "href": "https://support.berkine.dev/",
           "icon": "square-info"
-        },
-        {
-          "anchor": "Feature Requests",
-          "href": "https://davinciai.canny.io/",
-          "icon": "square-dashed-circle-plus"
         }
       ]
     }
@@ -223,7 +218,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Buy Davinci AI",
+      "label": "Buy Magic Ads",
       "href": "https://1.envato.market/gbM0b5"
     }
   },
