@@ -1,26 +1,26 @@
 ---
 title: 'Server Requirements'
-description: 'Ensure your server meets these requirements for a smooth Davinci AI installation and operation'
+description: 'Ensure your server meets these requirements for a smooth Magic Ads installation and operation'
 ---
 
 This page outlines the necessary components and configurations to ensure your server is ready to host Davinci AI efficiently.
 
 <Info>
-  **PHP Version Supported**: Currently script is fully tested for PHP 8.1 and PHP 8.2.
+  **PHP Version Supported**: Minimum required php version is 8.2.
 </Info>
 
 ## Core Requirements
 
 ### PHP and MySQL Versions
 
-Currently script is fully tested for PHP 8.1 and PHP 8.2, altough PHP 8.3 is supported, some of the 3rd party libraries used in the script might not support it at this point.
+Currently script is fully tested for PHP 8.2 and PHP 8.3 versions
 
 <CardGroup cols={2}>
   <Card 
     title="PHP Version"
     icon="php"
   >
-    PHP 8.1 or PHP 8.2
+    PHP 8.2 or PHP 8.3
   </Card>
   <Card
     title="MySQL Version"
@@ -35,18 +35,24 @@ Currently script is fully tested for PHP 8.1 and PHP 8.2, altough PHP 8.3 is sup
 To run Davinci AI smoothly, make sure your PHP installation includes these extensions:
 
 <Accordion title='Click to view required PHP Extensions'>
+  - bcmath
   - ctype
+  - curl
+  - dom
   - fileinfo
+  - gd
+  - iconv
+  - intl
   - json
   - mbstring
+  - mysqli
   - openssl
-  - pdo
+  - PDO
+  - pdo_mysql
+  - tokenizer
   - xml
-  - gd
-  - curl
-  - intl
   - zip
-  - phar
+  - exec()
   - shell_exec()
   - file_get_contents()
 </Accordion>

@@ -1,7 +1,7 @@
 ---
 title: 'CRON Job Configuration'
 sidebarTitle: "CRON Jobs"
-description: 'Essential steps to configure your Davinci AI installation for optimal performance and functionality.'
+description: 'Essential steps to configure your Magic Ads installation for optimal performance and functionality.'
 ---
 
 ## Setting Up the Cron Job
@@ -19,9 +19,9 @@ To set up the cron job, add the following entry to your server’s crontab:
 ```php
 * * * * * /usr/local/bin/php /path/to/app/root/artisan schedule:run
 ```
-This command runs the Laravel schedule command in your Davinci AI installation directory every minute.
+This command runs the Laravel schedule command in your Magic Ads installation directory every minute.
 
-<Note>Replace `/path/to/app/root/` with the actual path to your Davinci AI application’s root directory.</Note>
+<Note>Replace `/path/to/app/root/` with the actual path to your Magic Ads application’s root directory.</Note>
 
 <Warning>Double check that `/usr/local/bin/php` is needed path where your php bin folder is located. Every hosting is different hence it might differ from hosting provider to hosting provider. </Warning>
 
@@ -60,7 +60,7 @@ This command runs the Laravel schedule command in your Davinci AI installation d
   ```
   </Step>
   <Step title="Step 6">
-    <Check>You have successfully configured the CRON via Cpanel for Davinci AI</Check>
+    <Check>You have successfully configured the CRON via Cpanel for Magic Ads</Check>
   </Step>
 </Steps> 
 

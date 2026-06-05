@@ -37,29 +37,7 @@
             "pages": ["integrations/ai/openai",
                       "integrations/ai/anthropic",
                       "integrations/ai/xai",
-                      "integrations/ai/deepseek",
-                      "integrations/ai/gemini",
-                      "integrations/ai/elevenlabs",
-                      "integrations/ai/stability",
-                      "integrations/ai/azure",
-                      "integrations/ai/aws",
-                      "integrations/ai/google"
-                      ]
-          },
-          {
-            "group": "Other Providers",
-            "pages": ["integrations/other/youtube",
-                      "integrations/other/serper"
-                      ]
-          }, 
-          {
-            "group": "Cloud Storages",
-            "pages": ["integrations/storage/s3",
-                      "integrations/storage/cloudflare",
-                      "integrations/storage/wasabi",
-                      "integrations/storage/dropbox",
-                      "integrations/storage/gcp",
-                      "integrations/storage/storj"
+                      "integrations/ai/gemini"
                       ]
           },  
           {
@@ -68,15 +46,6 @@
                       "integrations/login/google"
                       ]
           }  
-        ]
-      },
-      {
-        "group": "Core Features",
-        "pages": [
-          "core/personal-api",          
-          "core/models",          
-          "core/voiceover",          
-          "core/images"          
         ]
       },
       {
@@ -98,88 +67,29 @@
                       "saas/gateways/midtrans",
                       "saas/gateways/iyzico",
                       "saas/gateways/coinbase",
-                      "saas/gateways/coinremitter",
                       "saas/gateways/bank-transfer"
                       ]
           },
           "saas/subscription-plan",
           "saas/prepaid-plan",
           "saas/referral",
-          "saas/wallet",
           "saas/finance-settings"          
         ]
       },
       {
         "group": "Extensions",
         "pages": [
-          {
-            "group": "Social Media Suite",
-            "icon": "share-nodes",
-            "pages": ["extensions/socialmediasuite/general",
-                      "extensions/socialmediasuite/x",
-                      "extensions/socialmediasuite/linkedin",
-                      "extensions/socialmediasuite/instagram",
-                      "extensions/socialmediasuite/facebook",
-                      "extensions/socialmediasuite/tiktok"
-                      ]
-          },
-          "extensions/video-video",
-          "extensions/video-image",
-          "extensions/video-text",
-          "extensions/product-photography",
-          "extensions/photo-studio",
-          "extensions/avatar",
-          "extensions/faceswap",
-          "extensions/midjourney",
-          "extensions/clipdrop",
-          "extensions/flux",
-          "extensions/voice-clone",
-          "extensions/sound-studio",
-          "extensions/music",
-          "extensions/voice-isolator",              
-          "extensions/speech-text-pro",              
-          "extensions/plagiarism",
-          "extensions/wordpress",
-          "extensions/menu-builder",
-          "extensions/maintenance",
-          "extensions/hubspot",
-          "extensions/mailchimp",
-          "extensions/textract",
-          "extensions/seo-tool",
-          "extensions/xero",
-          "extensions/ibm",
-          "extensions/azure-openai",
-          "extensions/amazon-bedrock",
-          "extensions/open-router",
-          "extensions/perplexity",
-          "extensions/chat-share",
-          "extensions/realtime-chat",
-          "extensions/external-chat",           
-          "extensions/external-analytics",           
-          "extensions/speechify-tts",           
-          "extensions/speechify-clone",           
-          "extensions/live-notification",           
-          "extensions/onboarding-pro",          
-          "extensions/telegram",     
-          "extensions/whatsapp",     
-          "extensions/lemonfox",     
-          "extensions/nano-banana",   
-          "extensions/human-agent",   
-          "extensions/voice-chatbot"   
+ 
         ]
       },
       {
         "group": "Advanced",
         "pages": [
           "advanced/language",
-          "advanced/streaming",
           "advanced/google-analytics",
           "advanced/google-maps",
-          "advanced/restapi",   
           "advanced/smtp",       
-          "advanced/cron",       
-          "advanced/sitemap",       
-          "advanced/cache"       
+          "advanced/cron"      
         ]
       },
       {
@@ -206,8 +116,8 @@
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/light.png",
+    "dark": "/logo/dark.png"
   },
   "navbar": {
     "links": [
