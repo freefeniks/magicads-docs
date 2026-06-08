@@ -3,7 +3,7 @@ title: 'Server Requirements'
 description: 'Ensure your server meets these requirements for a smooth Magic Ads installation and operation'
 ---
 
-This page outlines the necessary components and configurations to ensure your server is ready to host Davinci AI efficiently.
+This page outlines the necessary components and configurations to ensure your server is ready to host Magic Ads efficiently.
 
 <Info>
   **PHP Version Supported**: Minimum required php version is 8.2.
@@ -32,7 +32,7 @@ Currently script is fully tested for PHP 8.2 and PHP 8.3 versions
 
 ### Essential PHP Extensions
 
-To run Davinci AI smoothly, make sure your PHP installation includes these extensions:
+To run Magic Ads smoothly, make sure your PHP installation includes these extensions:
 
 <Accordion title='Click to view required PHP Extensions'>
   - bcmath
@@ -59,9 +59,9 @@ To run Davinci AI smoothly, make sure your PHP installation includes these exten
 
 ## Minimum Server Requirements
 
-You can host Davinci AI both on a shared hosting or on a VPS, decision is fully up to you and your budget. We recommend to select a hosting that allows you to enabled required PHP extensions and features. 
+You can host Magic Ads both on a shared hosting or on a VPS, decision is fully up to you and your budget. We recommend to select a hosting that allows you to enabled required PHP extensions and features. 
 
-To ensure optimal performance of Davinci AI, we recommend the following minimum server specifications:
+To ensure optimal performance of Magic Ads, we recommend the following minimum server specifications:
 
 <CardGroup cols={2}>
   <Card 
@@ -77,6 +77,16 @@ To ensure optimal performance of Davinci AI, we recommend the following minimum 
     2 vCPUs or more
   </Card>
 </CardGroup>
+
+## Recommended Server Tiers
+
+For higher traffic deployments (sizing target of ~10,000 daily active users), use the following recommended server tiers to understand what hardware specs fit your needs:
+
+| Tier | Web/App node | Worker node | Data services | Storage | Use case |
+|------|-------------|-------------|---------------|---------|----------|
+| **Minimum viable** | 4 vCPU / 8 GB | (shared on same box) | MySQL + Redis on same box | Object storage + CDN (offloaded) | Soft launch, ramping toward 10k, video kept low |
+| **Recommended** | 4 vCPU / 8 GB | 8 vCPU / 16 GB (FFmpeg + workers) | Managed MySQL (2 vCPU / 4–8 GB) + managed Redis (1–2 GB) | S3-class + CDN | Steady 10k DAU with real video volume |
+| **Headroom** | 2× 4 vCPU / 8 GB behind load balancer | 8–16 vCPU / 16–32 GB, autoscale | Managed DB w/ read replica + Redis | S3 + CDN | Peaky traffic, growth past 10k |
 
 
 
