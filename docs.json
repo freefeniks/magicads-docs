@@ -83,6 +83,19 @@
         ]
       },
       {
+        "group": "Themes",
+        "pages": [
+          "themes/themes"     
+        ]
+      },
+      {
+        "group": "Plugins",
+        "pages": [
+          "plugins/fasion-studio",
+          "plugins/product-photoshoot"     
+        ]
+      },
+      {
         "group": "Advanced",
         "pages": [
           "advanced/language",
