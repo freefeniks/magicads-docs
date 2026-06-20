@@ -7,6 +7,28 @@ description: 'Follow update instructions as listed below for each version.'
 
 <Warning>Always test on your development environment first before upgrading your production domain. Your license does allow you to install on one locahost or subdomain for dev & test.</Warning>
 
+<Update label="Upgrade to v1.3" description="20/06/2025">
+
+  ## Update process for v1.3
+
+  <Steps>
+    <Step title="Step 1">  
+      Go to the **Update** tab in the **Admin Panel**, and click on the **Install Update** button. It will start the upgrade process. 
+      <Note>In rare cases upgrade packages can be up to 120MB in size, depending on your Internet bandwidth, download and installation time will vary</Note>
+    </Step>
+    <Step title="Step 2">
+      After installation of update package is successfully completed, type in your browser: 
+      ```php
+      https://YOUR_DOMAIN_NAME/app/admin/update/now 
+      ```
+      and hit **Enter** button. It will run the migration and seeder commands for this specific version only behind the scenes to update the database tables.
+    </Step>
+    <Step title="Step 3">
+      <Check>You have successfully completed the upgrade process</Check>
+    </Step>   
+  </Steps>
+</Update>
+
 <Update label="Upgrade to v1.2" description="18/06/2025">
 
   <Note>Make sure that all steps for previous update version is completed before proceeding with this one in case if you didn't do a fresh install of the previous version</Note>
