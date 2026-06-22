@@ -43,7 +43,9 @@
           {
             "group": "Social Logins",
             "pages": ["integrations/login/twitter",
-                      "integrations/login/google"
+                      "integrations/login/google",
+                      "integrations/login/facebook",
+                      "integrations/login/linkedin"
                       ]
           }  
         ]
@@ -92,7 +94,9 @@
         "group": "Plugins",
         "pages": [
           "plugins/fasion-studio",
-          "plugins/product-photoshoot"     
+          "plugins/product-photoshoot",     
+          "plugins/avatar-studio",     
+          "plugins/ugc-factory"     
         ]
       },
       {

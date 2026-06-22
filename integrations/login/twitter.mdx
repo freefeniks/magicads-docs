@@ -1,60 +1,113 @@
 ---
-title: 'Twitter Login Auth'
+title: 'Twitter (X) Login'
 sidebarTitle: 'Twitter'
-description: 'Let your users to login and register using their own Twitter accounts for simplicity'
+icon: x-twitter
+description: 'Let your users sign in and register with their Twitter (X) accounts. Create an OAuth 2.0 app in the X Developer Portal and paste the credentials into Auth Settings — no code or .env edits required.'
 ---
 
 ## Introduction
 
-Davinci AI provides you a solution to let your users login using multiple different social media accounts that they use on a daily basis. 
+Adding **Sign in with Twitter (X)** lets your users register and log in with their X account. You'll create an app in the X Developer Portal using **OAuth 2.0**, then paste its credentials into your admin **Auth Settings** page. Credentials are stored securely in the database and applied automatically — there are no `.env` edits or code changes.
 
-## Configure Twitter
-To let users to login and register using their Twitter accounts, follow the steps below:
+<Warning>
+**Twitter does not share email by default.** Email access requires the elevated **Request email address from users** permission on your X app, which is gated behind X's developer access tiers. If your app can't return an email, sign-in fails with "Your social account did not share an email address." Confirm email access is available on your X plan before relying on Twitter login.
+</Warning>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- An X account with access to the [X Developer Portal](https://developer.x.com/).
+- Your site's public URL (HTTPS strongly recommended).
+
+## Step 1 — Note your Callback URL
+
+The callback URL is where X sends users back after they approve sign-in:
+
+```
+https://YOUR_DOMAIN/auth/twitter/callback
+```
+
+For example: `https://app.example.com/auth/twitter/callback`
+
+<Note>
+If your site uses a language prefix in its URLs (localization), the callback may include a locale segment such as `/en/auth/twitter/callback`. Whatever you enter in the **Callback URL** field in Auth Settings must match the value registered in your X app exactly.
+</Note>
+
+## Step 2 — Create an X (Twitter) app
 
 <Steps>
-  <Step title="Step 1">
-     Visit Twitter [Developer Portal](https://developer.twitter.com/en/portal) page.
+  <Step title="Open the X Developer Portal">
+    Go to [developer.x.com](https://developer.x.com/), sign in, and open **Developer Portal → Projects & Apps**. Create a Project and an App inside it if you don't have one.
   </Step>
-  <Step title="Step 2">
-    Once you are logged in your Twitter Developer account, create a new **project** or use your existing one.
-     <img src="/images/login/twitter/t-1.webp" />
+  <Step title="Enable User authentication settings">
+    Open your app and click **Set up** under **User authentication settings**.
+    - **App permissions:** Read (sufficient for login). Enable **Request email address from users** if your access tier offers it.
+    - **Type of App:** Web App / Automated App or Bot (a confidential client).
   </Step>
-  <Step title="Step 3">
-    Fill in all the details as you prefer, it is visible only to you.
-    <img src="/images/login/twitter/t-2.webp" />
+  <Step title="Set the Callback URI and website URL">
+    - **Callback URI / Redirect URL:** add your callback from Step 1: `https://YOUR_DOMAIN/auth/twitter/callback`.
+    - **Website URL:** `https://YOUR_DOMAIN`.
+
+    Save the settings.
   </Step>
-  <Step title="Step 4">
-    Under **Keys and tokens** tab, make sure to copy your **API Key** and **Secret Key**.
-    <img src="/images/login/twitter/t-3.png" />
-  </Step>
-  <Step title="Step 5">
-    Next, select your app and click on **Edit** button under **User authentication settings** box.
-    <img src="/images/login/twitter/t-4.png" />
-  </Step>
-  <Step title="Step 6">
-     Setup **App Permissions** and **Type of App** as shown in the image below.
-    <img src="/images/login/twitter/t-5.png" />
-  </Step>
-  <Step title="Step 7">
-    Setup **App info** section and fill all 4 fields as shown in the image, replace **YOURDOMAINNAME** with your domain and make sure that there are no typos in any of the inputs, click save afterwards. You don't need Cliend IDs generated at the end for this particular scirpt.
-    <img src="/images/login/twitter/t-6.png" />
-  </Step>
-  <Step title="Step 8">
-   Go to **Admin Panel** -> **General Settings** -> **Auth Settings** page, this is where you configure all social media login accounts and settings. 
-   1. First, enable **Login via Social Media** (OAuth)
-    <img src="/images/login/twitter/t-7.png" />
-   2. Next, include your Twitter API keys and enter your domain name there as well if it not shown already for you.
-    <img src="/images/login/twitter/t-8.png" />
-  </Step>
-  <Step title="Step 8">
-    After you are done with configurations, click on **Save** button. 
+  <Step title="Copy the OAuth 2.0 credentials">
+    After saving, X shows your **OAuth 2.0 Client ID** and **Client Secret**. Copy both.
+
+    <Warning>
+    Be sure to use the **OAuth 2.0** credentials — not the legacy API Key/Secret from the "Consumer Keys" section. Using the wrong pair causes a "Something went wrong" error on authorize.
+    </Warning>
   </Step>
 </Steps>
 
+## Step 3 — Configure MagicAds
+
+<Steps>
+  <Step title="Open Auth Settings">
+    In your platform, go to **Admin → Backend Settings → Auth Settings**.
+  </Step>
+  <Step title="Enable the master switch">
+    Turn on **Social Media Login**. This is the master switch for all social providers, and it saves immediately.
+  </Step>
+  <Step title="Enable Twitter and enter credentials">
+    Turn on the **Twitter** toggle, then fill in:
+    - **API Key** → paste your X **OAuth 2.0 Client ID**.
+    - **API Secret** → paste your X **OAuth 2.0 Client Secret**.
+    - **Callback URL** → enter `https://YOUR_DOMAIN/auth/twitter/callback` (must match the Callback URI in the X app exactly).
+  </Step>
+  <Step title="Save">
+    Click **Save**. Twitter only appears as a login option once it's enabled and both the API Key and API Secret are filled in.
+  </Step>
+</Steps>
+
+### Field mapping reference
+
+| MagicAds field | X (Twitter) value |
+|----------------|-------------------|
+| API Key | OAuth 2.0 Client ID |
+| API Secret | OAuth 2.0 Client Secret |
+| Callback URL | Callback URI / Redirect URL (`/auth/twitter/callback`) |
+
+## Step 4 — Test it
+
+1. Open your site's **login page** in a private/incognito window.
+2. Click **Sign in with Twitter**.
+3. Authorize the app.
+4. You should be redirected back and logged into your dashboard.
+
 <Check>
-Congratulations! You have successfully comleted the Login and Registration with Twitter process.
+That's it — your users can now register and log in with Twitter (X).
 </Check>
 
+## Troubleshooting
 
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| "Your social account did not share an email address" | Email access not enabled on the X app/plan | Enable **Request email address from users** (requires the right X access tier). Without email, login can't complete. |
+| Callback / redirect error | Callback URI mismatch | Make the **Callback URI** in the X app exactly equal the **Callback URL** in Auth Settings. |
+| "Something went wrong" on authorize | Used OAuth 1.0a Consumer Keys instead of OAuth 2.0 | Use the **OAuth 2.0 Client ID and Client Secret**, not the legacy API Key/Secret. |
+| Twitter button doesn't appear | Master switch off, Twitter toggle off, or credentials blank | Enable **Social Media Login** and **Twitter**, and fill both API Key and API Secret. |
+| "Registration is currently closed" after authorize | New-user creation blocked | Enable public registration in your platform settings, or pre-create the account. |
 
-
+<Note>
+The platform forces the modern OAuth 2.0 flow for Twitter automatically — you don't need to configure that. Credentials are stored securely and applied at runtime; no `.env` edits are needed.
+</Note>

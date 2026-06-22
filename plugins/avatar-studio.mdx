@@ -1,0 +1,272 @@
+---
+title: 'Avatar Studio'
+icon: user-tie
+description: 'Turn scripts and photos into talking AI presenter videos and localize your ads into 175+ languages while keeping the speaker’s face and voice — powered by HeyGen.'
+---
+
+<Warning>This is a **Paid** plugin (slug: `magicads-avatar-studio`) that you need to first purchase and install via the in-app **Plugins** marketplace. Some plugins are free for **Extended License** holders.</Warning>
+
+## Introduction
+
+**Avatar Studio** adds a human-presenter layer to your creatives using the **HeyGen** API:
+
+- **AI Spokesperson** — a stock avatar and voice reads your ad script.
+- **Talking Product Photo** — a single photo becomes a talking presenter, optionally in the user's own uploaded voice.
+- **Ad Localizer** — translate any video into 175+ languages while preserving the speaker's face and voice and re-syncing the lips.
+
+Everything runs on the **admin's single HeyGen key** and is **cron-driven** (like UGC Factory), so it has a couple of setup steps the Gemini/OpenAI plugins don't. This guide covers the full lifecycle.
+
+<Card title="Included Tools">
+- **Dashboard** — recent creations and quick links into the tools
+- **AI Spokesperson** — pick a stock avatar and voice, write a script, choose orientation/background, and render a presenter video
+- **Talking Product Photo** — turn an uploaded photo into a talking presenter, driven by a stock voice or the user's own audio
+- **Ad Localizer** — translate a video into one or more languages, keeping the speaker's face and voice with re-synced lips (billed per language)
+- **My Videos** — gallery of completed creations: favorite, download and manage
+</Card>
+
+### What powers it
+
+| Capability | HeyGen feature |
+|------------|----------------|
+| Spokesperson & Talking Photo video | `/v2/video/generate` (Avatar IV) |
+| Bring-your-own-voice | uploaded audio asset drives the lips directly |
+| Localization | `/v2/video_translate` (Video Translate) |
+| Avatar & voice pickers | `/v3/avatars/looks` and `/v3/voices` catalogs (synced locally) |
+
+Output orientations: **Portrait 9:16** (720×1280), **Landscape 16:9** (1280×720), **Square 1:1** (1080×1080).
+
+<Note>
+Avatar Studio relies on the **HeyGen** API, a paid third-party service with its own credit/subscription model. You'll need a HeyGen account and an API plan that includes the avatar and video-translate features. HeyGen costs are separate from your MagicAds platform credits.
+</Note>
+
+## Purchase & Installation
+
+Avatar Studio is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Avatar Studio** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Avatar Studio (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Avatar Studio** card. The platform downloads the archive, unpacks it and runs its setup automatically — preparing the storage it needs for your generated videos, saved bring-your-own voices, and the synced avatar and stock-voice catalog.
+
+    It also adds Avatar Studio's settings (feature off, free tier off, speed translate mode, 50 MB upload cap) and a per-plan Avatar Studio access toggle.
+
+    <Warning>
+    On a fresh install everything is off by default. The tools stay hidden until you **add a HeyGen key**, **sync the catalog**, **enable the cron scheduler**, and **enable the feature** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure the HeyGen API key
+
+The HeyGen key is entered **on the Avatar Studio settings page itself** (`Admin → General Settings → Plugins → Avatar Studio`) — this is the only place it lives. It powers every generation; users never supply their own key.
+
+<Steps>
+  <Step title="Create a HeyGen key">
+    Create an API key in your [HeyGen dashboard](https://app.heygen.com/settings?from=&nav=API) (Settings → API).
+  </Step>
+  <Step title="Paste it into Avatar Studio">
+    On the Avatar Studio settings page, paste it into the **HeyGen API key** field.
+  </Step>
+  <Step title="Test, sync & save">
+    Click **Test / Sync** to verify the key and pull the catalog (next section), then **Save**.
+  </Step>
+</Steps>
+
+The key is stored **encrypted** in the database. The settings page shows a readiness state once a key is configured. You can remove it later with the **clear key** action.
+
+## Sync the avatar & voice catalog
+
+The Spokesperson and Talking Photo pickers read avatars and voices from a **local database copy**, so they load instantly without a live API call. You populate that copy with an explicit sync.
+
+1. With a valid key entered, click **Test / Sync** (or the sync action) on the settings page.
+2. The plugin contacts HeyGen and stores:
+   - stock **voices** (fast endpoint, synced first),
+   - avatar **looks** (the heavier endpoint).
+
+The settings page shows live counts of synced avatars and voices.
+
+<Note>
+- Voices sync first, so if the key is invalid you'll get a clear error immediately.
+- HeyGen's avatar catalog can be slow; if avatars don't come back on the first try, the voices are still synced and you can click **Sync** again to retry just the avatars.
+- The catalog is cached for an hour, and the cron processor warms it automatically if it's empty after install.
+- Saving a new key clears the cached catalogs so the new key takes effect at once.
+</Note>
+
+## Enable the cron scheduler (required)
+
+Avatar Studio renders are processed **outside the web request** by a cron-driven command that advances every in-flight video one step at a time (submit → poll → download → finalize). This is what keeps it reliable on shared hosting.
+
+The command is:
+
+```bash
+php artisan avatar-studio:process
+```
+
+It's already wired into Laravel's scheduler to run **every minute** (it only registers when the plugin is installed). You just need Laravel's scheduler itself running. Add this single cron entry on your server if you haven't already:
+
+```cron
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+<Warning>
+Without the scheduler running, videos will sit on "pending" forever and never complete. This is the most common cause of stuck Avatar Studio renders.
+</Warning>
+
+The processor is self-healing: it submits new jobs, polls running ones, finalizes finished videos (charging credits on success), and automatically fails any render that runs too long so the UI never hangs. Credits are only charged when a render completes successfully.
+
+## Configure Avatar Studio
+
+On the Avatar Studio settings page you'll find four sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Avatar Studio** | Master switch. When on, the studio appears in user menus and becomes usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use Avatar Studio. When off, only users on a plan that includes the feature get access. |
+
+### Translation fidelity
+
+| Setting | Purpose |
+|---------|---------|
+| **Translate mode** | `speed` (faster) or `precision` (higher fidelity). Applies to the Ad Localizer. |
+
+### Billing — credit matrix
+
+Avatar Studio has a single engine (HeyGen), so the grid is one column wide. Values are integers 1–9999, charged only after a successful render.
+
+| Feature | Default credits |
+|---------|-----------------|
+| AI Spokesperson | 20 |
+| Talking Product Photo | 25 |
+| Ad Localizer (per language) | 15 |
+
+Credit rules:
+
+- Users are **only charged on a successful generation** — failed or timed-out jobs cost nothing.
+- Credits are deducted atomically, so concurrent generations can't overdraw a balance.
+- The **Ad Localizer cost is multiplied by the number of target languages**. Translating into 3 languages at 15 credits each costs 45 credits.
+
+### Limits
+
+| Setting | Purpose |
+|---------|---------|
+| **Max upload size (MB)** | Per-file cap for photos, audio and video. Integer 1–500, default 50. |
+
+Built-in hard limits (from config): script up to **1500 characters**, photo up to **10 MB**, audio up to **25 MB**, video up to **200 MB**, and a maximum of **5 target languages** per localization.
+
+Click **Save** to persist your changes.
+
+## Grant access by plan
+
+Access is gated in two layers:
+
+1. **Platform layer** — the master **Enable Avatar Studio** switch must be on.
+2. **User layer** — who actually gets the tools:
+   - **Subscribed users** (on a plan): access is governed by the plan's **Avatar Studio** feature toggle.
+   - **Non-subscribed users** (no plan): access only when both **Enable Avatar Studio** and **Free Tier Access** are on.
+
+<Note>
+When the tools are offered platform-wide but the current user's plan doesn't include them, they appear as a **locked, upgrade-to-unlock** entry that nudges the user toward an eligible plan.
+</Note>
+
+To set it up:
+
+1. Enable the master switch in the Avatar Studio config.
+2. Go to **Admin → plan management**, edit each plan, and turn the Avatar Studio feature on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Avatar Studio → **Install**.
+  </Step>
+  <Step title="Add the HeyGen key">
+    On the Avatar Studio settings page, paste your HeyGen API key.
+  </Step>
+  <Step title="Test & sync the catalog">
+    Click **Test / Sync** to validate the key and pull avatars + voices. Confirm the synced counts.
+  </Step>
+  <Step title="Enable the cron scheduler">
+    Make sure `php artisan schedule:run` runs every minute via a server cron entry.
+  </Step>
+  <Step title="Set pricing & limits">
+    Adjust the credit matrix, translate mode and max upload size, then **Save**.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Avatar Studio**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Grant plan access">
+    Enable the Avatar Studio feature on the plans that should include it.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as a user on an eligible plan, build a quick Spokesperson video, and confirm it completes (the cron will finalize it within a minute or two).
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Avatar Studio is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+Open **Creative Tools → Avatar Studio** in the user sidebar.
+
+### AI Spokesperson
+
+1. Pick a **stock avatar** from the synced catalog.
+2. Pick a **voice** (each has a preview).
+3. Write a **script** (up to 1500 characters) — or start from one of the script suggestion chips.
+4. Choose **orientation** (portrait/landscape/square) and a **background** (studio white, brand indigo, slate dark, warm amber, soft indigo).
+5. Generate. The video is queued and finalized by the cron processor, then appears in **My Videos**.
+
+### Talking Product Photo
+
+1. **Upload a photo** (a person or product shot; up to 10 MB). HeyGen turns it into a talking-photo character.
+2. Choose the voice source:
+   - **Text** — pick a stock voice that reads your script.
+   - **Own voice** — upload an audio file (up to 25 MB) that drives the lips directly.
+3. Pick orientation and background, then generate.
+
+### Ad Localizer
+
+1. Provide the source **video** (up to 200 MB).
+2. Pick up to **5 target languages** from the quick list (HeyGen supports 175+; the live list is fetched and cached).
+3. Generate. The speaker's face and voice are preserved and lips re-synced per language. **You're billed the localizer cost × the number of languages.**
+
+### My Videos
+
+Browse your completed creations, mark favorites, and download the MP4s.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Avatar Studio doesn't appear for a user | Master switch off, plan lacks the feature, or free tier off for a plan-less user | Enable the master switch; enable the feature on their plan; or turn on Free Tier Access. |
+| Videos stay stuck on "pending" | The Laravel scheduler isn't running | Add the `* * * * * php artisan schedule:run` cron entry on your server. |
+| Avatar/voice pickers are empty | Catalog never synced | Click **Test / Sync** on the settings page after adding the key. |
+| Avatars didn't sync (voices did) | HeyGen's avatar catalog is slow | Click **Sync** again to retry just the avatars; voices already work. |
+| "HeyGen rejected this API key" | Invalid key | Re-check the key in your HeyGen dashboard and re-enter it. |
+| "Could not reach HeyGen (timed out)" | Server can't make outbound HTTPS | Ensure the server allows outbound HTTPS to api.heygen.com. |
+| "Not enough credits" | Balance below the feature cost (× languages for localizer) | Top up credits or lower the cost in the billing matrix. |
+| Localizer costs more than expected | Cost is per language | It's the localizer cost × number of selected languages — this is expected. |
+| Uploads rejected | File exceeds the cap | Raise **Max upload size (MB)** (max 500), within the 10 MB photo / 25 MB audio / 200 MB video hard limits. |
+
+<Note>
+Generated videos are stored on the platform's public results disk. Credits are never deducted for failed or timed-out renders.
+</Note>

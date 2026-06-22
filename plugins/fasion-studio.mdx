@@ -1,0 +1,260 @@
+---
+title: 'Fashion Studio'
+icon: shirt
+description: 'Turn a single model or product photo into studio-grade editorial photoshoots, virtual try-ons, restyles, polished edits and scroll-stopping runway videos — all in one AI-powered fashion suite.'
+---
+
+<Warning>This is a **Paid** plugin which you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Fashion Studio** turns a single model or product photo into editorial photoshoots, virtual try-ons, restyles, edits and short runway videos. Unlike the stock text-to-image tools, every Fashion Studio tool is **photo-driven**: instead of starting from a blank prompt, you upload real references — a model photo, garments, poses, backgrounds — and guide the result with a prompt on top.
+
+This guide walks through the full lifecycle: where to buy it, how to install it, how to wire up the AI provider keys, how to configure pricing and limits, how to grant access by plan, and how each tool works.
+
+<Card title="Included Tools">
+- **Dashboard** — stats and a gallery of recent results
+- **Photoshoot** — compose a model with up to 5 wardrobe products plus pose / background / lighting presets
+- **Virtual Try-On** — dress a model photo using top, bottom, outerwear, footwear and accessory slots
+- **Change Model** — swap the person in a photo while optionally keeping the outfit and/or background
+- **Change Style** — restyle an outfit using 20 style packs or a free prompt
+- **Edit Image** — instruction-based editing with quick-edit chips
+- **Create Video** — turn a still into a short 4 / 6 / 8-second runway-style clip
+- **My Photoshoots** — gallery of completed results with tabs, search, sort, favorite, download and delete
+- **My Wardrobe** — upload or AI-generate product/garment images, organized by category
+</Card>
+
+### AI engines
+
+Fashion Studio uses two interchangeable **image** engines and one fixed **video** engine.
+
+| Engine | Vendor / model | Used for | API key |
+|--------|----------------|----------|---------|
+| **Nano Banana 2** | Google · Gemini 3.1 Flash Image | All still-image tools (default) | Gemini |
+| **GPT Image 2** | OpenAI · `gpt-image-2` | All still-image tools (alternative) | OpenAI |
+| **Veo 3.1 Lite** | Google · Veo 3.1 (photo-to-motion) | Create Video only | Gemini |
+
+<Note>
+Create Video **always** runs through Google Veo 3.1 Lite on the Gemini API, regardless of which still-image engine you pick. It authenticates with the same Gemini key. So if you only configure an OpenAI key, the still tools work but Create Video will not.
+</Note>
+
+## Purchase & Installation
+
+Fashion Studio is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Fashion Studio** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Fashion Studio** card. The platform downloads the archive, unpacks it and runs its setup automatically — preparing the storage it needs for your photoshoots, wardrobe items and reusable model / pose / background assets.
+
+    It also adds Fashion Studio's settings with safe defaults (feature off, free tier off, Gemini engine, 15 MB upload cap, medium OpenAI quality).
+
+    <Warning>
+    Installation only makes the routes and tables exist. The tools stay hidden from users until you **enable the feature** and **configure an API key** (next sections). On a fresh install everything is off by default.
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure API keys
+
+Fashion Studio reads its API keys from the platform's central, encrypted **AI provider keys** store — *not* from the Fashion Studio screen and *not* from `.env`. Keys are saved encrypted in the database.
+
+<Steps>
+  <Step title="Open AI Settings">
+    Go to **Admin → AI Settings** (`/app/admin/ai`).
+  </Step>
+  <Step title="Add the vendor key(s)">
+    - **Google Gemini** → powers Nano Banana 2 **and** Veo video.
+    - **OpenAI** → powers GPT Image 2.
+
+    Then click **Save**.
+  </Step>
+</Steps>
+
+### Where to get each key
+
+- **Google Gemini / Veo** — create an API key in [Google AI Studio](https://aistudio.google.com/apikey). The same key powers both Gemini image generation and Veo video. Make sure the key's project has access to the Gemini 3.1 Flash Image and Veo 3.1 models.
+- **OpenAI** — create a secret key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). Your account needs access to the `gpt-image-2` model and a funded billing balance.
+
+<Note>
+The Fashion Studio config screen shows a live readiness banner: a green "API key detected" callout when the selected engine's key is present, or an amber warning when it's missing. Use it to confirm your key is wired up before going live.
+</Note>
+
+## Configure Fashion Studio
+
+Go to **Admin → General Settings → Plugins → Fashion Studio** (`/app/admin/general/plugins/fashion-studio`). The screen has four sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Fashion Studio** | Master switch. When on, Fashion Studio appears in user menus and tools become usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use Fashion Studio. When off, only users on a plan that includes the feature get access. |
+
+### AI Engine
+
+Pick the default image engine for every still generation:
+
+- **Nano Banana 2** (Google Gemini 3.1 Flash Image) — the default.
+- **GPT Image 2** (OpenAI gpt-image-2).
+
+Below the cards, the readiness callout tells you whether the chosen engine's key is configured.
+
+### Billing — credit matrix
+
+A per-tool, per-engine credit grid. Each cell is the number of credits a user spends for one successful generation with that tool on that engine. Values must be integers between **1 and 999**.
+
+| Feature | Nano Banana 2 (Gemini) | GPT Image 2 (OpenAI) |
+|---------|------------------------|----------------------|
+| Photoshoot | 3 | 4 |
+| Virtual Try-On | 3 | 4 |
+| Change Model | 3 | 4 |
+| Change Style | 2 | 3 |
+| Edit Image | 2 | 3 |
+| Create Video | 12 | 12 |
+| Wardrobe AI Item | 1 | 2 |
+
+<Note>
+**Create Video** is always billed on the Gemini engine because it runs through Veo, so its cost is effectively engine-independent (12 by default either way).
+</Note>
+
+Credit rules:
+
+- A user is **only charged on a successful generation** — failed, timed-out or cancelled jobs cost nothing.
+- Credits are deducted atomically, so two concurrent generations can never overdraw a balance.
+- If a user lacks enough credits for the selected tool/engine, the generation is blocked with a message stating the required amount.
+
+### Performance & Limits
+
+| Setting | Purpose |
+|---------|---------|
+| **OpenAI render quality** | `low` / `medium` / `high` / `auto`. Quality is the biggest lever on speed: `high` can take 1–3 minutes; `medium` (recommended) returns in roughly half that with little visible loss on fashion stills. |
+| **Max upload size (MB)** | Per-image cap for uploaded models, garments and references. Integer 1–50, default 15. |
+
+Click **Save** to persist all sections.
+
+## Grant access by plan
+
+Fashion Studio access is gated in two layers:
+
+1. **Platform layer** — the master **Enable Fashion Studio** switch must be on.
+2. **User layer** — who actually gets the tools:
+   - **Subscribed users** (on a plan): access is governed by the plan's **Fashion Studio** feature toggle. Edit each plan and enable the Fashion Studio feature for the plans that should include it.
+   - **Non-subscribed users** (no plan): access only when both **Enable Fashion Studio** and **Free Tier Access** are on.
+
+<Note>
+When Fashion Studio is offered platform-wide but the current user's plan doesn't include it, the tool appears as a **locked, upgrade-to-unlock** entry that nudges the user toward an eligible plan rather than hiding it entirely.
+</Note>
+
+To set it up:
+
+1. Enable the master switch in the Fashion Studio config.
+2. Go to **Admin → plan management**, edit each plan, and turn the Fashion Studio feature on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Fashion Studio → **Install**.
+  </Step>
+  <Step title="Add an API key">
+    Admin → AI Settings → add a **Gemini** key (recommended — also enables video) and/or an **OpenAI** key.
+  </Step>
+  <Step title="Pick the engine">
+    Fashion Studio config → **AI Engine** → choose the default. Confirm the green "API key detected" callout.
+  </Step>
+  <Step title="Set pricing & limits">
+    Adjust the credit matrix, OpenAI quality and max upload size, then **Save**.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Fashion Studio**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Grant plan access">
+    Enable the Fashion Studio feature on the plans that should include it.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as a user on an eligible plan and run a quick Photoshoot or Virtual Try-On to confirm end-to-end generation works.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Fashion Studio is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+All tools live under **Creative Tools → Fashion Studio** in the user sidebar. They share a common flow: build your inputs, pick an aspect ratio, generate, then favorite or download the result. Output aspect ratios offered are **9:16, 1:1, 3:4, 16:9, 4:3** (the default is 9:16).
+
+### How generation works (and why there's a loading screen)
+
+Image and video models can take well over a minute. Fashion Studio uses a two-phase async pipeline so the browser never times out:
+
+1. **Submit** — a credit check runs, a pending job is saved, and the loading panel appears immediately.
+2. **Process** — a fresh background request makes the slow API call. When it finishes, the panel flips to your result and credits are charged.
+
+<Note>
+If a job stalls, it's automatically failed after about 4 minutes (no charge), and you can also cancel a stuck job manually. Veo video jobs are submitted then polled (10s interval, up to ~5 minutes) before the MP4 is downloaded.
+</Note>
+
+### Photoshoot
+
+Upload (or pick a saved) model, attach up to **5 wardrobe products**, then steer the shot with pose, background and lighting presets — or your own reference images — plus optional notes. Uploaded model/pose/background images are saved to your asset library for reuse.
+
+Built-in presets include 6 poses, 9 backgrounds, 5 lighting setups and 6 model archetypes.
+
+### Virtual Try-On
+
+Provide a required model photo, then fill garment slots — **top, bottom, outerwear, footwear, accessory** — from uploads or your wardrobe. Optional pose and background references refine the result.
+
+### Change Model
+
+Swap the person in a photo. Toggle **Keep Outfit** and **Keep Background** to preserve those elements, and supply the new model via upload, a saved asset, or one of 6 model archetypes.
+
+### Change Style
+
+Restyle the outfit in a photo using one of **20 style packs** (streetwear, minimalist, evening glam, vintage, athleisure, bohemian, business, avant-garde, casual, formal, old money, Y2K, preppy, grunge, gothic, cottagecore, punk, K-fashion, western, coastal) or a free-text prompt. **Keep Identity** preserves the model's face.
+
+### Edit Image
+
+Describe a change in plain language, or tap a quick-edit chip (e.g. clean studio background, warmer lighting, recolor the outfit, golden-hour light, remove distractions, enhance fabric, black-and-white, cinematic grade).
+
+### Create Video
+
+Turn a still into a short clip. Choose a **motion preset** (runway turn, walk toward, wind flow, dolly in, outfit spin, pose change), set **intensity 1–5** and **duration 4 / 6 / 8 seconds**. Veo renders landscape (16:9) or portrait (9:16) — other ratios snap to the nearest. This always uses the Gemini key.
+
+### My Wardrobe
+
+Build a reusable product library. Upload garments/products, or use **Create with AI** to generate a clean 1:1 product shot (billed as a Wardrobe AI Item, charged only on success). Organize items by category: tops, bottoms, dresses, outerwear, footwear, accessories, bags, jewelry.
+
+### My Photoshoots
+
+Browse every completed result. Filter by tab (all / images / videos / favorites), search and sort, then favorite, download or delete.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Fashion Studio doesn't appear for a user | Master switch off, plan lacks the feature, or free tier off for a plan-less user | Enable the master switch; enable the feature on their plan; or turn on Free Tier Access. |
+| "API key is not configured" on generate | The selected engine has no key | Add the matching Gemini or OpenAI key in Admin → AI Settings. |
+| Still images work but Create Video fails | Only an OpenAI key is set | Add a Gemini key — Veo video always uses the Gemini key. |
+| "Not enough credits" | User balance below the tool/engine cost | Top up credits or lower the cost in the billing matrix. |
+| Generations are very slow | OpenAI quality set to `high` | Switch OpenAI render quality to `medium` in Performance & Limits. |
+| Uploads rejected | Image exceeds the size cap | Raise **Max upload size (MB)** (max 50) or have the user compress the image. |
+| Job stuck on the loading panel | Worker request died mid-render | It auto-fails after ~4 minutes (no charge); the user can also cancel and retry. |
+| "The AI model did not return an image" | Prompt rejected or empty model response | Reword the prompt / inputs and retry. |
+
+<Note>
+Generated files are stored on the platform's public results disk under `fashion-studio/…`. Credits are never deducted for failed or cancelled work.
+</Note>

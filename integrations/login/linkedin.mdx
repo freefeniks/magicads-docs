@@ -1,0 +1,112 @@
+---
+title: 'LinkedIn Login'
+sidebarTitle: 'LinkedIn'
+icon: linkedin
+description: 'Let your users sign in and register with their LinkedIn accounts. Create a LinkedIn app using OpenID Connect and paste the credentials into Auth Settings — no code or .env edits required.'
+---
+
+## Introduction
+
+Adding **Sign in with LinkedIn** lets your users register and log in with their LinkedIn account. You'll create an app in the LinkedIn Developer portal, add the **Sign In with LinkedIn using OpenID Connect** product, then paste its credentials into your admin **Auth Settings** page. Credentials are stored securely in the database and applied automatically — there are no `.env` edits or code changes.
+
+<Note>
+**LinkedIn must return an email address.** This is provided by the OpenID Connect `email` scope, which the product in Step 2 adds for you.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A LinkedIn account with access to the [LinkedIn Developer portal](https://www.linkedin.com/developers/).
+- A LinkedIn **Company Page** — LinkedIn requires associating an app with a Page.
+- Your site's public URL (HTTPS strongly recommended).
+
+## Step 1 — Note your Callback URL
+
+The callback URL is where LinkedIn sends users back after they approve sign-in:
+
+```
+https://YOUR_DOMAIN/auth/linkedin/callback
+```
+
+For example: `https://app.example.com/auth/linkedin/callback`
+
+<Note>
+If your site uses a language prefix in its URLs (localization), the callback may include a locale segment such as `/en/auth/linkedin/callback`. Whatever you enter in the **Callback URL** field in Auth Settings must match the value registered in your LinkedIn app exactly.
+</Note>
+
+## Step 2 — Create a LinkedIn app
+
+<Steps>
+  <Step title="Open the LinkedIn Developer portal">
+    Go to [linkedin.com/developers/apps](https://www.linkedin.com/developers/apps) and click **Create app**.
+  </Step>
+  <Step title="Fill in app details">
+    Provide the **App name**, associate it with your **LinkedIn Company Page**, upload a logo, and accept the legal terms. Create the app.
+  </Step>
+  <Step title="Add the OpenID Connect product">
+    Open the **Products** tab and request **Sign In with LinkedIn using OpenID Connect**. This grants the `openid`, `profile`, and `email` scopes the login flow needs. Approval is usually immediate.
+  </Step>
+  <Step title="Add the redirect URL">
+    Open the **Auth** tab. Under **OAuth 2.0 settings → Authorized redirect URLs for your app**, add your callback from Step 1: `https://YOUR_DOMAIN/auth/linkedin/callback`. Save.
+  </Step>
+  <Step title="Confirm the scopes">
+    Still on the **Auth** tab, verify the app has the **openid**, **profile**, and **email** scopes (added by the OpenID Connect product).
+  </Step>
+  <Step title="Copy the credentials">
+    On the **Auth** tab, copy the **Client ID** and **Client Secret**.
+  </Step>
+</Steps>
+
+## Step 3 — Configure MagicAds
+
+<Steps>
+  <Step title="Open Auth Settings">
+    In your platform, go to **Admin → Backend Settings → Auth Settings**.
+  </Step>
+  <Step title="Enable the master switch">
+    Turn on **Social Media Login**. This is the master switch for all social providers, and it saves immediately.
+  </Step>
+  <Step title="Enable LinkedIn and enter credentials">
+    Turn on the **LinkedIn** toggle, then fill in:
+    - **API Key** → paste your LinkedIn **Client ID**.
+    - **API Secret** → paste your LinkedIn **Client Secret**.
+    - **Callback URL** → enter `https://YOUR_DOMAIN/auth/linkedin/callback` (must match the Authorized redirect URL exactly).
+  </Step>
+  <Step title="Save">
+    Click **Save**. LinkedIn only appears as a login option once it's enabled and both the API Key and API Secret are filled in.
+  </Step>
+</Steps>
+
+### Field mapping reference
+
+| MagicAds field | LinkedIn value |
+|----------------|----------------|
+| API Key | Client ID |
+| API Secret | Client Secret |
+| Callback URL | Authorized redirect URL (`/auth/linkedin/callback`) |
+
+## Step 4 — Test it
+
+1. Open your site's **login page** in a private/incognito window.
+2. Click **Sign in with LinkedIn**.
+3. Approve the LinkedIn consent screen.
+4. You should be redirected back and logged into your dashboard.
+
+<Check>
+That's it — your users can now register and log in with LinkedIn.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| "The redirect_uri does not match the registered value" | Redirect URL mismatch | Make the **Authorized redirect URL** in LinkedIn exactly equal the **Callback URL** in Auth Settings. |
+| "Scope not authorized" / missing email | OpenID Connect product not added | Add **Sign In with LinkedIn using OpenID Connect** under the app's Products tab to get `openid`, `profile`, `email`. |
+| LinkedIn button doesn't appear | Master switch off, LinkedIn toggle off, or credentials blank | Enable **Social Media Login** and **LinkedIn**, and fill both API Key and API Secret. |
+| "Your social account did not share an email address" | `email` scope missing | Ensure the OpenID Connect product (with the `email` scope) is enabled on the app. |
+| Can't create the app | No associated Company Page | Create or get admin access to a LinkedIn Company Page and associate it with the app. |
+| "Registration is currently closed" after approval | New-user creation blocked | Enable public registration in your platform settings, or pre-create the account. |
+
+<Note>
+This integration uses LinkedIn's current OpenID Connect flow, not the deprecated legacy LinkedIn OAuth. Credentials are stored securely and applied at runtime; no `.env` edits are needed.
+</Note>

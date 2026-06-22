@@ -1,0 +1,260 @@
+---
+title: 'Product Photoshoot'
+icon: camera-retro
+description: 'Turn a plain product photo into studio-grade, conversion-ready imagery — clean e-commerce shots, styled lifestyle scenes, luxury stills, social ad visuals and quick edits, all in one AI studio.'
+---
+
+<Warning>This is a **Paid** plugin (slug: `magicads-product-photoshoot`) that you need to first purchase and install via the in-app **Plugins** marketplace. Some plugins are free for **Extended License** holders.</Warning>
+
+## Introduction
+
+**Product Photoshoot** turns a plain product photo into studio-grade, conversion-ready imagery: clean e-commerce shots, styled lifestyle scenes, luxury stills, social ad visuals and quick edits. Like Fashion Studio, every tool is **photo-driven**: instead of starting from a blank prompt, you upload a real product photo — plus optional background or reference images — and guide the result with a prompt on top.
+
+This guide covers the full lifecycle: where to buy it, how to install it, how to wire up the AI provider keys, how to configure pricing and limits, how to grant access by plan, and how each tool works.
+
+<Card title="Included Tools">
+- **Dashboard** — stats and a gallery of recent results
+- **Photoshoot** — free-form generation steered by lighting, angle, composition, color mood and lens controls
+- **Scene Templates** — one-tap curated looks across 7 categories with prompt-engineered sub-templates
+- **Background Replace** — swap the product's background for studio sweeps, marble, wood, gradients, nature scenes and more
+- **Edit Image** — instruction-based editing with quick-edit chips
+- **My Products** — product library: upload products or AI-generate a clean product shot, organized by category
+- **My Photoshoots** — gallery of completed results with favorite, download and delete
+</Card>
+
+### AI engines
+
+Product Photoshoot uses two interchangeable image engines (no video).
+
+| Engine | Vendor / model | API key |
+|--------|----------------|---------|
+| **Nano Banana 2** | Google · Gemini 3.1 Flash Image | Gemini |
+| **GPT Image 2** | OpenAI · `gpt-image-2` | OpenAI |
+
+<Note>
+The admin picks one engine as the default, and the credit cost can differ per engine.
+</Note>
+
+## Purchase & Installation
+
+Product Photoshoot is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Product Photoshoot** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Product Photoshoot (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Product Photoshoot** card. The platform downloads the archive, unpacks it and runs its setup automatically — preparing the storage it needs for your generated images, products and reusable background / reference assets.
+
+    It also adds Product Photoshoot's settings with safe defaults (feature off, free tier off, Gemini engine, 20 MB upload cap, medium OpenAI quality).
+
+    <Warning>
+    Installation only makes the routes and tables exist. The tools stay hidden from users until you **enable the feature** and **configure an API key** (next sections). On a fresh install everything is off by default.
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure API keys
+
+Product Photoshoot reads its API keys from the platform's central, encrypted **AI provider keys** store — *not* from the Product Photoshoot screen and *not* from `.env`. Keys are saved encrypted in the database.
+
+<Steps>
+  <Step title="Open AI Settings">
+    Go to **Admin → AI Settings** (`/app/admin/ai`).
+  </Step>
+  <Step title="Add the vendor key(s)">
+    - **Google Gemini** → powers Nano Banana 2.
+    - **OpenAI** → powers GPT Image 2.
+
+    Then click **Save**.
+  </Step>
+</Steps>
+
+### Where to get each key
+
+- **Google Gemini** — create an API key in [Google AI Studio](https://aistudio.google.com/apikey). Make sure the key's project has access to the Gemini 3.1 Flash Image model.
+- **OpenAI** — create a secret key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). Your account needs access to the `gpt-image-2` model and a funded billing balance.
+
+<Note>
+The Product Photoshoot config screen shows a live readiness banner: a green "API key detected" callout when the selected engine's key is present, or an amber warning when it's missing. Use it to confirm your key is wired up before going live.
+</Note>
+
+## Configure Product Photoshoot
+
+Go to **Admin → General Settings → Plugins → Product Photoshoot** (`/app/admin/general/plugins/product-photoshoot`). The screen has four sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Product Photoshoot** | Master switch. When on, the tool appears in user menus and becomes usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use Product Photoshoot. When off, only users on a plan that includes the feature get access. |
+
+### AI Engine
+
+Pick the default image engine for every generation:
+
+- **Nano Banana 2** (Google Gemini 3.1 Flash Image) — the default.
+- **GPT Image 2** (OpenAI gpt-image-2).
+
+The readiness callout below the cards tells you whether the chosen engine's key is configured.
+
+### Billing — credit matrix
+
+A per-tool, per-engine credit grid. Each cell is the number of credits a user spends for one successful generation with that tool on that engine. Values must be integers between **1 and 999**.
+
+| Feature | Nano Banana 2 (Gemini) | GPT Image 2 (OpenAI) |
+|---------|------------------------|----------------------|
+| Photoshoot | 3 | 4 |
+| Scene Template | 3 | 4 |
+| Background Replace | 2 | 3 |
+| Edit Image | 2 | 3 |
+| AI Product Shot | 1 | 2 |
+
+Credit rules:
+
+- A user is **only charged on a successful generation** — failed, timed-out or cancelled jobs cost nothing.
+- Credits are deducted atomically, so two concurrent generations can never overdraw a balance.
+- If a user lacks enough credits for the selected tool/engine, the generation is blocked with a message stating the required amount.
+
+### Performance & Limits
+
+| Setting | Purpose |
+|---------|---------|
+| **OpenAI render quality** | `low` / `medium` / `high` / `auto`. Quality is the biggest lever on speed: `high` can take 1–3 minutes; `medium` (recommended) returns in roughly half that with little visible loss. Only applies to GPT Image 2. |
+| **Max upload size (MB)** | Per-image cap for uploaded products and references. Integer 1–50, default 20. |
+
+Click **Save** to persist all sections.
+
+## Grant access by plan
+
+Access is gated in two layers:
+
+1. **Platform layer** — the master **Enable Product Photoshoot** switch must be on.
+2. **User layer** — who actually gets the tools:
+   - **Subscribed users** (on a plan): access is governed by the plan's **Product Photoshoot** feature toggle. Edit each plan and enable it for the plans that should include it.
+   - **Non-subscribed users** (no plan): access only when both **Enable Product Photoshoot** and **Free Tier Access** are on.
+
+<Note>
+When the tool is offered platform-wide but the current user's plan doesn't include it, it appears as a **locked, upgrade-to-unlock** entry that nudges the user toward an eligible plan rather than hiding it entirely.
+</Note>
+
+To set it up:
+
+1. Enable the master switch in the Product Photoshoot config.
+2. Go to **Admin → plan management**, edit each plan, and turn the Product Photoshoot feature on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Product Photoshoot → **Install**.
+  </Step>
+  <Step title="Add an API key">
+    Admin → AI Settings → add a **Gemini** key and/or an **OpenAI** key.
+  </Step>
+  <Step title="Pick the engine">
+    Product Photoshoot config → **AI Engine** → choose the default. Confirm the green "API key detected" callout.
+  </Step>
+  <Step title="Set pricing & limits">
+    Adjust the credit matrix, OpenAI quality and max upload size, then **Save**.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Product Photoshoot**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Grant plan access">
+    Enable the Product Photoshoot feature on the plans that should include it.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as a user on an eligible plan and run a quick Photoshoot or Scene Template to confirm end-to-end generation works.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Product Photoshoot is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+All tools live under **Creative Tools → Product Photoshoot** in the user sidebar. They share a common flow: upload a product, pick an aspect ratio, generate, then favorite or download the result. Output aspect ratios offered are **1:1, 4:5, 3:4, 16:9, 9:16, 4:3** (the default is 1:1 — product imagery skews square/portrait).
+
+### How generation works
+
+Image models can take well over a minute. Product Photoshoot uses a two-phase async pipeline so the browser never times out:
+
+1. **Submit** — a credit check runs, a pending job is saved, and a loading panel appears immediately.
+2. **Process** — a fresh background request makes the slow API call. When it finishes, the panel flips to your result and credits are charged.
+
+<Note>
+Failed or stalled jobs cost nothing.
+</Note>
+
+### Photoshoot
+
+The free-form studio. Upload a product, write a prompt (or tap a "surprise me" idea seed), then steer the look with advanced controls:
+
+- **Lighting** — soft studio, high-key, dramatic, golden hour, natural daylight, neon glow.
+- **Camera angle** — eye level, top-down, 45° hero, low angle, macro detail.
+- **Composition** — centered hero, rule of thirds, negative space, close crop, group/set, in-hand.
+- **Color mood** — warm & cozy, cool & clean, monochrome, pastel, bold & vivid, earthy natural, luxury dark.
+- **Lens / depth of field** — 85mm portrait, 50mm natural, 100mm macro, 35mm wide, tilt-shift, deep focus.
+- **Negative prompt** — one-tap "avoid" chips (blurry, watermark, warped label, etc.); a sensible default is appended unless the user clears it.
+
+### Scene Templates
+
+One-tap curated looks. Pick a category, then a template within it — the product is composited into the prepared scene.
+
+| Category | Example templates |
+|----------|-------------------|
+| **E-commerce** | Pure white, soft grey, podium, floating, color pop, reflective base, top-down |
+| **Lifestyle** | Kitchen, bathroom vanity, work desk, outdoor, café table, bedside |
+| **Luxury** | Spotlight, marble & gold, silk drape, glass reflection, velvet, smoke & light |
+| **Seasonal** | Holiday, summer, Valentine, autumn, spring, sale / Black Friday |
+| **Social Ad** | Bold color, splash, duotone, flat lay, gradient mesh, geometric |
+| **Minimalist** | Tonal, shadow play, paper fold, single prop, negative space, stone plinth |
+| **Nature** | Botanical, stone & water, wood grain, sand, florals, tropical |
+
+### Background Replace
+
+Keep the product, swap the scene behind it. Presets include studio white, studio grey, marble luxe, warm wood, concrete, gradient pop, botanical, water splash, kitchen scene, modern desk, sandy beige and dark luxe.
+
+### Edit Image
+
+Describe a change in plain language, or tap a quick-edit chip (clean white studio background, brighter/softer lighting, add a reflection, remove clutter, enhance texture, add water droplets, premium dark mood, golden-hour sunlight).
+
+### My Products
+
+Build a reusable product library. Upload products, or use **Create with AI** to generate a clean product shot (billed as an AI Product Shot, charged only on success). Organize by category: beauty, fragrance, skincare, food, beverage, fashion, jewelry, footwear, tech, home, supplements, toys, pet and more.
+
+### My Photoshoots
+
+Browse every completed result, then favorite, download or delete.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Product Photoshoot doesn't appear for a user | Master switch off, plan lacks the feature, or free tier off for a plan-less user | Enable the master switch; enable the feature on their plan; or turn on Free Tier Access. |
+| "API key is not configured" on generate | The selected engine has no key | Add the matching Gemini or OpenAI key in Admin → AI Settings. |
+| "Not enough credits" | User balance below the tool/engine cost | Top up credits or lower the cost in the billing matrix. |
+| Generations are very slow | OpenAI quality set to `high` | Switch OpenAI render quality to `medium` in Performance & Limits. |
+| Uploads rejected | Image exceeds the size cap | Raise **Max upload size (MB)** (max 50) or have the user compress the image. |
+| "The AI model did not return an image" | Prompt rejected or empty model response | Reword the prompt / inputs and retry. |
+| Warped or unreadable labels | Model struggled with fine text | Use a sharper source image; keep the default negative prompt enabled. |
+
+<Note>
+Generated files are stored on the platform's public results disk under `product-photoshoot/…`. Credits are never deducted for failed or cancelled work.
+</Note>

@@ -1,62 +1,131 @@
 ---
-title: 'Google Login Auth'
+title: 'Google Login'
 sidebarTitle: 'Google'
-description: 'Let your users to login and register using their own Google accounts for simplicity'
+icon: google
+description: 'Let your users sign in and register with their Google accounts. Create an OAuth client in Google Cloud and paste the credentials into Auth Settings — no code or .env edits required.'
 ---
 
 ## Introduction
 
-Davinci AI provides you a solution to let your users login using multiple different social media accounts that they use on a daily basis. 
+Adding **Sign in with Google** lets your users register and log in with the account they already use every day. You'll create an OAuth 2.0 client in the Google Cloud Console, then paste its credentials into your admin **Auth Settings** page. Credentials are stored securely in the database and applied automatically — there are no `.env` edits or code changes.
 
-## Configure Google
-To let users to login and register using their Google accounts, follow the steps below:
+<Note>
+**Google must return an email address.** If the account doesn't share an email, the sign-in is rejected. The basic profile scopes below cover this.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A Google account with access to the [Google Cloud Console](https://console.cloud.google.com/).
+- Your site's public URL (HTTPS strongly recommended).
+
+## Step 1 — Note your Callback URL
+
+The callback URL is where Google sends users back after they approve sign-in. It always follows this pattern:
+
+```
+https://YOUR_DOMAIN/auth/google/callback
+```
+
+For example: `https://app.example.com/auth/google/callback`
+
+<Note>
+If your site uses a language prefix in its URLs (localization), the callback may include a locale segment such as `https://app.example.com/en/auth/google/callback`. Whatever you enter in the **Callback URL** field in Auth Settings must match the value registered in Google Cloud **character-for-character**.
+</Note>
+
+Keep this URL handy — you'll need it in the next steps.
+
+## Step 2 — Create your Google OAuth credentials
+
+<Note>
+Google has reorganized this area into the **Google Auth Platform**. Depending on your project, the **APIs & Services → OAuth consent screen** menu item may now open (or redirect to) the Google Auth Platform, where the old consent-screen settings are split across **Branding**, **Audience**, **Clients** and **Data Access** tabs. The steps below follow this current layout. You can also open it directly at [console.cloud.google.com/auth/overview](https://console.cloud.google.com/auth/overview).
+</Note>
 
 <Steps>
-  <Step title="Step 1">
-     Visit [Google API Console](https://console.developers.google.com/) page.
+  <Step title="Open the Google Cloud Console">
+    Go to [console.cloud.google.com](https://console.cloud.google.com/) and sign in.
   </Step>
-  <Step title="Step 2">
-    Once you are logged in your Google console, create a **new project** or use your existing one.
-     <img src="/images/login/google/g-1.jpg" />
+  <Step title="Create or select a project">
+    Use the project picker in the top bar to create a new project (e.g. "MagicAds Login") or select an existing one.
   </Step>
-  <Step title="Step 3">
-    If you are creating a new project, provide a **Project name** and click save.
-    <img src="/images/login/google/g-2.jpg" />
+  <Step title="Set up the Google Auth Platform">
+    In the left menu open **Google Auth Platform** (or **APIs & Services → OAuth consent screen**). If this is a new project, click **Get started** and complete the short wizard:
+    - **App Information** — enter an **App name** and a **User support email**.
+    - **Audience** — choose **External** so any Google user can sign in.
+    - **Contact Information** — add a developer **email address**.
+    - Agree to the policy and click **Create**.
   </Step>
-  <Step title="Step 4">
-    Next, click **Credentials** on the side menu then **Create Credentials** -> **OAuth client ID**.
-   <img src="/images/login/google/g-3.jpg" />
+  <Step title="Add your scopes (Data Access)">
+    Open the **Data Access** tab and click **Add or remove scopes**. Add the basic profile scopes — `userinfo.email`, `userinfo.profile`, and `openid` — then **Update** and **Save**. These let the app read the user's email and name.
+
+    Optionally, on the **Branding** tab you can add your domain under **Authorized domains** (e.g. `example.com`) and set your logo and links.
   </Step>
-  <Step title="Step 5">
-    Click on **configure** button.
-    <img src="/images/login/google/g-4.jpg" />
+  <Step title="Create the OAuth client (Clients)">
+    Open the **Clients** tab and click **Create client** (in the classic layout this is **APIs & Services → Credentials → Create Credentials → OAuth client ID**).
+    - **Application type:** Web application.
+    - **Name:** anything recognizable (e.g. "MagicAds Web").
+    - Under **Authorized JavaScript origins**, add your site origin: `https://YOUR_DOMAIN`.
+    - Under **Authorized redirect URIs**, add your callback URL from Step 1: `https://YOUR_DOMAIN/auth/google/callback`.
+    - Click **Create**.
   </Step>
-  <Step title="Step 6">
-     On the OAuth Concent screen click **External** and click next afterwards provide all required informaiton there.
+  <Step title="Publish the app">
+    Open the **Audience** tab. While the publishing status is **Testing**, only the test users you list can sign in — click **Publish app** to make Google login available to everyone.
   </Step>
-  <Step title="Step 7">
-     Fill in the required fields as needed, and replace **YOUR-DOMAIN-NAME.com** with your domain and make sure that there are no typos in any of the inputs, click create afterwards.
-    <img src="/images/login/google/g-5.jpg" />
-  </Step>
-  <Step title="Step 8">
-     Copy the provided **Client ID** and **Client Secret** somewhere.
-  </Step>
-  <Step title="Step 9">
-   Go to **Admin Panel** -> **General Settings** -> **Auth Settings** page, this is where you configure all social media login accounts and settings. 
-   1. First, enable **Login via Social Media** (OAuth)
-    <img src="/images/login/twitter/t-7.png" />
-   2. Next, include your Google API keys and enter your domain name there as well if it not shown already for you.
-    <img src="/images/login/google/g-5.png" />
-  </Step>
-  <Step title="Step 10">
-    After you are done with configurations, click on **Save** button. 
+  <Step title="Copy the credentials">
+    Back on the **Clients** tab, open your client and copy the **Client ID** and **Client Secret**. You'll paste them into MagicAds next.
   </Step>
 </Steps>
 
+## Step 3 — Configure MagicAds
+
+<Steps>
+  <Step title="Open Auth Settings">
+    In your platform, go to **Admin → Backend Settings → Auth Settings**.
+  </Step>
+  <Step title="Enable the master switch">
+    Turn on **Social Media Login**. This is the master switch for all social providers, and it saves immediately.
+  </Step>
+  <Step title="Enable Google and enter credentials">
+    Turn on the **Google** toggle, then fill in:
+    - **API Key** → paste your Google **Client ID**.
+    - **API Secret** → paste your Google **Client Secret**.
+    - **Callback URL** → enter `https://YOUR_DOMAIN/auth/google/callback` (must match the redirect URI in Google Cloud exactly).
+  </Step>
+  <Step title="Save">
+    Click **Save**. Google only appears as a login option once it's enabled and both the API Key and API Secret are filled in.
+  </Step>
+</Steps>
+
+### Field mapping reference
+
+| MagicAds field | Google Cloud value |
+|----------------|--------------------|
+| API Key | Client ID |
+| API Secret | Client Secret |
+| Callback URL | Authorized redirect URI (`/auth/google/callback`) |
+
+## Step 4 — Test it
+
+1. Open your site's **login page** in a private/incognito window.
+2. Click **Sign in with Google**.
+3. Approve the Google consent screen.
+4. You should be redirected back and logged into your dashboard.
+
 <Check>
-Congratulations! You have successfully comleted the Login and Registration with Google process.
+That's it — your users can now register and log in with Google.
 </Check>
 
+## Troubleshooting
 
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `redirect_uri_mismatch` error from Google | The redirect URI doesn't match | Make the **Authorized redirect URI** in Google Cloud exactly equal the **Callback URL** in Auth Settings (including `https`, domain, and any locale prefix). |
+| Google button doesn't appear | Master switch off, Google toggle off, or credentials blank | Enable **Social Media Login** and **Google**, and fill both API Key and API Secret. |
+| "Access blocked: app not verified" / only test users can log in | Publishing status still in Testing | Add test users under **Audience**, or click **Publish app** on the **Audience** tab. |
+| "Your social account did not share an email address" | Email scope missing | Ensure the `userinfo.email` scope is added under **Data Access**. |
+| "Registration is currently closed" after Google approval | New-user creation blocked | Enable public registration in your platform settings, or pre-create the account. |
+| Login works but no avatar/name | Profile scope missing | Ensure the `userinfo.profile` scope is added under **Data Access**. |
 
-
+<Note>
+Credentials are stored securely and applied at runtime. There's no need to edit `.env` or run any commands after saving.
+</Note>

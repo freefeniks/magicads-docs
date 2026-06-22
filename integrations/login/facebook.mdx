@@ -1,0 +1,119 @@
+---
+title: 'Facebook Login'
+sidebarTitle: 'Facebook'
+icon: facebook
+description: 'Let your users sign in and register with their Facebook accounts. Create a Facebook app in Meta for Developers and paste the credentials into Auth Settings — no code or .env edits required.'
+---
+
+## Introduction
+
+Adding **Sign in with Facebook** lets your users register and log in with their Facebook account. You'll create an app in the Meta for Developers console, add the Facebook Login product, then paste the app credentials into your admin **Auth Settings** page. Credentials are stored securely in the database and applied automatically — there are no `.env` edits or code changes.
+
+<Note>
+**Facebook must return an email address.** If the account has no verified email, or the user declines the email permission, sign-in is rejected.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A Facebook account with access to [Meta for Developers](https://developers.facebook.com/).
+- Your site's public URL — **Facebook requires HTTPS** for the redirect URI.
+
+## Step 1 — Note your Callback URL
+
+The callback URL is where Facebook sends users back after they approve sign-in:
+
+```
+https://YOUR_DOMAIN/auth/facebook/callback
+```
+
+For example: `https://app.example.com/auth/facebook/callback`
+
+<Note>
+If your site uses a language prefix in its URLs (localization), the callback may include a locale segment such as `/en/auth/facebook/callback`. Whatever you enter in the **Callback URL** field in Auth Settings must match the value registered in your Facebook app exactly.
+</Note>
+
+## Step 2 — Create a Facebook app
+
+<Steps>
+  <Step title="Open Meta for Developers">
+    Go to [developers.facebook.com](https://developers.facebook.com/), sign in, and open **My Apps → Create App**.
+  </Step>
+  <Step title="Create the app">
+    Meta's app creation is now **use-case based**. When prompted for what you want to build, choose **Authenticate and request data from users with Facebook Login**. If you're asked to connect a **Business portfolio**, you can select one or skip it for now. Give the app a name, add a contact email, and create it.
+
+    <Note>
+    The older **Consumer / Business app type** chooser has been replaced by these use cases. If no listed use case fits, pick **Other**, then continue and add the **Facebook Login** product in the next step.
+    </Note>
+  </Step>
+  <Step title="Add the Facebook Login product">
+    From the app dashboard, find **Facebook Login** in the product list and click **Set up**. Choose the **Web** platform and enter your **Site URL** (`https://YOUR_DOMAIN`).
+  </Step>
+  <Step title="Set the valid OAuth redirect URI">
+    Go to **Facebook Login → Settings** and add your callback URL from Step 1 under **Valid OAuth Redirect URIs**: `https://YOUR_DOMAIN/auth/facebook/callback`. Save changes.
+  </Step>
+  <Step title="Grant the email permission">
+    Under **App Review → Permissions and Features** (or the Login settings), make sure the **email** and **public_profile** permissions are available. These are usually granted by default for basic login.
+
+    <Warning>
+    To allow logins from users outside your dev/test list, switch the app from **Development** to **Live** mode (top toggle). This may require completing Business Verification depending on Meta's current policy.
+    </Warning>
+  </Step>
+  <Step title="Copy the credentials">
+    Go to **App Settings → Basic**. Copy the **App ID** and **App Secret** (click **Show** to reveal the secret).
+  </Step>
+</Steps>
+
+## Step 3 — Configure MagicAds
+
+<Steps>
+  <Step title="Open Auth Settings">
+    In your platform, go to **Admin → Backend Settings → Auth Settings**.
+  </Step>
+  <Step title="Enable the master switch">
+    Turn on **Social Media Login**. This is the master switch for all social providers, and it saves immediately.
+  </Step>
+  <Step title="Enable Facebook and enter credentials">
+    Turn on the **Facebook** toggle, then fill in:
+    - **API Key** → paste your Facebook **App ID**.
+    - **API Secret** → paste your Facebook **App Secret**.
+    - **Callback URL** → enter `https://YOUR_DOMAIN/auth/facebook/callback` (must match the Valid OAuth Redirect URI exactly).
+  </Step>
+  <Step title="Save">
+    Click **Save**. Facebook only appears as a login option once it's enabled and both the API Key and API Secret are filled in.
+  </Step>
+</Steps>
+
+### Field mapping reference
+
+| MagicAds field | Facebook value |
+|----------------|----------------|
+| API Key | App ID |
+| API Secret | App Secret |
+| Callback URL | Valid OAuth Redirect URI (`/auth/facebook/callback`) |
+
+## Step 4 — Test it
+
+1. Open your site's **login page** in a private/incognito window.
+2. Click **Sign in with Facebook**.
+3. Approve the Facebook consent dialog (make sure email is allowed).
+4. You should be redirected back and logged into your dashboard.
+
+<Check>
+That's it — your users can now register and log in with Facebook.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| "URL Blocked: This redirect failed" | Redirect URI not whitelisted | Add the exact callback URL under **Facebook Login → Settings → Valid OAuth Redirect URIs**. |
+| Only the developer/testers can log in | App still in Development mode | Switch the app to **Live**, completing any required verification. |
+| Facebook button doesn't appear | Master switch off, Facebook toggle off, or credentials blank | Enable **Social Media Login** and **Facebook**, and fill both API Key and API Secret. |
+| "Your social account did not share an email address" | Email permission denied or no email on the account | Ensure the **email** permission is requested/approved; the user must grant it. |
+| "Can't load URL: domain not included" | Domain not allowed | Add your domain under **App Settings → Basic → App Domains** and the Site URL. |
+| "Registration is currently closed" after approval | New-user creation blocked | Enable public registration in your platform settings, or pre-create the account. |
+
+<Note>
+Credentials are stored securely and applied at runtime. There's no need to edit `.env` or run any commands after saving.
+</Note>

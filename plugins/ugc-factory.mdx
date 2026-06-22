@@ -1,0 +1,277 @@
+---
+title: 'UGC Factory'
+icon: clapperboard
+description: 'Turn an actor photo plus a voice into a realistic, lip-synced talking UGC video — powered by VEED Fabric 1.0 on fal.ai.'
+---
+
+<Warning>This is a **Paid** plugin (slug: `magicads-ugc-factory`) that you need to first purchase and install via the in-app **Plugins** marketplace. Some plugins are free for **Extended License** holders.</Warning>
+
+## Introduction
+
+**UGC Factory** turns a still "actor" photo plus an audio track into a realistic, lip-synced talking UGC video using the **VEED Fabric 1.0** model on [fal.ai](https://fal.ai/models/veed/fabric-1.0/api).
+
+The flow is simple: **actor image + audio → talking video**. The audio comes from one of three sources — a typed script read by an AI voice, an uploaded voiceover, or a voiceover recorded in the browser.
+
+Unlike Fashion Studio and Product Photoshoot (which run on Gemini/OpenAI keys), UGC Factory runs entirely on the **admin's fal.ai key** and is **cron-driven** — so it has a couple of setup steps those plugins don't. This guide covers the full lifecycle.
+
+<Card title="Included Screens">
+- **Studio** — the single-page builder: choose a voiceover source and an actor, pick a quality tier, and generate a talking video
+- **My Videos** — gallery of completed creations: favorite, download and manage
+</Card>
+
+### How a video is built
+
+The Studio has two rails:
+
+- **Voiceover source** — one of three modes:
+  - **Text** — type a script; it's turned into speech with ElevenLabs TTS (run on fal.ai) using a voice you pick.
+  - **Audio** — upload a ready-made voiceover file (mp3, wav, m4a, ogg).
+  - **Record** — record a voiceover directly in the browser.
+- **Actor** — a still photo, chosen from:
+  - **Preset cast** — 21 bundled actors (cafe, kitchen, office, gym, podcast, etc.).
+  - **Saved** — actors you previously uploaded or generated.
+  - **Upload** — a fresh photo (jpg, png, webp).
+  - **Generated** — create a brand-new actor portrait from a text prompt.
+
+### Models used (all on fal.ai)
+
+| Purpose | Model | Notes |
+|---------|-------|-------|
+| Talking video | `veed/fabric-1.0` (quality) / `veed/fabric-1.0/fast` (fast) | Photo-driven, lip-synced |
+| Text → speech | `fal-ai/elevenlabs/tts/multilingual-v2` | Used in Text mode |
+| Actor portrait | `fal-ai/flux/schnell` | Used by "Create New Actor" |
+
+## Purchase & Installation
+
+UGC Factory is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **UGC Factory** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase UGC Factory (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **UGC Factory** card. The platform downloads the archive, unpacks it and runs its setup automatically — preparing the storage it needs for your generated videos, saved actors and the voice catalog.
+
+    It also adds UGC Factory's settings (feature off, free tier off, quality render mode, 10 MB upload cap) and a per-plan UGC Factory access toggle.
+
+    <Warning>
+    On a fresh install everything is off by default. The tool stays hidden until you **enable the feature**, **add a fal.ai key**, and **enable the cron scheduler** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure API keys
+
+UGC Factory's keys are entered **on the plugin settings page itself** (`Admin → General Settings → Plugins → UGC Factory`), not in the central AI Settings screen.
+
+### fal.ai key (required)
+
+This powers every generation — video, TTS and actor portraits.
+
+<Steps>
+  <Step title="Create a fal.ai key">
+    Get a key from the [fal.ai dashboard](https://fal.ai/dashboard/keys).
+  </Step>
+  <Step title="Paste it into UGC Factory">
+    On the UGC Factory settings page, paste it into the **fal.ai API key** field.
+  </Step>
+  <Step title="Test & save">
+    Click **Test Connection** to verify it, then **Save**.
+  </Step>
+</Steps>
+
+The key is stored **encrypted** in the database. Users never supply their own key.
+
+<Note>
+**Fallback:** if you leave the fal.ai key blank, UGC Factory falls back to the shared fal.ai key already configured in **Admin → AI Settings** (the same one AI Studio uses). Entering it on the plugin page lets you scope a dedicated key to UGC Factory.
+</Note>
+
+The settings page shows a live readiness state — once a valid key is detected, the plugin is ready to generate.
+
+### ElevenLabs key (optional)
+
+UGC Factory ships with **40 premade English voices** out of the box — no extra key needed. Adding an ElevenLabs key lets you import the **full multilingual shared voice library** (hundreds of voices).
+
+1. Get a key from your [ElevenLabs profile](https://elevenlabs.io/app/settings/api-keys).
+2. On the UGC Factory settings page, paste it into the **ElevenLabs API key** field.
+3. Click **Sync Voices** to pull the library into the catalog (up to ~220 voices, paged).
+
+<Note>
+You can later use **Clear Library Voices** to remove imported voices (the premade set always remains). Voice generation itself always runs through fal.ai — the ElevenLabs key is only used to list/import the library.
+</Note>
+
+## Enable the cron scheduler (required)
+
+UGC Factory renders are **not** processed inside the web request. A cron-driven command advances every in-flight video one step at a time (submit → poll → download → finalize), which is what keeps it reliable on shared hosting.
+
+The command is:
+
+```bash
+php artisan ugc-factory:process
+```
+
+It's already wired into Laravel's scheduler to run **every minute** (it only registers when the plugin is installed). You just need Laravel's scheduler itself running. Add this single cron entry on your server if you haven't already:
+
+```cron
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+<Warning>
+Without the scheduler running, videos will sit on "pending" forever and never complete. This is the most common cause of stuck UGC Factory renders.
+</Warning>
+
+The processor is self-healing: it submits new jobs, polls running ones, and automatically fails ("reaps") any render that runs too long (default: 30 minutes or 360 polls) so the UI never hangs. Credits are only charged when a render completes successfully.
+
+### Optional: FFmpeg for recorded audio
+
+When a user **records** a voiceover in the browser, the audio arrives as webm/opus or mp4. UGC Factory transcodes it to mp3 with the bundled FFmpeg so Fabric reliably accepts it. If FFmpeg isn't available it falls back to sending the original audio. Uploaded mp3/wav/m4a files pass through untouched, so FFmpeg is only relevant to the Record mode.
+
+## Configure UGC Factory
+
+On the UGC Factory settings page you'll find four sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable UGC Factory** | Master switch. When on, the tool appears in user menus and becomes usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use UGC Factory. When off, only users on a plan that includes the feature get access. |
+
+### Render fidelity
+
+| Setting | Purpose |
+|---------|---------|
+| **Render mode** | `quality` → `veed/fabric-1.0` · `fast` → `veed/fabric-1.0/fast`. "Fast" gives quicker, cheaper turnaround; "quality" gives the best result. |
+
+### Billing — credit matrix
+
+UGC Factory bills **per output variant**, so video cost scales with quality. Values are integers 1–9999, charged only after a successful render.
+
+| Feature | Variant | Default credits |
+|---------|---------|-----------------|
+| UGC Talking Video | 480p | 20 |
+| UGC Talking Video | 720p HD | 35 |
+| Create New Actor | flat | 5 |
+
+The default video quality is **720p**. Credit rules:
+
+- Users are **only charged on a successful generation** — failed, timed-out or reaped jobs cost nothing.
+- Credits are deducted atomically, so concurrent generations can't overdraw a balance.
+- Creating an AI actor is charged separately (the Create New Actor fee), also only on success.
+
+### Limits
+
+| Setting | Purpose |
+|---------|---------|
+| **Max upload size (MB)** | Per-file cap for uploaded actors and audio. Integer 1–100, default 10. |
+
+Built-in hard limits (from config): script up to **1200 characters**, actor image up to **10 MB**, audio up to **25 MB**, recordings up to **120 seconds**.
+
+Click **Save** to persist your changes.
+
+## Grant access by plan
+
+Access is gated in two layers:
+
+1. **Platform layer** — the master **Enable UGC Factory** switch must be on.
+2. **User layer** — who actually gets the tool:
+   - **Subscribed users** (on a plan): access is governed by the plan's **UGC Factory** feature toggle.
+   - **Non-subscribed users** (no plan): access only when both **Enable UGC Factory** and **Free Tier Access** are on.
+
+<Note>
+When the tool is offered platform-wide but the current user's plan doesn't include it, it appears as a **locked, upgrade-to-unlock** entry that nudges the user toward an eligible plan.
+</Note>
+
+To set it up:
+
+1. Enable the master switch in the UGC Factory config.
+2. Go to **Admin → plan management**, edit each plan, and turn the UGC Factory feature on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → UGC Factory → **Install**.
+  </Step>
+  <Step title="Add the fal.ai key">
+    On the UGC Factory settings page, paste your fal.ai API key and click **Test Connection**, then **Save**.
+  </Step>
+  <Step title="Enable the cron scheduler">
+    Make sure `php artisan schedule:run` runs every minute via a server cron entry.
+  </Step>
+  <Step title="(Optional) Import voices">
+    Add an ElevenLabs key and click **Sync Voices** for the full multilingual library.
+  </Step>
+  <Step title="Set pricing & limits">
+    Adjust the credit matrix, render mode and max upload size, then **Save**.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable UGC Factory**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Grant plan access">
+    Enable the UGC Factory feature on the plans that should include it.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as a user on an eligible plan, build a quick Text-mode video, and confirm it completes (the cron will finalize it within a minute or two).
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, UGC Factory is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+Open **Creative Tools → UGC Factory** in the user sidebar.
+
+<Steps>
+  <Step title="Choose a voiceover source">
+    - **Text** — type or pick a starter script (up to 1200 characters), then choose a voice. Each voice has a play button to preview a sample. In Text mode you also pick the output quality (480p or 720p) with the credit cost shown per tier.
+    - **Audio** — upload a voiceover (mp3, wav, m4a, ogg; up to 25 MB).
+    - **Record** — record a voiceover in the browser (up to 120 seconds).
+  </Step>
+  <Step title="Pick an actor">
+    - **Preset** — choose from the 21 bundled actors.
+    - **Saved** — reuse an actor you previously uploaded or generated.
+    - **Upload** — upload your own photo (jpg, png, webp; up to 10 MB).
+    - **Create New Actor** — describe an actor in a prompt (or tap a starter chip) and generate a fresh portrait. This is saved to your actors and selected automatically. It charges the Create New Actor fee on success.
+  </Step>
+  <Step title="Generate">
+    Click generate. A creation is queued as **pending**; the cron processor then submits it to fal.ai (running TTS first in Text mode), polls until the render finishes, downloads the MP4 and charges the matching credit cost. The video appears in **My Videos** when it's ready — typically within a minute or two depending on length and fal.ai load.
+  </Step>
+</Steps>
+
+### My Videos
+
+Browse your completed creations, mark favorites, and download the MP4s.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| UGC Factory doesn't appear for a user | Master switch off, plan lacks the feature, or free tier off for a plan-less user | Enable the master switch; enable the feature on their plan; or turn on Free Tier Access. |
+| Videos stay stuck on "pending" | The Laravel scheduler isn't running | Add the `* * * * * php artisan schedule:run` cron entry on your server. |
+| "fal.ai API key is not configured" | No fal.ai key on the plugin page or in AI Settings | Add a fal.ai key on the UGC Factory settings page and Test Connection. |
+| "fal.ai rejected this API key" | Invalid key | Re-check the key in your fal.ai dashboard and re-enter it. |
+| Voice library won't import | Missing/invalid ElevenLabs key | Add a valid ElevenLabs key, then click Sync Voices. Premade voices work without it. |
+| Recorded audio sounds wrong / fails | FFmpeg unavailable for transcoding | Install FFmpeg on the server, or have users upload mp3/wav instead. |
+| "Not enough credits" | Balance below the selected quality tier | Top up credits or lower the cost in the billing matrix. |
+| Render timed out | fal.ai took too long; auto-reaped after ~30 min | No charge is taken; ask the user to try again (a shorter clip or Fast render mode helps). |
+| Uploads rejected | File exceeds the size cap | Raise **Max upload size (MB)** (max 100), within the 10 MB image / 25 MB audio hard limits. |
+
+<Note>
+Generated videos are stored on the platform's public results disk under `ugc-factory/results/{userId}/…`. Credits are never deducted for failed or reaped renders.
+</Note>
