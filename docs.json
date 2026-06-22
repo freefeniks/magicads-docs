@@ -37,7 +37,12 @@
             "pages": ["integrations/ai/openai",
                       "integrations/ai/anthropic",
                       "integrations/ai/xai",
-                      "integrations/ai/gemini"
+                      "integrations/ai/gemini",
+                      "integrations/ai/flux",
+                      "integrations/ai/ideogram",
+                      "integrations/ai/recraft",
+                      "integrations/ai/runway",
+                      "integrations/ai/fal-ai"
                       ]
           },  
           {

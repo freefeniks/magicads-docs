@@ -1,127 +1,122 @@
 ---
-title: 'OpenAI Integration'
+title: 'OpenAI Setup'
 sidebarTitle: 'OpenAI'
-description: 'Supercharge your Davinci AI platform with OpenAI’s cutting-edge AI capabilities. This guide walks you through setting up and leveraging OpenAI’s powerful models for content creation, coding assistance, image generation, and more.'
+description: 'Connect OpenAI to MagicAds — it powers the Image Studio (GPT Image 2) and Copy Studio (GPT-5.x), and can act as an alternate image engine in the Fashion Studio and Product Photoshoot plugins.'
 ---
 
 ## Introduction
 
-Davinci AI’s OpenAI integration unlocks a world of AI-powered possibilities for your platform. From natural language processing to image generation, OpenAI’s advanced models can enhance various aspects of your Davinci AI experience.
+OpenAI is one of the broadest providers on the platform. A single key drives:
 
-## Available Models and Tools
+- the **Image Studio** via GPT Image 2,
+- the **Copy Studio** via the GPT-5.x text models, and
+- an optional alternate image engine inside the **Fashion Studio** and **Product Photoshoot** plugins.
 
-Davinci AI leverages a wide range of OpenAI models to power various tools and features:
+This guide walks you through getting an OpenAI key, adding it in MagicAds, and the full list of models it unlocks.
 
-### LLM Text Generation Models
-<Card title="Included OpenAI Text Models" >
-- OpenAI | GPT 5.1
-- OpenAI | GPT 5
-- OpenAI | GPT 5 mini
-- OpenAI | GPT 5 nano
-- OpenAI | GPT 5 chat
-- OpenAI | o4 mini
-- OpenAI | o3
-- OpenAI | o3 mini
-- OpenAI | o1 mini
-- OpenAI | o1
-- OpenAI | GPT 4.5
-- OpenAI | GPT 4 Turbo
-- OpenAI | GPT 4o mini
-- OpenAI | GPT 4o
-- OpenAI | GPT 4o Search Preview
-- OpenAI | GPT 4o mini Search Preview
-- OpenAI | GPT 4
-- OpenAI | GPT 3.5 Turbo
-</Card>
+## How keys are stored
 
-### Image Generation Models
-<Card title="Included OpenAI Image Models" >
-- OpenAI | Dalle 3 HD
-- OpenAI | Dalle 3
-- OpenAI | Dalle 2
-</Card>
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits and no code changes — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
 
-### Audio Processing Models
-<Card title="Included OpenAI Audio Models" >
-- OpenAI | TTS-1 and TTS-1-HD (for text to speech)
-- OpenAI | Whisper (for speech to text)
-</Card>
+<Note>
+A model only becomes available to users when **both** are true: the provider's API key is saved **and** the model is **enabled** in the vendor modal.
+</Note>
 
-### Embedding Models
-<Card title="Included OpenAI Embedding Models" >
-- OpenAI | text-embedding-3-large
-- OpenAI | text-embedding-3-small
-- OpenAI | text-embedding-ada-002
-</Card>
+## Before you start
 
-## Connect OpenAI Account
-To be able to use your OpenAI API, follow these steps to setup integration.
+- Admin access to your MagicAds platform.
+- An OpenAI account with a funded billing balance.
+- Access to the required models (notably `gpt-image-2`) on your OpenAI account.
+
+## Part 1 — Get your OpenAI API key
 
 <Steps>
-  <Step title="Step 1">
-    If you don’t have an OpenAI account, <a href="https://platform.openai.com/signup" target="_blank">sign up here</a>
+  <Step title="Sign in to the OpenAI platform">
+    Go to [platform.openai.com](https://platform.openai.com/) and sign in (or create an account). The **API platform** is separate from ChatGPT — make sure you're on `platform.openai.com`, not `chatgpt.com`.
   </Step>
-  <Step title="Step 2">
-    Once logged in, navigate to the <a href="https://platform.openai.com/account/api-keys" target="_blank">API keys page</a>
+  <Step title="Set up billing first">
+    Open **Settings → Billing** and add a payment method. OpenAI's API runs on **prepaid credits** or invoiced usage — add a small starting balance so your key can make calls. OpenAI charges you directly for usage; this is separate from your MagicAds platform credits.
   </Step>
-  <Step title="Step 3">
-    Click on **Create new secret key** make sure you set the permission to be **All**, that way you can use one API key for all OpenAI features, next copy the generated API key
-    <Note>Keep your API key secure. It provides access to OpenAI’s services and should not be shared publicly.</Note>
+  <Step title="Open the API keys page">
+    Go to **Dashboard → API keys** (direct link: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)). If your account uses **projects**, pick the project the key should belong to first.
   </Step>
-  <Step title="Step 4">
-    Login to Davinci AI using your admin credentials. 
+  <Step title="Create a secret key">
+    Click **Create new secret key**, give it a name (e.g. "MagicAds"), optionally scope it to a project, and (if asked for permissions) choose **All**. Click **Create**.
+
+    <Warning>
+    The secret key is shown **only once**. Copy it immediately and store it somewhere safe — you can't view it again later, only regenerate it.
+    </Warning>
   </Step>
-  <Step title="Step 5">
-    In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
-  </Step>
-  <Step title="Step 6">
-    Click on **OpenAI** tab there. 
-    <img src="/images/ai/openai/openai-1.png" />
-  </Step>
-  <Step title="Step 7">
-    Include your API key under **OpenAI Secret Key (Main API Key)** input field. 
-    <img src="/images/ai/openai/openai-2.png" />
-  </Step>
-  <Step title="Step 8">
-    If you want to use OpenAI for **AI Voiceover** feature as well make sure to activate checkboxes under **OpenAI Voiceover Settings** ection. 
-  </Step>
-  <Step title="Step 9">
-    After you are done with configurations, click on **Save** button. 
+  <Step title="Confirm model access">
+    Make sure your account can use the image model `gpt-image-2` and the GPT-5.x chat models. Some models require a minimum spend tier or organization verification on your OpenAI account.
   </Step>
 </Steps>
 
-<Check>
-Congratulations! You have successfully comleted the OpenAI setup process.
-</Check>
+## Part 2 — Add the key in MagicAds
 
-## Davinci AI Tools Powered by OpenAI
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the OpenAI vendor">
+    Click the **OpenAI** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your secret key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the models you want">
+    Toggle on the OpenAI models you want to offer and set each model's **credit cost** (what a user is charged per generation). For GPT Image 2 you can also set the **image quality** (see below).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The OpenAI card now shows as connected, and the enabled models appear in the relevant studios.
+  </Step>
+</Steps>
 
-Following AI tools can be used with OpenAI models
+<Note>
+There is no "test connection" button. To verify, enable a model and run a quick generation in the matching studio.
+</Note>
 
-1. **AI Chat** - chat conversations and get instant answers.
-1. **AI Realtime Voice Chat** - use voice commands to chat with the chatbots.
-2. **AI Writer** - Generate high-quality content for various purposes.
-3. **AI Article Wizard** - Generate large texts easitly in a step by step wizard 
-4. **Smart Editor** - Advanced editor for both original and cutom templates
-5. **AI Code** - Generate code samples for any programming language as needed
-6. **AI Image** - Generate images with additional image features
-7. **AI Vision** - Analyzie your images for various semantics
-8. **AI Voiceover** - Convert any text into audio
-9. **AI ReWriter** - Rewrite any text as you prefer
-10. **AI Speech to Text** - Transcribe any audio files into text
-11. **AI File Chat** - Use your files in the chat to ask any questions about it
-12. **AI Web Chat** - Use your website URL in the chat to ask any questions about it
-13. **AI Chat Image** - Use chat to generate any AI images
+## Part 3 — Supported OpenAI models
 
-## Best Practices
+### Image Studio
 
-To make the most of your OpenAI integration:
+| Model | Model ID | Default credits | Notes |
+|-------|----------|-----------------|-------|
+| OpenAI GPT Image 2 | `gpt-image-2` | 2 | Quality-first image engine. Best-in-class **English text rendering**, high-fidelity edits, up to 4K. Supports reference-image input and an adjustable render quality. |
 
-- Experiment with different models to find the best fit for your use case.
-- Use clear and specific prompts to get the most accurate results.
-- Monitor your API usage to manage costs effectively.
-  <Warning>Available only for Extended License users</Warning>
+**Image quality knob (GPT Image 2 only):** in the vendor modal you can pick `auto`, `low`, `medium`, or `high`. Quality is the biggest lever on speed — `high` is slowest, `medium` is the recommended balance.
 
+### Copy Studio
 
+| Model | Model ID | Tier | Default credits | Best for |
+|-------|----------|------|-----------------|----------|
+| GPT-5.5 | `gpt-5.5` | Premium | 3 | Flagship quality for complex, high-converting ad copy. |
+| GPT-5.4 | `gpt-5.4` | Premium | 2 | More affordable flagship-tier; excellent all-round copy. |
+| GPT-5.4 Mini | `gpt-5.4-mini` | Standard | 1 | Fast and cost-efficient; great for high-volume runs. |
+| GPT-5.4 Nano | `gpt-5.4-nano` | Fast | 1 | Smallest/cheapest; ideal for short copy. |
 
+### Also used by plugins
 
+The **Fashion Studio** and **Product Photoshoot** plugins can use OpenAI's `gpt-image-2` as their image engine (selected on each plugin's own settings page). They read the same OpenAI key, so once it's configured here those plugins can use it too.
+
+<Note>
+Credit costs shown are the seeded defaults. You can change any model's credit cost in the vendor modal. These are what your platform charges users in credits — they are not OpenAI's prices.
+</Note>
+
+## Part 4 — Make OpenAI a default (optional)
+
+In the global section of **AI Settings** you can set the **default copy engine** to OpenAI and the **default image model** to OpenAI GPT Image 2, so they're pre-selected for users. You can also toggle each studio (Image / Video / Copy) on or off and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| OpenAI models don't appear to users | Key missing or models disabled | Add the key in the OpenAI vendor modal and enable the models, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the OpenAI key in AI Settings and Save to refresh it. |
+| Image generations are slow | GPT Image 2 quality set to `high` | Lower it to `medium` in the vendor modal. |
+| OpenAI API errors / 401 | Invalid key or no model access/billing | Re-check the key, billing balance, and `gpt-image-2` access in your OpenAI account. |
+| Copy generation fails only for GPT-5.5 | Account lacks access to that model | Disable that model or enable a tier your account can use. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

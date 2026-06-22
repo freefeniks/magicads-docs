@@ -1,92 +1,131 @@
 ---
-title: 'Google Gemini Integration'
+title: 'Google Gemini Setup'
 sidebarTitle: 'Gemini'
-description: 'Enhance your Davinci AI platform with Google Gemini models. This guide explains how to set up and configure Gemini integration for your platform.'
+description: 'Connect Google Gemini to MagicAds — the broadest provider, powering the Copy, Image and Video studios plus the Fashion Studio and Product Photoshoot plugins from a single key.'
 ---
 
 ## Introduction
 
-Davinci AI’s Gemini integration allows you to leverage Google models for AI-powered conversations and content generation. This guide will help you set up and manage the Gemini integration in your platform.
+Google Gemini is the **broadest and most important** provider on the platform. A single key drives:
 
-## Available Models and Tools
+- **Copy Studio** — the Gemini text models,
+- **Image Studio** — Google Nano Banana 2 (Gemini 3.1 Flash Image),
+- **Video Studio** — Google Veo 3.1 and Veo 3.1 Lite, and
+- the **Fashion Studio** and **Product Photoshoot** plugins, which use Gemini as their image/video engine.
 
-Davinci AI leverages a wide range of Gemini models to power various tools and features:
+Because so much depends on it, the Gemini key is the one most worth configuring first.
 
-### LLM Text Generation Models
-<Card title="Included Google Gemini Text Models" >
-- Google | Gemini 3 Pro
-- Google | Gemini 2.5 Pro
-- Google | Gemini 2.5 Flash
-- Google | Gemini 2.5 Flash Lite
-- Google | Gemini 2.0 Flash
-- Google | Gemini 1.5 Flash
-- Google | Gemini 1.5 Pro
-</Card>
+## How keys are stored
 
-## Connect Google Gemini Account
-To be able to use your Gemini API, follow these steps to setup integration.
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the Gemini API key is saved **and** the model is **enabled** in the vendor modal. The **same** key powers Gemini text, Gemini image, Veo video, and the two plugins — you only enter it once.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A Google account with access to [Google AI Studio](https://aistudio.google.com/).
+- Billing enabled on the Google project if you'll use the paid models (notably Veo video).
+
+## Part 1 — Get your Gemini API key
 
 <Steps>
-  <Step title="Step 1">
-    If you don’t have an Gemini account, [sign up here](https://aistudio.google.com/)
+  <Step title="Open Google AI Studio">
+    Go to [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and sign in with your Google account. Accept the terms of service on your first visit.
   </Step>
-   <Step title="Step 2">
-     Once you are logged in to Google AI Studio, make sure to first setup your billing. 
-     <Note>Google Cloud offers $300 in credit to spend over the next 90 days for any of their services upon first registration with proper billing information.</Note>
-     To setup billing: 
-     1. Select **Usage & Billing** on the left menu panel. 
-     2. Next, select **Billing** tab and click on **Set up Billin** button. 
-     3. Follow the Google instructions to properly setup your billing information. 
+  <Step title="Create an API key">
+    Click **Create API key**. Give it a name, then either:
+    - select an existing **Google Cloud project** from the dropdown, or
+    - choose **Create API key in new project** for a clean project.
+
+    Click **Create key**.
   </Step>
-  <Step title="Step 3">
-    Once you are done with your billing information, click on the **Get API key** section at the top right corner or on the left side menu panel. 
-    <img src="/images/ai/gemini/gemini-1.png" />
+  <Step title="Copy the key">
+    Click the key's name in the list to open its details, then use the **copy** icon to grab the full key. You can return to this page to copy it again later.
   </Step>
-  <Step title="Step 4">
-    Next click on **Create API key** button.
-   <img src="/images/ai/gemini/gemini-2.png" />
-  </Step>
-  <Step title="Step 5">
-    Next, select **Crate API key in new project**, this will generate your new Gemini API key, copy it.
-    <img src="/images/ai/gemini/gemini-3.png" />  
-  </Step>
-  <Step title="Step 6">
-    In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
-  </Step>
-  <Step title="Step 7">
-    Click on **Google** tab there. 
-    <img src="/images/ai/gemini/gemini-4.png" />
-  </Step>
-  <Step title="Step 8">
-    Include your API key under **Gemini API Key** input field.  
-    <img src="/images/ai/gemini/gemini-5.png" />
-  </Step>
-  <Step title="Step 9">
-    After you are done with configurations, click on **Save** button. 
+  <Step title="Set up billing for paid models">
+    The Gemini API has a free tier, but the paid models — **especially Veo video** — require billing. From AI Studio, open **Billing** (or the linked Google Cloud project) and add a payment method. Confirm the key's project can access the Gemini 3.x text models, the Gemini 3.1 Flash Image model, and the Veo 3.1 video models.
+
+    <Note>
+    Google charges you directly for usage — this is separate from your MagicAds platform credits.
+    </Note>
   </Step>
 </Steps>
 
-<Check>
-Congratulations! You have successfully comleted the Google Gemini setup process.
-</Check>
+## Part 2 — Add the key in MagicAds
 
-## Davinci AI Tools Powered by Google Gemini
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the Google vendor">
+    Click the **Google** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the models you want">
+    Toggle on the Gemini/Veo models you want to offer across the Copy, Image, and Video studios, and set each model's **credit cost**.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The Google card shows as connected and the enabled models appear in their studios.
+  </Step>
+</Steps>
 
-Following AI tools can be used with Gemini models
-<Note>Support for more AI tools will be added soon, we are actively working on that</Note>
+<Note>
+There is no "test connection" button. To verify, enable a model and run a quick generation in the matching studio.
+</Note>
 
-1. **AI Chat** - chat conversations and get instant answers.
-2. **AI Writer** - Generate high-quality content for various purposes.
+## Part 3 — Supported Google models
 
-## Best Practices
+### Copy Studio
 
-To make the most of your Gemini integration:
+| Model | Model ID | Tier | Default credits | Best for |
+|-------|----------|------|-----------------|----------|
+| Gemini 3.1 Pro | `gemini-3.1-pro-preview` | Premium | 3 | Highest-quality Gemini; long-form, multilingual, complex briefs. |
+| Gemini 3.5 Flash | `gemini-3.5-flash` | Standard | 1 | Near-Pro intelligence at Flash speed/cost; strong general pick. |
+| Gemini 3.1 Flash-Lite | `gemini-3.1-flash-lite` | Fast | 1 | Fastest, most budget-friendly; high-volume short copy. |
 
-- Experiment with different models to find the best fit for your use case.
-- Use clear and specific prompts to get the most accurate results.
-- Monitor your API usage to manage costs effectively.
-  <Warning>Available only for Extended License users</Warning>
+### Image Studio
 
+| Model | Model ID | Default credits | Notes |
+|-------|----------|-----------------|-------|
+| Google Nano Banana 2 | `gemini-3.1-flash-image` | 2 | Best overall realism with character consistency, native 4K, strong editing and multilingual text. The default image model. Supports reference-image input. |
 
+### Video Studio
 
+| Model | Model ID | Default credits | Notes |
+|-------|----------|-----------------|-------|
+| Google Veo 3.1 | `veo-3.1-generate-preview` | 12 | Film-grade 1080p with native synchronized audio/dialogue in one pass. The default video model. |
+| Veo 3.1 Lite | `veo-3.1-fast-generate-preview` | 6 | Faster, cheaper Veo tier for quick iterations; same engine, lower fidelity. |
 
+### Also used by plugins
+
+- **Fashion Studio** uses Gemini's Nano Banana 2 as its image engine and **Veo 3.1 Lite** for its Create Video tool.
+- **Product Photoshoot** uses Gemini's Nano Banana 2 as its image engine.
+
+Both read the same Gemini key, so configuring it here also unlocks those plugin features (subject to each plugin's own settings).
+
+<Note>
+Credit costs shown are the seeded defaults. You can change any model's cost in the vendor modal. These are what your platform charges users in credits — not Google's prices.
+</Note>
+
+## Part 4 — Make Gemini a default (optional)
+
+In the global section of **AI Settings**, Gemini is already the default for image and video out of the box (default image model = Google Nano Banana 2, default video model = Veo). You can also set the **default copy engine** to Gemini, toggle each studio on/off, and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Gemini/Veo models don't appear | Key missing or models disabled | Add the key in the Google vendor modal and enable the models, then Save. |
+| Image and copy work, but Veo video fails | Billing not enabled for Veo | Enable billing on the Google project; Veo requires it. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the Gemini key in AI Settings and Save to refresh it. |
+| Fashion Studio / Product Photoshoot can't generate | Gemini key not set | Add the Gemini key in AI Settings (those plugins read the same key). |
+| Gemini API errors / 401 / 403 | Invalid key or no model access | Re-check the key and that its project can access the Gemini/Veo models. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

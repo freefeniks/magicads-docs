@@ -1,0 +1,105 @@
+---
+title: 'Runway Setup'
+sidebarTitle: 'Runway'
+description: 'Connect Runway to MagicAds — a Video Studio provider with strong character/product consistency and a cinematic, VFX-leaning toolset.'
+---
+
+## Introduction
+
+Runway is a **Video Studio** provider — it drives AI video generation with strong character/product consistency and a cinematic, VFX-leaning toolset. It does **not** power copy or image generation; use other providers for those.
+
+This guide walks you through getting a Runway key, adding it in MagicAds, and the model it unlocks.
+
+## How keys are stored
+
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the Runway API key is saved **and** the model is **enabled** in the vendor modal.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A Runway account with developer/API access and billing/credits.
+
+## Part 1 — Get your Runway API key
+
+<Steps>
+  <Step title="Open the Runway developer portal">
+    Go to the [Runway developer portal](https://dev.runwayml.com/) and sign in. This is the **developer/API** portal, separate from the main Runway app. New accounts include some free starter credits.
+  </Step>
+  <Step title="Add credits (prepaid)">
+    Open **Manage → Billing** in the left sidebar and add credits. Runway's API is prepaid — a minimum top-up (around $10) is required before the API will run. Runway charges you directly for usage — separate from your MagicAds platform credits.
+
+    <Note>
+    API keys are **organization-scoped**, not user-scoped — every key belongs to your organization's credit balance.
+    </Note>
+  </Step>
+  <Step title="Create an API key">
+    Open the **API keys** section, create a new key, and copy it.
+
+    <Warning>
+    The key is shown **only once**. Copy it immediately and store it somewhere safe.
+    </Warning>
+  </Step>
+  <Step title="Confirm model access">
+    Make sure your account has credits for the **Gen-4 Turbo** model.
+  </Step>
+</Steps>
+
+## Part 2 — Add the key in MagicAds
+
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the Runway vendor">
+    Click the **Runway** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the model">
+    Toggle on **Runway Gen-4 Turbo** and set its **credit cost** (what a user is charged per generation).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The vendor card shows as connected and Runway appears in the Video Studio.
+  </Step>
+</Steps>
+
+<Note>
+There is no "test connection" button. To verify, enable the model and run a quick generation in the Video Studio.
+</Note>
+
+## Part 3 — Supported models
+
+### Video Studio
+
+| Model | Model ID | Tier | Default credits | Durations | Audio | Best for |
+|-------|----------|------|-----------------|-----------|-------|----------|
+| Runway Gen-4 Turbo | `gen4_turbo` | Premium | 10 | 5s, 10s | No | Strongest character + product consistency across shots, with the best VFX/editing toolset. Best for UGC, handheld, and brand films. Supports image-to-video. |
+
+Runway provides **video models only** here — no copy or image. Note Gen-4 Turbo does **not** produce native audio (for in-clip audio use a Gemini Veo or fal.ai engine instead).
+
+<Note>
+The credit cost shown is the seeded default. You can change it in the vendor modal. It's what your platform charges users in credits — not Runway's price.
+</Note>
+
+## Part 4 — Make Runway the default video model (optional)
+
+In the global section of **AI Settings** you can set the **default video model** to Runway Gen-4 Turbo so it's pre-selected for users. You can also toggle the Video Studio on/off and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Runway doesn't appear in Video Studio | Key missing or model disabled | Add the key in the Runway vendor modal and enable Gen-4 Turbo, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the key in AI Settings and Save to refresh it. |
+| Runway API errors / 401 | Invalid key or no billing | Re-check the key and billing in the Runway developer portal. |
+| Video has no sound | Gen-4 Turbo has no native audio | Use a Veo (Gemini) or fal.ai (Kling/Seedance) engine for native audio. |
+| Looking for Runway copy/image | Not supported | Runway is video-only here; use another provider for copy or image. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

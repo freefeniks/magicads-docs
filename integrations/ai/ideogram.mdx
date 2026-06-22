@@ -1,0 +1,100 @@
+---
+title: 'Ideogram Setup'
+sidebarTitle: 'Ideogram'
+description: 'Connect Ideogram to MagicAds — an Image Studio provider specializing in in-image text and typography, ideal for posters, sale graphics, and bold-headline ads.'
+---
+
+## Introduction
+
+Ideogram is an **Image Studio** provider specializing in **in-image text and typography** — the best choice for posters, sale graphics, and ads with bold headlines. It does **not** power copy or video; use other providers for those.
+
+This guide walks you through getting an Ideogram key, adding it in MagicAds, and the model it unlocks.
+
+## How keys are stored
+
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the Ideogram API key is saved **and** the model is **enabled** in the vendor modal.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- An Ideogram account with API access and billing/credits.
+
+## Part 1 — Get your Ideogram API key
+
+<Steps>
+  <Step title="Open the Ideogram developer portal">
+    Go to [developer.ideogram.ai](https://developer.ideogram.ai/) and sign in. Accept the API agreement on your first visit to reach the **API dashboard**.
+  </Step>
+  <Step title="Fund your API credit balance">
+    On the API dashboard, click **Manage Payment** (lower-left) and add a payment method. Your API usage draws from this credit balance. Ideogram charges you directly for usage — separate from your MagicAds platform credits.
+  </Step>
+  <Step title="Create an API key">
+    Create a new API key and copy it.
+
+    <Warning>
+    The key is shown **only once**. Copy it immediately and store it somewhere safe.
+    </Warning>
+  </Step>
+  <Step title="Confirm model access">
+    Make sure your account has API credits for **Ideogram 3.0**.
+  </Step>
+</Steps>
+
+## Part 2 — Add the key in MagicAds
+
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the Ideogram vendor">
+    Click the **Ideogram** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the model">
+    Toggle on **Ideogram 3.0** and set its **credit cost** (what a user is charged per generation).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The vendor card shows as connected and Ideogram appears in the Image Studio.
+  </Step>
+</Steps>
+
+<Note>
+There is no "test connection" button. To verify, enable the model and run a quick generation in the Image Studio.
+</Note>
+
+## Part 3 — Supported models
+
+### Image Studio
+
+| Model | Model ID | Tier | Default credits | Best for |
+|-------|----------|------|-----------------|----------|
+| Ideogram 3.0 | `ideogram-v3` | Mid | 1 | The leader for in-image text — high text accuracy on legibility benchmarks. Best for posters, sale graphics, infographics, and bold-headline ads. Up to 2048px. |
+
+Ideogram provides **image models only** here — no copy or video.
+
+<Note>
+The credit cost shown is the seeded default. You can change it in the vendor modal. It's what your platform charges users in credits — not Ideogram's price.
+</Note>
+
+## Part 4 — Make Ideogram the default image model (optional)
+
+In the global section of **AI Settings** you can set the **default image model** to Ideogram 3.0 so it's pre-selected for users. You can also toggle the Image Studio on/off and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Ideogram doesn't appear in Image Studio | Key missing or model disabled | Add the key in the Ideogram vendor modal and enable Ideogram 3.0, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the key in AI Settings and Save to refresh it. |
+| Ideogram API errors / 401 | Invalid key or no billing | Re-check the key and billing in your Ideogram account. |
+| Looking for Ideogram copy/video | Not supported | Ideogram is image-only here; use another provider for copy or video. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

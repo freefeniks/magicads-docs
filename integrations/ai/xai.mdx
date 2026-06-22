@@ -1,82 +1,104 @@
 ---
-title: 'xAI Integration'
+title: 'xAI (Grok) Setup'
 sidebarTitle: 'xAI'
-description: 'Enhance your Davinci AI platform with xAI’s Grok models. This guide explains how to set up and configure xAI integration for your platform.'
+description: 'Connect xAI (Grok) to MagicAds — a Copy Studio provider that drives AI ad-copy generation with the Grok model. It does not power image or video.'
 ---
 
 ## Introduction
 
-Davinci AI’s xAI integration allows you to leverage Grok models for AI-powered conversations and content generation. This guide will help you set up and manage the xAI integration in your platform.
-## Available Models and Tools
+xAI is a **Copy Studio** provider — it drives AI ad-copy generation with the Grok model. It does **not** power image or video generation; for those you'll use other providers (e.g. Gemini or OpenAI for images; Gemini/Veo, Runway, or fal.ai for video).
 
-Davinci AI leverages a wide range of xAI models to power various tools and features:
+This guide walks you through getting an xAI key, adding it in MagicAds, and the model it unlocks.
 
-### LLM Text Generation Models
-<Card title="Included xAI Text Models" >
-- xAI | Grok 4.1 Fast
-- xAI | Grok 4
-- xAI | Grok 3
-- xAI | Grok 3 Fast
-- xAI | Grok 3 Mini
-- xAI | Grok 3 Mini Fast
-- xAI | Grok 2
-- xAI | Grok 2 Vision
-</Card>
+## How keys are stored
 
-## Connect xAI Account
-To be able to use your xAI API, follow these steps to setup integration.
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the xAI API key is saved **and** the Grok model is **enabled** in the vendor modal.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- An xAI account with billing/credits set up.
+
+## Part 1 — Get your xAI API key
 
 <Steps>
-  <Step title="Step 1">
-    If you don’t have an xAI account, [sign up here](https://console.x.ai/)
+  <Step title="Sign in to the xAI Console">
+    Go to the [xAI Console](https://console.x.ai/) and sign in or create an account. On first sign-in you may be asked to create a **team**.
   </Step>
-  <Step title="Step 2">
-    Once logged in, navigate to **API Keys** page
+  <Step title="Add billing / credits">
+    Open the **Billing** section and add a payment method or purchase credits. xAI charges you directly for usage — separate from your MagicAds platform credits.
+
+    <Tip>
+    If you also buy X API credits, xAI offers bonus API credits — check the current promotion on the console's billing page.
+    </Tip>
   </Step>
-  <Step title="Step 3">
-    Generate a new API key by clicking **Create API Key**, next copy the generated API key
-    <Note>Keep your API key secure. It provides access to xAI’s services and should not be shared publicly.</Note>
+  <Step title="Create an API key">
+    Open the **API Keys** section and click **Create API key**. Give it a name (e.g. "MagicAds") and create it.
+
+    <Warning>
+    The key is shown **only once**. Copy it immediately and store it somewhere safe.
+    </Warning>
   </Step>
-  <Step title="Step 4">
-    Login to Davinci AI using your admin credentials. 
-  </Step>
-  <Step title="Step 5">
-    In **Admin Panel**, navigate to **AI Settings** -> **AI API Keys** tab. 
-  </Step>
-  <Step title="Step 6">
-    Click on **xAI** tab there. 
-    <img src="/images/ai/xai/xai-1.png" />
-  </Step>
-  <Step title="Step 7">
-    Include your API key under **xAI API Key** input field. Base URL can remain as it is stated there.  
-    <img src="/images/ai/xai/xai-2.png" />
-  </Step>
-  <Step title="Step 8">
-    After you are done with configurations, click on **Save** button. 
+  <Step title="Confirm model access">
+    Make sure your account has credits and access to the `grok-4.3` model.
   </Step>
 </Steps>
 
-<Check>
-Congratulations! You have successfully comleted the xAI setup process.
-</Check>
+## Part 2 — Add the key in MagicAds
 
-## Davinci AI Tools Powered by xAI
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the xAI vendor">
+    Click the **xAI** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged. If a **Base URL** is shown, you can leave it at its default.
+  </Step>
+  <Step title="Enable the model">
+    Toggle on the **Grok 4.3** copy model and set its **credit cost** (what a user is charged per generation).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The xAI card shows as connected and Grok appears in the Copy Studio.
+  </Step>
+</Steps>
 
-Following AI tools can be used with xAI models
-<Note>Support for more AI tools will be added soon, we are actively working on that</Note>
+<Note>
+There is no "test connection" button. To verify, enable the model and run a quick generation in the Copy Studio.
+</Note>
 
-1. **AI Chat** - chat conversations and get instant answers.
-2. **AI Writer** - Generate high-quality content for various purposes.
+## Part 3 — Supported xAI models
 
-## Best Practices
+### Copy Studio
 
-To make the most of your xAI integration:
+| Model | Model ID | Tier | Default credits | Best for |
+|-------|----------|------|-----------------|----------|
+| Grok 4.3 | `grok-4.3` | Premium | 2 | xAI's flagship — its most intelligent and fastest Grok, with a 1M-token context. Strong for long or complex briefs. |
 
-- Experiment with different models to find the best fit for your use case.
-- Use clear and specific prompts to get the most accurate results.
-- Monitor your API usage to manage costs effectively.
-  <Warning>Available only for Extended License users</Warning>
+That's the only model xAI provides here. There are **no xAI image or video models**.
 
+<Note>
+The credit cost shown is the seeded default. You can change it in the vendor modal. It's what your platform charges users in credits — not xAI's price.
+</Note>
 
+## Part 4 — Make xAI the default copy engine (optional)
 
+In the global section of **AI Settings** you can set the **default copy engine** to xAI so Grok is pre-selected for users. You can also toggle the Copy Studio on/off and control free-tier access there.
 
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Grok doesn't appear in Copy Studio | Key missing or model disabled | Add the key in the xAI vendor modal and enable Grok 4.3, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the xAI key in AI Settings and Save to refresh it. |
+| xAI API errors / 401 | Invalid key or no billing/model access | Re-check the key, billing, and `grok-4.3` access in the xAI Console. |
+| Looking for xAI image/video | Not supported | xAI is copy-only here; use an image/video provider instead. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

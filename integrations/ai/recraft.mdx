@@ -1,0 +1,100 @@
+---
+title: 'Recraft Setup'
+sidebarTitle: 'Recraft'
+description: 'Connect Recraft to MagicAds — an Image Studio provider specializing in vectors, logos, icons, and flat brand assets with native SVG output.'
+---
+
+## Introduction
+
+Recraft is an **Image Studio** provider specializing in **vectors, logos, icons, and flat brand assets** — with native SVG output and brand-style consistency. It does **not** power copy or video; use other providers for those.
+
+This guide walks you through getting a Recraft key, adding it in MagicAds, and the model it unlocks.
+
+## How keys are stored
+
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the Recraft API key is saved **and** the model is **enabled** in the vendor modal.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A Recraft account with API access and billing/credits.
+
+## Part 1 — Get your Recraft API key
+
+<Steps>
+  <Step title="Open your Recraft account">
+    Go to [recraft.ai](https://www.recraft.ai/) and sign in, then open your **profile** and find the **API** section.
+  </Step>
+  <Step title="Add billing / API units">
+    Make sure your account has API units or billing set up so your key can make calls. Recraft charges you directly for usage — separate from your MagicAds platform credits.
+  </Step>
+  <Step title="Create an API key">
+    Generate a new API key (used as a Bearer token) and copy it.
+
+    <Warning>
+    The key is shown **only once**. Copy it immediately and store it somewhere safe.
+    </Warning>
+  </Step>
+  <Step title="Confirm model access">
+    Make sure your account has API units for **Recraft V3**.
+  </Step>
+</Steps>
+
+## Part 2 — Add the key in MagicAds
+
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the Recraft vendor">
+    Click the **Recraft** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the model">
+    Toggle on **Recraft V3** and set its **credit cost** (what a user is charged per generation).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The vendor card shows as connected and Recraft appears in the Image Studio.
+  </Step>
+</Steps>
+
+<Note>
+There is no "test connection" button. To verify, enable the model and run a quick generation in the Image Studio.
+</Note>
+
+## Part 3 — Supported models
+
+### Image Studio
+
+| Model | Model ID | Tier | Default credits | Best for |
+|-------|----------|------|-----------------|----------|
+| Recraft V3 | `recraft-v3` | Mid | 1 | Trained on logo, icon and poster data with native vector (SVG) output and brand-style consistency. Best for flat design, logo concepts, and icon work. Up to 2048px. |
+
+Recraft provides **image models only** here — no copy or video.
+
+<Note>
+The credit cost shown is the seeded default. You can change it in the vendor modal. It's what your platform charges users in credits — not Recraft's price.
+</Note>
+
+## Part 4 — Make Recraft the default image model (optional)
+
+In the global section of **AI Settings** you can set the **default image model** to Recraft V3 so it's pre-selected for users. You can also toggle the Image Studio on/off and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Recraft doesn't appear in Image Studio | Key missing or model disabled | Add the key in the Recraft vendor modal and enable Recraft V3, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the key in AI Settings and Save to refresh it. |
+| Recraft API errors / 401 | Invalid key or no billing | Re-check the key and billing in your Recraft account. |
+| Looking for Recraft copy/video | Not supported | Recraft is image-only here; use another provider for copy or video. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>

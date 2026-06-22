@@ -1,0 +1,108 @@
+---
+title: 'fal.ai (Kling & Seedance) Setup'
+sidebarTitle: 'fal.ai'
+description: 'Connect fal.ai to MagicAds — one key that powers two Video Studio models, Kling 3.0 Pro and Seedance 2.0, and can also drive the UGC Factory plugin.'
+---
+
+## Introduction
+
+fal.ai is a model-hosting platform, and on the AI Settings page **one fal.ai key drives two Video Studio models** — **Kling 3.0 Pro** (Kuaishou) and **Seedance 2.0** (ByteDance). Both run through the fal.ai queue API.
+
+<Note>
+**One key, two models.** Although Kling and Seedance come from different model makers, both are served via fal.ai here, so they share a single key. You won't find separate "Kling" or "Seedance" cards in AI Settings — configure them both under the **fal.ai** vendor card.
+</Note>
+
+## How keys are stored
+
+All AI provider keys live in the **AI Settings** screen and are stored **encrypted** in the database. There are no `.env` edits — keys are injected into the drivers at runtime. Users never supply their own key; every generation runs on the admin's key.
+
+<Note>
+A model only becomes available to users when **both** are true: the fal.ai API key is saved **and** the model is **enabled** in the vendor modal.
+</Note>
+
+## Before you start
+
+- Admin access to your MagicAds platform.
+- A fal.ai account with billing/credits set up.
+
+## Part 1 — Get your fal.ai API key
+
+<Steps>
+  <Step title="Open the fal.ai dashboard">
+    Go to [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys) and sign in.
+  </Step>
+  <Step title="Add billing / credits">
+    Make sure your fal.ai account has credits or billing set up so your key can make calls. fal.ai charges you directly for usage — separate from your MagicAds platform credits.
+  </Step>
+  <Step title="Create an API key">
+    Create a new key and copy it.
+
+    <Warning>
+    The key is shown **only once**. Copy it immediately and store it somewhere safe.
+    </Warning>
+  </Step>
+  <Step title="Confirm model access">
+    Your fal.ai account just needs credits — both Kling and Seedance run on the shared key.
+  </Step>
+</Steps>
+
+## Part 2 — Add the key in MagicAds
+
+<Steps>
+  <Step title="Open AI Settings">
+    In your platform, go to **Admin → AI Settings**.
+  </Step>
+  <Step title="Open the fal.ai vendor">
+    Click the **fal.ai (Seedance, Kling)** vendor card to open its configuration modal.
+  </Step>
+  <Step title="Paste the key">
+    Paste your API key into the **API key** field. Leaving it blank keeps the existing key unchanged.
+  </Step>
+  <Step title="Enable the models you want">
+    Toggle on **Kling 3.0 Pro** and/or **Seedance 2.0**, and set each model's **credit cost** (what a user is charged per generation).
+  </Step>
+  <Step title="Save">
+    Click **Save**. The vendor card shows as connected and the enabled models appear in the Video Studio.
+  </Step>
+</Steps>
+
+<Note>
+There is no "test connection" button. To verify, enable a model and run a quick generation in the Video Studio.
+</Note>
+
+## Part 3 — Supported models
+
+### Video Studio
+
+| Model | Model ID | Tier | Default credits | Durations | Audio | Best for |
+|-------|----------|------|-----------------|-----------|-------|----------|
+| Kling 3.0 Pro | `fal-ai/kling-video/v3/pro` | Premium | 10 | 4, 5, 6, 8, 10, 12, 15s | Yes | Cinematic-quality leader. Best at human motion, orbit/360° product shots, and complex camera moves, with native audio and multi-shot support. |
+| Seedance 2.0 | `bytedance/seedance-2.0` | Budget | 4 | 4, 5, 6, 8, 10, 12, 15s | Yes | ByteDance's second-gen video model with native synchronized audio, multi-shot editing, and director-level camera control. Great for high-energy promos and motion-graphic content. |
+
+fal.ai provides **video models only** in AI Settings — no copy or image.
+
+<Note>
+Credit costs shown are the seeded defaults. You can change each model's cost in the vendor modal. These are what your platform charges users in credits — not fal.ai's prices.
+</Note>
+
+## Part 4 — Also used by the UGC Factory plugin
+
+The **UGC Factory** plugin also runs on a fal.ai key (for VEED Fabric 1.0 talking videos, ElevenLabs TTS, and actor generation). UGC Factory has its **own fal.ai key field** on its plugin settings page, but if that field is left blank it **falls back to this shared fal.ai key** from AI Settings. So configuring fal.ai here can power both the Video Studio (Kling/Seedance) and UGC Factory.
+
+## Part 5 — Make a fal.ai model the default video model (optional)
+
+In the global section of **AI Settings** you can set the **default video model** to Kling 3.0 Pro or Seedance 2.0 so it's pre-selected for users. You can also toggle the Video Studio on/off and control free-tier access there.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Kling/Seedance don't appear in Video Studio | Key missing or models disabled | Add the key in the fal.ai vendor modal and enable the models, then Save. |
+| "The payload is invalid." on generate | Saved key can't be decrypted (e.g. after an environment change) | Re-enter the fal.ai key in AI Settings and Save to refresh it. |
+| "fal.ai is rate-limiting requests" | Too many concurrent jobs | Wait and retry; fal.ai throttles bursts. |
+| fal.ai API errors / 401 | Invalid key or no billing | Re-check the key and billing in the fal.ai dashboard. |
+| Looking for a separate Kling or Seedance card | They share the fal.ai key | Both are configured under the **fal.ai (Seedance, Kling)** vendor card. |
+
+<Note>
+Keys are stored encrypted and applied at runtime. No `.env` changes or commands are needed after saving.
+</Note>
