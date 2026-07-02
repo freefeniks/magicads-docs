@@ -1,0 +1,284 @@
+---
+title: 'Prompt Marketplace'
+icon: store
+description: 'Let your users sell (or freely share) the prompts behind the images and videos they generate — buyers pay a one-time price straight into the seller’s wallet, and sellers cash out their earnings.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Prompt Marketplace** turns the prompts behind your users' generated creatives into a marketplace. A seller lists the prompt (plus a media preview) of an image or video they produced, and other users **buy** or **freely claim** it. Buyers pay a **one-time price** and the money lands in the **seller's wallet**, which they can later cash out.
+
+Unlike the generation studios, Prompt Marketplace is not an AI tool — it's a **community commerce** layer. It never calls an AI provider and never spends credits. It reuses your existing payment gateways and wallet plumbing, but never touches the SaaS billing side (no plans, no subscriptions, no recurring fees).
+
+This guide covers the full lifecycle — where to buy it, how to install it, its dependency on the SaaS plugin, how to configure commission and payouts, how selling and buying work, how seller withdrawals are settled, and how each tool works.
+
+<Card title="Included User Tools">
+- **Marketplace (Browse)** — the public storefront: a media-first grid of every active listing, filterable by type and price, with claim (free) or buy (paid) actions.
+- **List on Marketplace** — the listing editor, reached from a generated creative's **Sell / Share** action: set a title, description, and free/paid price.
+- **My Listings** — seller dashboard: manage your listings, edit pricing inline, unlist and re-list, and see per-listing sales and earnings.
+- **My Purchases** — the buyer's persistent library of acquired prompts, each with the full prompt revealed and a downloadable preview.
+- **Earnings** — wallet balance, lifetime earnings, payout history, and the manual withdrawal request form.
+</Card>
+
+<Card title="Included Admin Screens">
+- **Dashboard** — catalogue size, sales volume, gross revenue, platform commission earned, seller payouts, top sellers and the latest transactions.
+- **Listings** — moderation view of every listing across all sellers, with search, filters and an admin take-down (unlist).
+- **Transactions** — the full sales ledger: who bought from whom, the gateway, gross amount, commission and seller earning, with running totals.
+- **Withdrawals** — the payout queue: approve, mark paid, or reject (which refunds the held funds to the seller's wallet).
+</Card>
+
+<Note>
+There are **no AI engine keys** to configure and **no cron** to schedule — the marketplace neither generates media nor runs background jobs. Purchases settle inline (wallet) or on gateway return (Stripe).
+</Note>
+
+## Dependency — the SaaS plugin is required
+
+Prompt Marketplace is the only studio-family plugin with a hard dependency: it relies on the **SaaS Business** plugin for its payment gateways and its wallet / finance plumbing.
+
+If SaaS is missing or switched off, the marketplace stays hidden — every entry point the plugin adds (the sidebar menus and the gallery **Sell / Share** action) disappears, even if Prompt Marketplace itself is installed and enabled.
+
+<Warning>
+Install and enable the **SaaS Business** plugin first. Without it, the marketplace never appears to users regardless of the master switch.
+</Warning>
+
+## Purchase & Installation
+
+Prompt Marketplace is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Prompt Marketplace** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Prompt Marketplace (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Prompt Marketplace** card. The platform downloads the archive, unpacks it, runs its migration and activates the plugin. This provisions the storage it needs for:
+
+    - **listings** — a seller's offer for a single generated creative (the snapshotted prompt and media preview, the free/paid flag, the seller-editable price and its sales counters),
+    - **purchases** — the **persistent** record of every sale, which fully snapshots the prompt and a **copied** preview so a buyer keeps their purchase even if the seller later deletes the original creative or unlists the offer (this also doubles as the admin transaction ledger),
+    - **withdrawals** — seller payout requests (request → held → approved → paid / rejected), settled against the same wallet balance that sales credit.
+
+    <Warning>
+    On a fresh install everything is off by default. Installation only makes the routes and storage exist. The tools stay hidden from users until you **enable the feature** (and have the SaaS plugin active).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card. Uninstalling removes the plugin's files but **leaves your data intact** — listings, purchases and withdrawal history are never dropped.
+
+## Configure Prompt Marketplace
+
+Go to **Admin → General Settings → Plugins → Prompt Marketplace** (`/app/admin/general/plugins/prompt-marketplace`). The screen is intentionally short — the marketplace has no engines or per-tool pricing.
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Prompt Marketplace** | Master switch. When on (and SaaS is active), the storefront and seller tools appear in user menus. Off by default. |
+| **Platform commission (%)** | Optional platform fee, an integer **0–100**. `0` (default) means the seller receives the **exact** amount paid. Anything above 0 is skimmed from each sale as platform revenue. |
+| **Minimum withdrawal** | The minimum wallet balance a seller must reach before they can request a payout. `0` (default) means no minimum. |
+
+Click **Save** to persist the settings.
+
+### How commission is applied
+
+On every completed sale the split is computed once and snapshotted onto the transaction:
+
+```
+commission_amount = price_paid × commission% / 100
+seller_earning    = price_paid − commission_amount
+```
+
+The seller earning is credited to the seller's wallet immediately; the commission amount is your platform's revenue. Both values are stored on the transaction, so historical sales are unaffected if you later change the commission rate.
+
+## Access model
+
+Access is simpler than the generation studios — there is **no plan-feature toggle and no free-tier switch**. The marketplace is gated by two things only:
+
+1. **The SaaS plugin must be active.**
+2. **The master switch must be on.**
+
+When both are true, the marketplace is available to every signed-in user (`user`, `subscriber` and `admin` roles). Selling and buying are open to all of them — there's nothing to unlock per plan.
+
+<Note>
+Because prompts are priced and paid for directly (wallet or card), there are no per-user usage limits to enforce. Spend is naturally bounded by each buyer's wallet balance or card.
+</Note>
+
+## Payments — rails and settlement
+
+Prompt Marketplace runs a **separate, one-time** checkout pipeline. It reuses the gateway *credentials* the admin already configured for SaaS, but every purchase is a strict one-off that credits the seller's wallet — no plans, subscriptions or recurring charges.
+
+| Rail | Availability | How it settles |
+|------|--------------|----------------|
+| **Account Wallet** | Always offered | Closed-loop and instant: the buyer's wallet is debited and the seller's wallet credited inside one locked transaction. |
+| **Card (Stripe)** | Only when the Stripe gateway is enabled in SaaS | A one-time Stripe Checkout Session; the sale settles when the buyer returns and the payment is verified. |
+| **Free claim** | For free listings | No money moves — a zero-price purchase is recorded so the buyer keeps a persistent copy. |
+
+Two safeguards keep money correct:
+
+- **Live pricing** — the listing is always re-read at purchase time, so the buyer pays whatever the seller has set at that exact moment.
+- **Idempotent settlement** — each sale is keyed by a unique order reference (Stripe payment intent or wallet reference), so a webhook or return that fires twice never settles a sale twice.
+
+<Note>
+The wallet rail locks the buyer's balance and re-checks it under the lock, so two concurrent purchases can never overdraw a wallet. The same locking guards seller withdrawals.
+</Note>
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Enable the SaaS plugin">
+    Install and switch on the **SaaS Business** plugin — Prompt Marketplace depends on it for gateways and the wallet.
+  </Step>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Prompt Marketplace → **Install**.
+  </Step>
+  <Step title="Configure a payment gateway (optional)">
+    To offer card payments, enable **Stripe** in the SaaS gateway settings. The wallet rail works without any gateway.
+  </Step>
+  <Step title="Set commission & minimum payout">
+    Prompt Marketplace config → set the **Platform commission (%)** and **Minimum withdrawal**, then **Save**.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Prompt Marketplace**.
+  </Step>
+  <Step title="Verify as a seller">
+    Log in as a user, generate (or open) a creative, use **Sell / Share** to list it, and confirm it appears in the storefront.
+  </Step>
+  <Step title="Verify as a buyer">
+    From a second account, buy the paid listing (wallet or card) and confirm the prompt unlocks in **My Purchases** and the seller's wallet is credited.
+  </Step>
+  <Step title="Verify a payout">
+    As the seller, request a withdrawal from **Earnings**, then approve and mark it paid from the admin **Withdrawals** queue.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Prompt Marketplace is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+The storefront and seller tools live under **Marketplace** in the user sidebar; the admin area lives under **Marketplace** in the admin menu.
+
+### Selling a prompt
+
+Selling always starts from a creative the user has already generated:
+
+<Steps>
+  <Step title="Start from a creative">
+    From the gallery, choose **Sell / Share** on a completed image or video (a user can only list their own creatives).
+  </Step>
+  <Step title="Fill in the listing">
+    The **List on Marketplace** editor opens with a suggested title. Set:
+    - **Title** (required, up to 160 chars) and an optional **description** (up to 500 chars — this is public marketing copy, never the prompt).
+    - **Free or Paid.** For paid listings set a **price** between **0.50** and **100000** in the platform currency.
+  </Step>
+  <Step title="Save">
+    The listing snapshots the prompt, generation metadata and a media preview, so the offer renders independently of the original creative.
+  </Step>
+</Steps>
+
+Each creative maps to **one** listing. Editing the listing later refreshes the price and visibility while keeping the same prompt snapshot.
+
+### My Listings
+
+The seller dashboard shows live listings, total sales and lifetime earnings alongside the current wallet balance. From here a seller can:
+
+- **Edit pricing inline** — flip free/paid or change the price without leaving the page.
+- **Unlist** — pull an offer from the storefront (existing purchases are unaffected).
+- **Re-list** — re-publish a removed offer, but only while the original creative still exists.
+
+<Note>
+If a seller deletes the source creative, its listing is automatically removed from the storefront. Buyers keep their purchase — the prompt and a copied preview live in their library independently.
+</Note>
+
+### Browse (storefront)
+
+A media-first grid of every active listing. Shoppers can filter by **type** (image / video) and **price** (free / paid), search titles and descriptions, and sort by **newest, popular, price low or price high**.
+
+- **Free listings** show a **Claim** button that adds a persistent copy to the buyer's library.
+- **Paid listings** keep the prompt **locked** and route to checkout on **Buy**. Listings the viewer already owns are marked as owned.
+
+### Checkout
+
+The dedicated one-time checkout for a paid listing. The buyer picks an available gateway (wallet or card), accepts the terms, and pays. Guard rails block buying your own prompt, buying something you already own, or buying a free/unavailable listing.
+
+<Note>
+Checkout resolves the listing as view-only data, so the protected prompt is never exposed in the page before payment.
+</Note>
+
+### My Purchases
+
+The buyer's persistent library. Every row is fully self-contained (snapshotted prompt + copied preview), so it keeps working even after the seller deletes the original creative or unlists the offer. Buyers can read the full prompt and **download** their copy of the preview media. Cloud-offloaded previews (S3 / Wasabi) are resolved automatically.
+
+### Earnings & withdrawals
+
+The **Earnings** screen shows the wallet balance, lifetime earnings, pending and paid payout totals, and the withdrawal history. To cash out, the seller submits a **withdrawal request**:
+
+<Steps>
+  <Step title="Choose a method">
+    **PayPal** (enter the payout e-mail) or **Bank** (enter bank details).
+  </Step>
+  <Step title="Enter an amount">
+    It must meet the admin's minimum, if one is set.
+  </Step>
+  <Step title="Submit">
+    The funds are **held immediately** — the wallet is debited and the amount parked on the request so it can't be double-spent while the admin settles it.
+  </Step>
+</Steps>
+
+## Admin — moderating & paying out
+
+### Dashboard
+
+An at-a-glance overview: total and live listings, paid listings, completed sales, gross revenue, commission earned, seller payouts, active sellers and buyers, the top sellers by earnings, and the ten most recent transactions.
+
+### Listings
+
+Every listing across all sellers, filterable by **status** (active / unlisted / removed), **type**, and free text. Admins can **unlist** an offending listing — buyers keep their purchases, only the storefront entry goes away.
+
+### Transactions
+
+The complete sales ledger. Each row shows the buyer, seller, gateway, gross amount, commission and seller earning, filterable by gateway (wallet / stripe / free) and searchable by title, order reference, buyer or seller. Running totals for gross, commission and payouts sit at the top.
+
+### Withdrawals
+
+The manual payout queue, filterable by status (pending / approved / paid / rejected):
+
+- **Approve** — acknowledge a pending request (funds stay held).
+- **Mark paid** — record that you've sent the money manually (PayPal / bank) and stamp the payout time.
+- **Reject** — decline the request and **refund the held funds** back to the seller's wallet (idempotent against double-refunds).
+
+The header shows the pending payout total, the total already paid, and the number of requests in the queue.
+
+## Data & preview storage
+
+Listings and purchases store a **media preview** alongside the prompt. When a paid prompt is bought, the platform makes an **independent copy** of a local preview file on the results disk, so the buyer's copy never breaks when the seller deletes the source. Cloud-hosted previews (offloaded via the S3 / Wasabi plugins) are referenced as-is and resolved through the storage manager — the snapshotted prompt is the value either way.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Marketplace doesn't appear at all | SaaS plugin off, master switch off, or plugin not installed | Enable the SaaS plugin, install Prompt Marketplace, and turn on **Enable Prompt Marketplace**. |
+| The "Sell / Share" action is missing | Same gating as above | Confirm SaaS is active and the master switch is on. |
+| Card option missing at checkout | Stripe gateway not enabled in SaaS | Enable and configure Stripe in the SaaS gateway settings. |
+| "Your wallet balance is too low for this purchase" | Buyer's wallet below the price | Top up the wallet or pay by card instead. |
+| "You cannot buy your own prompt" | Seller trying to buy their own listing | Expected — sellers already own their prompts. |
+| "You already own this prompt" | Buyer previously purchased/claimed it | Open it from **My Purchases**. |
+| "This prompt is no longer available" | Listing was unlisted, removed, or its creative deleted | The offer is gone; existing buyers still keep their copy. |
+| Paid prompt still hidden after paying | Payment not yet confirmed (card return pending) | Wait for the return to settle; the prompt unlocks once the purchase is recorded. |
+| Seller can't request a payout | Amount below the configured minimum, or wallet too low | Reach the **Minimum withdrawal** amount, or lower it in the config. |
+| Rejected withdrawal — where did the money go | Rejection refunds the held funds | The amount returns to the seller's wallet automatically. |
+| Preview image broken in a purchase | Local file missing / cloud URL unresolved | Local previews are copied on purchase; for cloud media ensure the S3 / Wasabi plugin is configured. |
+
+<Note>
+The marketplace never touches SaaS plans, orders or subscriptions, and never spends AI credits. Sales credit the seller's wallet; commission (if any) is your platform's revenue; withdrawals are settled manually by an admin.
+</Note>

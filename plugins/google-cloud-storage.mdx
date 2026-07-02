@@ -1,0 +1,209 @@
+---
+title: 'Google Cloud Storage'
+icon: google
+description: 'Offload your Image Studio and Video Studio results to your own Google Cloud Storage bucket using the official Google Cloud API and service-account authentication.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Google Cloud Storage** lets you, the platform owner, **offload generated studio results** (Image Studio and Video Studio images and videos) from the local server disk to your own **Google Cloud Storage** bucket, using Google's official Cloud Storage API and service-account authentication.
+
+Unlike the studios, Google Cloud Storage is an **infrastructure** plugin: it doesn't add any user-facing tool. It registers a new storage backend that the platform writes new results to, and serves those results back to users through GCS. It plugs into the same shared storage layer as the Amazon S3, Wasabi and Cloudflare R2 plugins — so exactly **one** backend is active at a time, chosen by you.
+
+Where the S3, Wasabi and R2 plugins are all S3-compatible, Google Cloud Storage uses its **own native API**: authentication is a **service-account JSON key** rather than an access-key/secret pair, and there's no region or endpoint to set.
+
+This guide covers the full lifecycle — where to buy it, how to install it, how to create a bucket and service account, how to configure and test the connection, how to make GCS the active storage, and how offloading behaves.
+
+<Card title="What it adds">
+- **Config screen** — an admin page under General Settings → Plugins to paste the service-account key, tune options and test the connection.
+- **Storage provider** — registers **Google Cloud Storage** as an option in the platform's **Default Storage** selector.
+- **Automatic offload** — when GCS is the active storage, every newly finalized studio result is uploaded to your bucket, and the platform records that the file now lives in GCS.
+- **Transparent serving** — reads, downloads and deletes for offloaded results resolve through GCS automatically — via the public URL, or a time-limited signed URL for private buckets.
+</Card>
+
+<Note>
+The plugin only affects **where generated results are stored**. It doesn't change how anything is generated, priced or gated — it's purely a storage backend.
+</Note>
+
+## Purchase & Installation
+
+Google Cloud Storage is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Google Cloud Storage** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Google Cloud Storage (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Google Cloud Storage** card. The platform downloads the archive, unpacks it, runs its migration and activates the plugin. Its provider details (service-account key, bucket, project id, URL, prefix, delete-local) are stored as an **encrypted** settings entry, so adding storage providers never changes the schema.
+
+    <Note>
+    This plugin builds on Google's official Cloud Storage SDK, which ships with the platform — there's nothing extra to install by hand.
+    </Note>
+
+    <Warning>
+    On a fresh install everything stays on the local disk. Installation only makes the config screen and the storage provider exist. Nothing is offloaded until you **paste a valid service-account key**, **enable the provider**, and **select Google Cloud Storage as the Default Storage** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Create a bucket and service account
+
+Before configuring the plugin, set up the bucket and credentials in the Google Cloud Console.
+
+<Steps>
+  <Step title="Create (or pick) a project and bucket">
+    In the [Google Cloud Console](https://console.cloud.google.com/), select a project, open **Cloud Storage → Buckets**, and create a bucket (e.g. `my-magicads-media`). Note the bucket name and, if you want to set it explicitly, the **Project ID**.
+  </Step>
+  <Step title="Create a service account">
+    Go to **IAM & Admin → Service Accounts → Create service account**. Give it the **Storage Object Admin** role so it can read, write and delete objects in your bucket.
+  </Step>
+  <Step title="Generate a JSON key">
+    Open the service account → **Keys → Add key → Create new key → JSON**. A `.json` file downloads — this is the credential you'll paste into the plugin. Keep it safe; Google shows the private key only once.
+  </Step>
+  <Step title="Decide how files are served">
+    By default files resolve to `https://storage.googleapis.com/{bucket}/…`, which requires the bucket (or its objects) to be **publicly readable**. To serve publicly, grant public read at the bucket level via IAM (add `allUsers` as **Storage Object Viewer**). If you'd rather keep the bucket private, you can leave it private — the plugin serves files through time-limited **signed URLs** instead.
+  </Step>
+</Steps>
+
+<Note>
+Modern GCS buckets use **Uniform bucket-level access** (the default). The plugin is built for this: it never sends per-object ACLs on upload, so public read must be granted at the bucket level via IAM rather than per file.
+</Note>
+
+## Configure Google Cloud Storage
+
+Go to **Admin → General Settings → Plugins → Google Cloud Storage** (`/app/admin/general/plugins/google-cloud-storage`). The screen has these sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Google Cloud Storage** | Makes GCS a selectable option in the **Default Storage** list once credentials are valid. It does **not** by itself route uploads here — you still pick the active backend. |
+| **Delete local copy after upload** | When on, the local file is removed once it's safely stored in GCS, reclaiming server disk space. Leave off to keep a local backup of every result. |
+
+### Service Account & Bucket
+
+| Field | Notes |
+|-------|-------|
+| **Bucket** | The GCS bucket name. |
+| **Project ID** | Optional — leave blank to use the project carried in the key file. |
+| **Service Account JSON Key** | Paste the **entire contents** of the downloaded JSON file. It's validated (must be a `service_account` key with a private key and client email) and stored **encrypted**. Leave blank on later edits to keep the saved key. |
+
+### Advanced
+
+| Field | Notes |
+|-------|-------|
+| **Public / CDN URL** | Optional base URL files are served from (e.g. a CDN in front of the bucket). Leave blank to use the default `https://storage.googleapis.com/{bucket}/…`. |
+| **Key Prefix** | Optional folder inside the bucket (e.g. `magicads`), transparently prepended to every object key. |
+
+<Note>
+There is no region, endpoint or path-style setting here — those are S3 concepts. GCS uses the project and bucket from your service-account key.
+</Note>
+
+### Connection
+
+Click **Test connection**. The plugin saves your settings, then **uploads, reads back and deletes a tiny probe object** to confirm the bucket is reachable and writable. A green toast means GCS is ready; a red toast surfaces the exact error (bad key, wrong bucket, missing permissions).
+
+Click **Save** to persist everything.
+
+## Make GCS the active storage
+
+Enabling the provider only adds it to the selector. To actually store new results in GCS, set it as the platform's **Default Storage**:
+
+<Steps>
+  <Step title="Open General Settings">
+    Go to **Admin → General Settings → General**.
+  </Step>
+  <Step title="Select Google Cloud Storage">
+    Set **Default Storage** to **Google Cloud Storage**.
+  </Step>
+  <Step title="Save">
+    Save the change. From that point, every newly finalized studio result is offloaded to GCS. Only enabled, fully-configured providers appear in this list, and "Local server (this machine)" is always the fallback.
+  </Step>
+</Steps>
+
+<Warning>
+Only **one** storage backend is active at a time. Selecting Google Cloud Storage here makes it authoritative for new results; it does **not** retroactively move files that were already stored locally or on another provider — those keep serving from wherever they already live.
+</Warning>
+
+## How offloading works
+
+The platform uses a single shared storage layer, so GCS behaves like the other storage plugins:
+
+1. A studio finishes generating an image or video and stores it on the local `results` disk.
+2. The platform checks which provider is **active**. If it's GCS, the file is streamed up to your bucket under the same relative path it has locally (e.g. `images/gemini/uuid.png`), with your key prefix prepended if set.
+3. The creative is marked as living in GCS, so future reads, downloads and deletes resolve through GCS.
+4. If **Delete local copy after upload** is on, the local file is removed to reclaim space.
+
+Two important safety properties:
+
+- **Generation never breaks on storage errors.** If an upload fails, the result simply stays on the local disk and serves from there — the failure is logged, not surfaced to the user.
+- **Local is the safe default.** If GCS is later disabled, uninstalled, or misconfigured, the platform falls back to local storage for new results, and already-offloaded files keep serving from GCS.
+
+<Note>
+For public buckets, files are served from the public URL (`storage.googleapis.com/{bucket}/…` or your custom CDN URL). For private buckets, the platform generates **V4 signed, time-limited URLs** so files remain reachable without making the bucket public. Features that hand a media URL to a third party (for example, publishing a creative through Social Media Studio) use whichever URL applies automatically.
+</Note>
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Google Cloud Storage → **Install**.
+  </Step>
+  <Step title="Create the bucket and service account">
+    In Google Cloud: create the bucket, a service account with **Storage Object Admin**, and download its JSON key.
+  </Step>
+  <Step title="Paste the credentials">
+    Google Cloud Storage config → enter the Bucket, optional Project ID, and paste the full Service Account JSON Key.
+  </Step>
+  <Step title="Enable the provider">
+    Turn on **Enable Google Cloud Storage** and **Save**.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test connection** and confirm the green success toast.
+  </Step>
+  <Step title="Set as Default Storage">
+    General Settings → General → set **Default Storage** to **Google Cloud Storage** → Save.
+  </Step>
+  <Step title="Verify end-to-end">
+    Generate a new result in Image or Video Studio, then confirm the file appears in your GCS bucket and still displays correctly in the app.
+  </Step>
+  <Step title="Decide on local cleanup">
+    Once you trust the setup, optionally turn on **Delete local copy after upload** to reclaim server disk.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, new studio results are stored in your Google Cloud Storage bucket.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| GCS doesn't appear in the Default Storage list | Provider not enabled, or credentials incomplete | Enable it and provide a valid service-account key and bucket name. |
+| "That does not look like a valid service account JSON key" | Pasted partial or wrong file | Paste the **full** contents of the downloaded JSON key (it must include `type`, `private_key` and `client_email`). |
+| "Connection failed" on test | Wrong bucket, missing role, or key from the wrong project | Confirm the bucket name and that the service account has **Storage Object Admin** on it. |
+| "Upload succeeded but the object could not be read back" | Bucket permissions too narrow | Grant the service account read access to the bucket and retry. |
+| New results still stored locally | GCS enabled but not selected as Default Storage | Set Default Storage to Google Cloud Storage in General Settings → General. |
+| Offloaded images show broken in the app | Bucket is private and no public/CDN URL, or public read not granted | Grant public read via IAM (`allUsers` → Storage Object Viewer), set a Public / CDN URL, or rely on signed URLs. |
+| Files served from the wrong path | Key prefix mismatch | Ensure the Key Prefix matches how objects are organized in the bucket. |
+| Service Account key field looks empty when editing | Keys are never echoed back | Leave it blank to keep the stored key; paste a new value only to replace it. |
+| Old files didn't move to GCS | Offload only applies to new results | Selecting GCS doesn't migrate existing files; they keep serving from their current location. |
+
+<Note>
+The service-account key is stored **encrypted** using your app `APP_KEY`. Switching Default Storage back to local (or disabling the plugin) never deletes what's already in your bucket — those files keep serving through GCS.
+</Note>

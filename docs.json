@@ -101,7 +101,15 @@
           "plugins/fasion-studio",
           "plugins/product-photoshoot",     
           "plugins/avatar-studio",     
-          "plugins/ugc-factory"     
+          "plugins/ugc-factory",     
+          "plugins/social-media-studio",    
+          "plugins/prompt-marketplace",    
+          "plugins/channel-broadcast",  
+          "plugins/amazon-s3-storage",  
+          "plugins/wasabi-storage",  
+          "plugins/cloudflare-r2-storage",  
+          "plugins/google-cloud-storage",
+          "plugins/teams"
         ]
       },
       {

@@ -1,0 +1,205 @@
+---
+title: 'Cloudflare R2 Storage'
+icon: cloudflare
+description: 'Offload your Image Studio and Video Studio results to your own Cloudflare R2 (S3-compatible) bucket — with no egress fees.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Cloudflare R2 Storage** lets you, the platform owner, **offload generated studio results** (Image Studio and Video Studio images and videos) from the local server disk to your own **Cloudflare R2** bucket. R2 is an S3-compatible object store with **no egress fees**, which makes it a cost-effective home for growing media libraries.
+
+Unlike the studios, Cloudflare R2 Storage is an **infrastructure** plugin: it doesn't add any user-facing tool. It registers a new storage backend that the platform writes new results to, and serves those results back to users through R2's public URL. It plugs into the same shared storage layer as the Amazon S3, Wasabi and Google Cloud Storage plugins — so exactly **one** backend is active at a time, chosen by you.
+
+This guide covers the full lifecycle — where to buy it, how to install it, how to create an R2 bucket and API token, how to configure and test the connection, how to make R2 the active storage, and how offloading behaves.
+
+<Card title="What it adds">
+- **Config screen** — an admin page under General Settings → Plugins to enter credentials, tune options and test the connection.
+- **Storage provider** — registers **Cloudflare R2** as an option in the platform's **Default Storage** selector.
+- **Automatic offload** — when R2 is the active storage, every newly finalized studio result is uploaded to your bucket, and the platform records that the file now lives in R2.
+- **Transparent serving** — reads, downloads and deletes for offloaded results resolve through R2's public / CDN URL automatically.
+</Card>
+
+<Note>
+The plugin only affects **where generated results are stored**. It doesn't change how anything is generated, priced or gated — it's purely a storage backend.
+</Note>
+
+## Purchase & Installation
+
+Cloudflare R2 Storage is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Cloudflare R2 Storage** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Cloudflare R2 Storage (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Cloudflare R2 Storage** card. The platform downloads the archive, unpacks it, runs its migration and activates the plugin. Its provider details (key, secret, bucket, account id, endpoint, URL, path-style, prefix, delete-local) are stored as an **encrypted** settings entry, so adding storage providers never changes the schema.
+
+    <Warning>
+    On a fresh install everything stays on the local disk. Installation only makes the config screen and the storage provider exist. Nothing is offloaded until you **enter valid credentials**, **enable the provider**, and **select R2 as the Default Storage** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Create an R2 bucket and API token
+
+Before configuring the plugin, set up the bucket and credentials in your Cloudflare dashboard.
+
+<Steps>
+  <Step title="Enable R2 and create a bucket">
+    In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **R2** and create a bucket (e.g. `my-magicads-media`). Note the bucket name.
+  </Step>
+  <Step title="Find your Account ID">
+    Your **Account ID** is shown on the R2 overview page. The plugin uses it to build the S3 API endpoint: `https://{account_id}.r2.cloudflarestorage.com`.
+  </Step>
+  <Step title="Create an R2 API token">
+    Go to **R2 → Manage R2 API Tokens → Create API token**. Give it **Object Read & Write** permission (scoped to your bucket is fine). Cloudflare shows you an **Access Key ID** and a **Secret Access Key** — copy both now; the secret is shown only once.
+  </Step>
+  <Step title="Expose a public URL">
+    R2 buckets are **private by default**. Under **R2 → your bucket → Settings → Public access**, either enable the managed **r2.dev** subdomain (you'll get a `https://pub-xxxxxxxx.r2.dev` URL) or bind a **custom domain**. This URL is how generated results are served to your users.
+  </Step>
+</Steps>
+
+<Note>
+The Access Key ID + Secret Access Key are S3-style credentials specific to R2 — they are **not** your Cloudflare login. Store them somewhere safe; the plugin keeps the secret encrypted once saved.
+</Note>
+
+## Configure Cloudflare R2
+
+Go to **Admin → General Settings → Plugins → Cloudflare R2 Storage** (`/app/admin/general/plugins/cloudflare-r2`). The screen has these sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Cloudflare R2** | Makes R2 a selectable option in the **Default Storage** list once credentials are valid. It does **not** by itself route uploads here — you still pick the active backend. |
+| **Delete local copy after upload** | When on, the local file is removed once it's safely stored in R2, reclaiming server disk space. Leave off to keep a local backup of every result. |
+
+### Bucket Credentials
+
+| Field | Notes |
+|-------|-------|
+| **Access Key ID** | From your R2 API token. |
+| **Secret Access Key** | From your R2 API token. Stored **encrypted**; leave blank on later edits to keep the existing one. |
+| **Account ID** | Your Cloudflare account id — used to derive the endpoint when you leave the custom endpoint blank. |
+| **Bucket** | The R2 bucket name. |
+
+### Advanced
+
+| Field | Notes |
+|-------|-------|
+| **Custom Endpoint** | Optional. Leave blank to derive `https://{account_id}.r2.cloudflarestorage.com` from your Account ID. |
+| **Public / CDN URL** | The base URL files are served from — your `https://pub-xxxx.r2.dev` domain or a custom domain bound to the bucket. Required for results to be publicly viewable. |
+| **Key Prefix** | Optional folder inside the bucket (e.g. `magicads`), transparently prepended to every object key. |
+| **Use path-style endpoint** | Off works for standard R2 buckets. Enable only if your setup requires path-style addressing. |
+
+<Note>
+The region is always **`auto`** for R2 — there's no region field because R2 ignores the S3 region concept. To enable the provider you need at minimum the **access key, secret, bucket, and either the account id or a custom endpoint**.
+</Note>
+
+### Connection
+
+Click **Test connection**. The plugin saves your settings, then **uploads, reads back and deletes a tiny probe object** to confirm the bucket is reachable and writable. A green toast means R2 is ready; a red toast surfaces the exact error (bad credentials, wrong bucket, permissions).
+
+Click **Save** to persist everything.
+
+## Make R2 the active storage
+
+Enabling the provider only adds it to the selector. To actually store new results in R2, set it as the platform's **Default Storage**:
+
+<Steps>
+  <Step title="Open General Settings">
+    Go to **Admin → General Settings → General**.
+  </Step>
+  <Step title="Select Cloudflare R2">
+    Set **Default Storage** to **Cloudflare R2**.
+  </Step>
+  <Step title="Save">
+    Save the change. From that point, every newly finalized studio result is offloaded to R2. Only enabled, fully-configured providers appear in this list, and "Local server (this machine)" is always the fallback.
+  </Step>
+</Steps>
+
+<Warning>
+Only **one** storage backend is active at a time. Selecting Cloudflare R2 here makes it authoritative for new results; it does **not** retroactively move files that were already stored locally or on another provider — those keep serving from wherever they already live.
+</Warning>
+
+## How offloading works
+
+The platform uses a single shared storage layer, so R2 behaves exactly like the S3 and Wasabi plugins:
+
+1. A studio finishes generating an image or video and stores it on the local `results` disk.
+2. The platform checks which provider is **active**. If it's R2, the file is streamed up to your bucket under the same relative path it has locally (e.g. `images/gemini/uuid.png`), with your key prefix prepended if set.
+3. The creative is marked as living in R2, so future reads, downloads and deletes resolve through R2.
+4. If **Delete local copy after upload** is on, the local file is removed to reclaim space.
+
+Two important safety properties:
+
+- **Generation never breaks on storage errors.** If an upload fails, the result simply stays on the local disk and serves from there — the failure is logged, not surfaced to the user.
+- **Local is the safe default.** If R2 is later disabled, uninstalled, or misconfigured, the platform falls back to local storage for new results, and already-offloaded files keep serving from R2.
+
+<Note>
+Because offloaded objects are served from your **Public / CDN URL**, features that hand a media URL to a third party (for example, publishing a creative through Social Media Studio) automatically use the R2 URL. If that URL isn't set or the bucket isn't public, those files won't be reachable.
+</Note>
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Cloudflare R2 Storage → **Install**.
+  </Step>
+  <Step title="Create the bucket, token and public URL">
+    In Cloudflare: create the R2 bucket, an Object Read & Write API token, and enable an r2.dev or custom public domain.
+  </Step>
+  <Step title="Enter the credentials">
+    Cloudflare R2 config → fill in Access Key ID, Secret, Account ID, Bucket, and the Public / CDN URL.
+  </Step>
+  <Step title="Enable the provider">
+    Turn on **Enable Cloudflare R2** and **Save**.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test connection** and confirm the green success toast.
+  </Step>
+  <Step title="Set as Default Storage">
+    General Settings → General → set **Default Storage** to **Cloudflare R2** → Save.
+  </Step>
+  <Step title="Verify end-to-end">
+    Generate a new result in Image or Video Studio, then confirm the file appears in your R2 bucket and still displays correctly in the app.
+  </Step>
+  <Step title="Decide on local cleanup">
+    Once you trust the setup, optionally turn on **Delete local copy after upload** to reclaim server disk.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, new studio results are stored in your Cloudflare R2 bucket.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| R2 doesn't appear in the Default Storage list | Provider not enabled, or credentials incomplete | Enable it and fill in access key, secret, bucket and account id (or a custom endpoint). |
+| "Connection failed" on test | Wrong keys, bucket name or account id | Re-check the R2 API token and bucket; confirm the token has Object Read & Write. |
+| "Upload succeeded but the object could not be read back" | Bucket permissions too narrow | Grant the token read access to the bucket and retry. |
+| New results still stored locally | R2 enabled but not selected as Default Storage | Set Default Storage to Cloudflare R2 in General Settings → General. |
+| Offloaded images show broken in the app | Public / CDN URL missing or bucket not public | Set the Public / CDN URL and enable public access (r2.dev or a custom domain). |
+| Files served from the wrong path | Key prefix mismatch | Ensure the Key Prefix matches how objects are organized in the bucket. |
+| Secret field looks empty when editing | Secrets are never echoed back | Leave it blank to keep the stored secret; type a new value only to replace it. |
+| Old files didn't move to R2 | Offload only applies to new results | Selecting R2 doesn't migrate existing files; they keep serving from their current location. |
+
+<Note>
+The secret access key is stored **encrypted** using your app `APP_KEY`. Switching Default Storage back to local (or disabling the plugin) never deletes what's already in your bucket — those files keep serving through R2.
+</Note>

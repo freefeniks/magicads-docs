@@ -1,0 +1,347 @@
+---
+title: 'Channel Broadcast'
+icon: tower-broadcast
+description: 'Write a message once and send or schedule it across WhatsApp, Telegram, Slack, Facebook Messenger and email — from one composer with a live per-channel preview.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Channel Broadcast** lets your users write one message and **send or schedule** it across **WhatsApp, Telegram, Slack, Facebook Messenger and email** — from a single composer with a live per-channel preview. It can pull the text from an existing **Ad Copy**, attach a generated **Ad Creative**, write the message with AI, and deliver it now, on a schedule, or on a recurring cadence.
+
+Like Social Media Studio, Channel Broadcast is a **delivery** tool rather than a generation studio. But there's a key difference in how it's wired: there are **no platform-wide OAuth apps to register**. Each user brings their own credentials per connection — their own WhatsApp Business token, their own Telegram bot, their own Slack webhook, their own recipient lists. The admin only decides which channels are available at all.
+
+This guide covers the full lifecycle — where to buy it, how to install it, how to enable channels and set the AI rate, how to grant access by plan, the cron requirement for scheduling, how each user connects a channel, and how the composer works.
+
+<Card title="Included Tools">
+- **Compose** — the studio. Load text from an ad copy (or write / AI-generate one), attach a creative, add a CTA link, pick target channels, preview per channel, then send now / schedule / repeat.
+- **Channels** — connect, test, pause, reactivate or disconnect destinations. Each connection stores its own encrypted credentials.
+- **Activity** — history of every broadcast with per-channel status (delivered / scheduled / partial / failed), a detail view, reach totals and delete.
+</Card>
+
+### Supported channels
+
+| Channel | What it sends to | What the user connects with |
+|---------|------------------|-----------------------------|
+| **WhatsApp** | Individual opted-in numbers via WhatsApp Business Cloud API (one-to-one, no group chats) | Phone Number ID + Access Token + recipient numbers |
+| **Telegram** | A Telegram group or channel via the user's own bot | Bot token + chat / group ID |
+| **Slack** | A Slack channel via an Incoming Webhook | Webhook URL |
+| **Facebook Messenger** | Messenger subscribers of a Facebook Page | Page Access Token + recipient PSIDs |
+| **Email** | A subscriber list from the platform mailer (recipients are BCC'd) | Recipient emails + optional from name / address |
+
+<Note>
+Credentials are **owned by the user** and stored encrypted per connection. Users may connect as many destinations per channel as they like (multiple WhatsApp numbers, several Telegram chats, more than one Slack channel, and so on). The admin never enters any channel keys — they only toggle whether each channel is available.
+</Note>
+
+## Purchase & Installation
+
+Channel Broadcast is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Channel Broadcast** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Channel Broadcast (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Channel Broadcast** card. The platform downloads the archive, unpacks it, runs its migrations and activates the plugin. This provisions the storage it needs for:
+
+    - the plugin's settings (feature flags, the AI message rate and each channel's enable switch),
+    - each user's connected destinations (with encrypted per-connection credentials),
+    - every composed broadcast (message + media snapshot + CTA + schedule),
+    - and each channel target within a broadcast (its own status, remote id, retry and recurrence bookkeeping).
+
+    The installer also registers the recurring delivery command (`channel-broadcast:send-due`) which the scheduler runs once a minute.
+
+    <Warning>
+    On a fresh install everything is off by default. Installation only makes the routes and storage exist. The tools stay hidden from users until you **enable the feature** and **enable at least one channel** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card. Uninstalling removes the plugin's files but **leaves your data intact** — connections and broadcast history are never dropped.
+
+## Configure Channel Broadcast
+
+Go to **Admin → General Settings → Plugins → Channel Broadcast** (`/app/admin/general/plugins/channel-broadcast`). The screen has these sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Channel Broadcast** | Master switch. When on, the studio appears in user menus and becomes usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use the studio. When off, only subscribers (on a plan that includes it) get access. |
+| **AI message rate (credits per 1000 words)** | Cost of generating a message with AI in the composer. Integer 1–999, default 2. Broadcasting and scheduling themselves are always free. |
+
+### Channels
+
+One switch per channel — **WhatsApp, Telegram, Slack, Facebook Messenger, Email**. This is the *only* thing the admin controls per channel; there are no keys to enter here because credentials belong to each user's connection.
+
+A channel only becomes connectable for users when its switch is **on**.
+
+<Note>
+All connection credentials (tokens, webhook URLs, recipient lists) are stored **encrypted** on each destination using your app `APP_KEY` — never in `.env`.
+</Note>
+
+Click **Save** to persist all sections.
+
+### AI message generation
+
+Writing or optimizing a message with AI in the composer uses your central **OpenAI** key from **Admin → AI Settings** (`openai_key`) and spends the user's shared credits.
+
+- The cost is the **AI message rate** (credits per 1000 words) set above; users are charged only on a successful generation.
+- Everything else — connecting channels, composing, sending and scheduling — is **always free**.
+
+<Note>
+If no OpenAI key is configured, the AI writer shows "AI text generation is not configured" and users can still write their message manually. Only the AI step needs a key.
+</Note>
+
+## Scheduling — cron requirement
+
+Immediate broadcasts publish during the web request. **Scheduled** and **recurring** broadcasts are delivered by a background command that the Laravel scheduler runs every minute.
+
+For scheduling to work, the host must run Laravel's single scheduler cron entry:
+
+```cron
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+This is the same cron the rest of MagicAds (Avatar Studio, Social Media Studio, etc.) already relies on — if those work, scheduling works. The plugin self-registers `channel-broadcast:send-due` (guarded so it only runs when installed). Each minute it reclaims any target stuck mid-send, delivers everything that's due, and re-arms the next run for recurring broadcasts until their end date.
+
+<Warning>
+Without the cron, immediate broadcasts still send but scheduled and recurring broadcasts will never go out. Confirm the cron is configured on production and VPS hosts.
+</Warning>
+
+The delivery worker retries a failed target up to **3 times** with a growing backoff, processes up to **25** targets per run, and reclaims targets left mid-send for more than **15 minutes** (from a crashed run) so they can retry.
+
+## Grant access by plan
+
+Access is gated in two layers:
+
+1. **Platform layer** — the master **Enable Channel Broadcast** switch must be on.
+2. **User layer** — who actually gets the studio:
+   - **Subscribed users** (on a plan): access is governed by the plan's **Channel Broadcast** feature toggle. Edit each plan and enable it for the plans that should include it.
+   - **Non-subscribed users** (no plan): access only when both **Enable Channel Broadcast** and **Free Tier Access** are on.
+
+<Note>
+When the studio is offered platform-wide but the current user isn't eligible, it appears as a **locked, upgrade-to-unlock** entry that nudges the user toward an eligible plan rather than hiding it entirely.
+
+Because broadcasting is free and only AI message generation spends credits, plan-based limits are enforced naturally through each user's credit balance.
+</Note>
+
+To set it up:
+
+1. Enable the master switch in the Channel Broadcast config.
+2. Go to **Admin → plan management**, edit each plan, and turn the Channel Broadcast feature on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Channel Broadcast → **Install**.
+  </Step>
+  <Step title="Enable channels">
+    In the Channel Broadcast config, turn on the channels you want to offer (WhatsApp, Telegram, Slack, Messenger, Email).
+  </Step>
+  <Step title="Add an OpenAI key (optional)">
+    For the in-composer AI message writer, add an **OpenAI** key in Admin → AI Settings.
+  </Step>
+  <Step title="Set the AI message rate">
+    Adjust **AI message rate (credits per 1000 words)**, then **Save**.
+  </Step>
+  <Step title="Confirm the cron">
+    Ensure `php artisan schedule:run` runs every minute on the server.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Channel Broadcast**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Grant plan access">
+    Enable the Channel Broadcast feature on the plans that should include it.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as an eligible user → **Channels** → connect a destination and run its test → **Compose** → send a test broadcast and confirm it lands.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Channel Broadcast is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+All tools live under **Channel Broadcast** in the user sidebar.
+
+### Channels — connecting a destination
+
+Each connection is created by the user with their own credentials, then a **test message** fires automatically so they get instant confidence. From here they can **test** again, **pause** (temporarily exclude a destination from broadcasting), **reactivate**, or **disconnect** it.
+
+<Tip>
+The connect modal has a **Test Configuration** action that verifies the credentials you've typed *before* saving, so you can confirm a token or webhook works without creating a broken connection.
+</Tip>
+
+What each channel needs:
+
+#### WhatsApp
+
+A **Phone Number ID** and a permanent **Access Token** from the WhatsApp Business Cloud API, plus one or more **recipient numbers** (digits only with country code, one per line).
+
+<Steps>
+  <Step title="Create a Meta app with WhatsApp">
+    In [Meta for Developers](https://developers.facebook.com/apps), create a **Business** app and add the **WhatsApp** product. This gives you a test number and a temporary token to start.
+  </Step>
+  <Step title="Get the Phone Number ID">
+    Under **WhatsApp → API Setup**, copy the **Phone Number ID** of the business number you'll send from (this is the numeric ID, not the phone number itself).
+  </Step>
+  <Step title="Generate a permanent Access Token">
+    Create a **System User** in [Meta Business Settings](https://business.facebook.com/settings) with access to the WhatsApp account, then generate a **permanent token** with the `whatsapp_business_messaging` and `whatsapp_business_management` permissions. Temporary 24-hour tokens work for testing but expire.
+  </Step>
+  <Step title="Add recipients & test">
+    Paste the Phone Number ID, token and recipient numbers into the WhatsApp connection, then run **Test Configuration**.
+  </Step>
+</Steps>
+
+<Warning>
+WhatsApp business messaging is **one-to-one** — you target individual numbers, not group chats. A free-form broadcast only delivers to numbers that messaged your business number in the **last 24 hours** (the customer-service window); outside that window you must send an **approved message template**.
+
+Meta moved WhatsApp to **per-message pricing on 1 July 2025** (replies inside the 24-hour window are free), and from **1 October 2026** it is reintroducing fees for non-template service messages. Check current [WhatsApp pricing](https://developers.facebook.com/docs/whatsapp/pricing/) before high-volume sending.
+</Warning>
+
+#### Telegram
+
+A **bot token** and the **chat / group ID**.
+
+<Steps>
+  <Step title="Create a bot">
+    Message [@BotFather](https://t.me/BotFather) on Telegram, send `/newbot`, and copy the **bot token** it gives you.
+  </Step>
+  <Step title="Add the bot to your group/channel">
+    Add the bot to the target group or channel and promote it to **admin** so it can post.
+  </Step>
+  <Step title="Get the chat / group ID">
+    Obtain the **chat ID** (for example via `@userinfobot` or the `getUpdates` API) and paste it, along with the bot token, into the Telegram connection.
+  </Step>
+</Steps>
+
+#### Slack
+
+An **Incoming Webhook URL** — the broadcast is posted to whichever channel the webhook targets.
+
+<Steps>
+  <Step title="Create a Slack app">
+    Go to [Slack API → Your Apps](https://api.slack.com/apps) → **Create New App** → **From scratch**, and pick your workspace.
+  </Step>
+  <Step title="Enable Incoming Webhooks">
+    Open **Incoming Webhooks**, toggle it **On**, then click **Add New Webhook to Workspace** and choose the destination channel.
+  </Step>
+  <Step title="Copy the Webhook URL">
+    Copy the generated **Webhook URL** and paste it into the Slack connection.
+  </Step>
+</Steps>
+
+#### Facebook Messenger
+
+A **Page Access Token**, plus one or more **recipient PSIDs** (Page-Scoped IDs of people who have messaged your Page), one per line.
+
+<Steps>
+  <Step title="Create a Meta app with Messenger">
+    In [Meta for Developers](https://developers.facebook.com/apps), create a **Business** app and add the **Messenger** product.
+  </Step>
+  <Step title="Generate a Page Access Token">
+    Under **Messenger → Settings → Access Tokens**, connect your Facebook **Page** and generate a **Page Access Token**. It needs the `pages_messaging` permission (and page messaging access via App Review to reach real users).
+  </Step>
+  <Step title="Collect recipient PSIDs">
+    PSIDs are issued when a person messages your Page; capture them via your Messenger webhook. Paste the Page Access Token and PSIDs into the Messenger connection.
+  </Step>
+</Steps>
+
+<Warning>
+Like WhatsApp, Messenger enforces a **24-hour messaging window** — you can freely message a person for 24 hours after their last message to your Page. Sending outside that window for promotional content is restricted and requires approved message tags. Mass unsolicited messaging leads to restrictions.
+</Warning>
+
+#### Email
+
+A list of **recipient email addresses** (one per line, sent BCC so recipients never see each other), with an optional **From name** and **From / Reply-to** address that override the platform defaults. Email uses the platform's configured mailer (see [SMTP settings](/advanced/smtp)).
+
+### Compose
+
+The studio centerpiece:
+
+<Steps>
+  <Step title="Message">
+    Load it from a saved **Ad Copy** variant, type it, or generate it with **AI** (pick a tone; this spends credits at the configured rate).
+  </Step>
+  <Step title="Subject">
+    Used by the Email channel.
+  </Step>
+  <Step title="Media">
+    Attach an existing **Ad Creative** (image or video). Optional.
+  </Step>
+  <Step title="CTA link">
+    An optional link URL and label, rendered as a button on channels that support one.
+  </Step>
+  <Step title="Broadcast to">
+    Choose target destinations. The composer validates each destination against the active content and **dims incompatible ones with the reason** (e.g. a channel that doesn't support the attached media). Use **Select eligible** to pick all valid targets at once.
+  </Step>
+  <Step title="When">
+    **Immediately**, **Scheduled** (date & time), or **Recurring** (start, end, an interval in minutes, and which days).
+  </Step>
+  <Step title="Live preview">
+    A preview renders the message exactly as it will look on the selected channel; switch channels to compare.
+  </Step>
+</Steps>
+
+#### Per-channel content rules
+
+The composer enforces each channel's capabilities automatically:
+
+| Channel | Media (image/video) | CTA button | Formatting | Text limit |
+|---------|---------------------|------------|------------|------------|
+| WhatsApp | Yes | No | Plain text | 4,096 |
+| Telegram | Yes | Yes | HTML | 4,096 |
+| Slack | Yes | Yes | mrkdwn | 3,000 |
+| Facebook Messenger | Yes | Yes | Plain text | 2,000 |
+| Email | Yes | Yes | HTML | No limit |
+
+Messages longer than a channel's limit are trimmed automatically for that channel only.
+
+#### Recurring cadence
+
+Recurring broadcasts repeat on an **interval** (minimum 5 minutes) between a **start** and **end** date, filtered by an **on-days** rule: every day, weekdays only, weekends only, even days, odd days, or a specific weekday. After each successful send the worker computes and arms the next allowed slot until the campaign's end date passes.
+
+### Activity
+
+A filterable history (Scheduled / Completed / Partial / Failed) with a channel filter and search, plus a reach total (recipients sent). Each row shows the message and a chip per target channel coloured by outcome. Open any broadcast for a per-channel breakdown (status, send time or error, provider message id), or delete it.
+
+### Media & storage
+
+For media attachments, channels that can upload bytes (e.g. Telegram) receive the file directly from the local results disk, so previews work even when the app isn't publicly reachable. When a creative is offloaded to a cloud provider (Amazon S3 / Wasabi plugin), the studio resolves the provider's public URL and hands it to channels that fetch media from a URL.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Studio doesn't appear for a user | Master switch off, plan lacks the feature, or a plan-less user with Free Tier off | Enable the master switch; enable the feature on their plan; or turn on Free Tier Access. |
+| A channel isn't offered on Channels | The channel's switch is off | Enable that channel in the Channel Broadcast config. |
+| "Test failed" when connecting | Wrong or incomplete credentials for that channel | Re-check the token / webhook / IDs; use **Test Configuration** to verify before saving. |
+| WhatsApp message not delivered | Recipient outside the 24-hour window, or not opted in | The recipient must message your WhatsApp Business number first, or use an approved template. |
+| Telegram send fails | Bot not an admin of the group, or wrong chat ID | Add the bot to the group as admin and paste the correct chat / group ID. |
+| Messenger send fails / restricted | Outside the 24-hour window, or the token lacks messaging permission | Reply within 24 hours of the user's last message, or use an approved tag; ensure the Page token has `pages_messaging`. |
+| Scheduled or recurring broadcasts never go out | Cron not running | Configure `* * * * * php artisan schedule:run`. |
+| Broadcast shows **Partial** | Some channels succeeded, others failed | Open the broadcast in Activity to see the per-channel error. |
+| A target keeps retrying then fails | Transient provider error exhausted the retries | The worker retries up to 3 times with backoff before marking it failed; fix the cause and resend. |
+| AI message returns nothing / "not configured" | No OpenAI key in AI Settings, or insufficient credits | Add an `openai_key` in Admin → AI Settings; ensure the user has enough credits. |
+| "Add a message or media before broadcasting" | Nothing to send on the selected content | Type or load a message, or attach a creative. |
+
+<Note>
+Connection credentials are stored encrypted. Broadcasting and scheduling are always free; only AI message generation deducts credits, and only on a successful generation.
+</Note>

@@ -1,0 +1,450 @@
+---
+title: 'Social Media Studio'
+icon: share-nodes
+description: 'Connect your users’ social accounts and publish or schedule their ad copies and creatives across X, LinkedIn, Facebook, Instagram, TikTok, YouTube and YouTube Shorts — from one composer with a live per-network preview.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Social Media Studio** lets your users connect their social accounts and **publish or schedule** their generated ad copies and ad creatives across **X (Twitter), LinkedIn, Facebook, Instagram, TikTok, YouTube and YouTube Shorts** — all from a single composer with a pixel-accurate live preview for every network.
+
+Unlike the generation studios, Social Media Studio is a **publishing** tool: it pulls the caption from an existing **Ad Copy** and the media from an existing **Ad Creative**, validates the combination against each network's rules, then posts **immediately**, on a **schedule**, or on an **auto-repost** cadence.
+
+This guide covers the full lifecycle — where to buy it, how to install it, how to register a developer app on each network and wire up its OAuth keys, how to configure pricing and access, the cron requirement for scheduling, and how each tool works.
+
+<Card title="Included Tools">
+- **Compose** — the studio. Load a caption from an ad copy (or write/AI-generate one), attach a creative, pick target accounts, preview per network, then publish now / schedule / auto-repost.
+- **Connections** — connect, pause, reactivate or disconnect social accounts via secure OAuth.
+- **Calendar** — a timeline of every upcoming scheduled/auto-repost delivery plus recently published posts.
+- **Posts** — history of every post with per-network status (posted / scheduled / partial / failed), a detail view and delete.
+</Card>
+
+### Supported networks
+
+| Network | What it posts | Credentials required |
+|---------|---------------|----------------------|
+| **X (Twitter)** | Text, image, GIF, video | Client ID + Client Secret |
+| **LinkedIn** | Text, image, video (member feed) | Client ID + Client Secret |
+| **Facebook** | Text, photo, video (Page feed) | App ID + App Secret |
+| **Instagram** | Image, video / Reels (Business account) | App ID + App Secret |
+| **TikTok** | Video, photo | Client Key + Client Secret |
+| **YouTube** | Long-form video | Client ID + Client Secret |
+| **YouTube Shorts** | Vertical short-form video (`#Shorts`) | Shares the YouTube credentials |
+
+<Note>
+YouTube and YouTube Shorts share **one** Google OAuth client; they're treated as two independent destinations (separate connected accounts and callback URLs) so a user can target long-form and short-form separately.
+</Note>
+
+## Purchase & Installation
+
+Social Media Studio is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Social Media Studio** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Social Media Studio (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Social Media Studio** card. The platform downloads the archive, unpacks it, runs its migrations and activates the plugin. This provisions the storage it needs for:
+
+    - the plugin's settings (feature flags, AI caption price and every network's encrypted OAuth app credentials),
+    - each user's connected social accounts (with encrypted access/refresh tokens),
+    - every composed post (caption + media snapshot + schedule),
+    - and each network target within a post (its own status, remote id, retry and repost bookkeeping).
+
+    The installer also registers the recurring publisher command (`social-media-studio:publish-due`) which the scheduler runs once a minute.
+
+    <Warning>
+    On a fresh install everything is off by default. Installation only makes the routes and tables exist. The tools stay hidden from users until you **enable the feature**, **enable at least one network**, and **add that network's OAuth credentials** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card. Uninstalling removes the plugin's files but **leaves your data tables intact** — it never drops user data.
+
+## Register a developer app for each network
+
+Social Media Studio publishes on behalf of your users through each network's official API, which requires an **OAuth app** (a client ID + secret) that you, the platform owner, register once per network. You then paste those credentials into the plugin config and whitelist the plugin's **callback URL**.
+
+Two things are true for every network below:
+
+- Replace `https://your-domain.com` with your real MagicAds URL (its `APP_URL`).
+- The exact callback URLs to register are shown, pre-filled and read-only, on the **Social Media Studio config screen**. Copy them from there to avoid typos.
+
+<Note>
+Where AI caption generation is used inside the composer, that uses your central **OpenAI** key from **Admin → AI Settings** (`openai_key`) and spends credits. The per-network credentials below are only for **publishing** — they are separate from the social-login keys some platforms also offer.
+</Note>
+
+### Callback URLs at a glance
+
+| Network | Redirect / Callback URL to whitelist |
+|---------|--------------------------------------|
+| X (Twitter) | `https://your-domain.com/app/social-media-studio/callback/twitter` |
+| LinkedIn | `https://your-domain.com/app/social-media-studio/callback/linkedin` |
+| Facebook | `https://your-domain.com/app/social-media-studio/callback/facebook` |
+| Instagram | `https://your-domain.com/app/social-media-studio/callback/instagram` |
+| TikTok | `https://your-domain.com/app/social-media-studio/callback/tiktok` |
+| YouTube | `https://your-domain.com/app/social-media-studio/callback/youtube` |
+| YouTube Shorts | `https://your-domain.com/app/social-media-studio/callback/youtube-shorts` |
+
+### X (Twitter)
+
+X uses **OAuth 2.0 Authorization Code with PKCE**.
+
+<Steps>
+  <Step title="Create a developer account">
+    Go to the [X Developer Portal](https://developer.x.com/) and sign in, then open a **Project**.
+  </Step>
+  <Step title="Create an App inside the Project">
+    Create an **App** under your Project. Give it a name your users will recognize on the consent screen.
+  </Step>
+  <Step title="Enable OAuth 2.0 user authentication">
+    In the App's **User authentication settings**, turn on **OAuth 2.0**. Set **Type of App** to **Web App / Automated App** (confidential client) so you get a client secret.
+  </Step>
+  <Step title="Set the callback and permissions">
+    - **Callback URI / Redirect URL**: `https://your-domain.com/app/social-media-studio/callback/twitter`
+    - **Website URL**: your MagicAds URL.
+    - **App permissions**: **Read and write** (required to post and upload media).
+  </Step>
+  <Step title="Copy the credentials">
+    From **Keys and tokens**, copy the **OAuth 2.0 Client ID** and **Client Secret**.
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **X (Twitter)** → paste Client ID + Client Secret → toggle the network **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `tweet.read tweet.write users.read media.write offline.access`.
+
+<Warning>
+Since X's 2023 pricing overhaul, **posting through the API is no longer effectively free**. The Free tier allows only a very small monthly write cap (and is heavily rate-limited), so any real publishing volume requires the **Basic** tier ($100/month at time of writing) or higher. Check current [X API pricing](https://developer.x.com/) before going live, and size your plan to your expected posting volume. Media uploads use X's chunked v2 media endpoint.
+</Warning>
+
+### LinkedIn
+
+LinkedIn uses **OAuth 2.0** with OpenID Connect for identity and the Posts API for publishing.
+
+<Steps>
+  <Step title="Create an app">
+    Go to the [LinkedIn Developer Portal](https://www.linkedin.com/developers/apps) → **Create app**. You must associate it with a LinkedIn **Company Page** you control.
+  </Step>
+  <Step title="Request products">
+    On the app's **Products** tab, request **Sign In with LinkedIn using OpenID Connect** and **Share on LinkedIn**. These grant the scopes below. Approval is usually instant.
+  </Step>
+  <Step title="Set the redirect URL">
+    On the **Auth** tab, add the **Authorized redirect URL**: `https://your-domain.com/app/social-media-studio/callback/linkedin`
+  </Step>
+  <Step title="Copy the credentials">
+    From the **Auth** tab, copy the **Client ID** and **Client Secret**.
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **LinkedIn** → paste Client ID + Client Secret → toggle **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `openid profile email w_member_social`.
+
+<Note>
+This posts to the connected member's personal feed via the Posts API. LinkedIn access tokens are long-lived (~60 days); when one expires the user simply reconnects from the Connections tab.
+</Note>
+
+### Facebook (Pages)
+
+Facebook publishing uses the **Meta Graph API**. Connecting a Facebook account creates one connected destination per **Page** the user administers.
+
+<Steps>
+  <Step title="Create a Meta app">
+    Go to [Meta for Developers](https://developers.facebook.com/apps) → **Create app** → choose the **Business** type.
+  </Step>
+  <Step title="Add Facebook Login">
+    Add the **Facebook Login** product. Under its settings, enable **Client OAuth Login** and **Web OAuth Login**.
+  </Step>
+  <Step title="Set the redirect URI">
+    **Facebook Login → Settings → Valid OAuth Redirect URIs**: `https://your-domain.com/app/social-media-studio/callback/facebook`
+  </Step>
+  <Step title="Add permissions">
+    Under **App Review → Permissions and Features**, request: `pages_show_list`, `pages_read_engagement`, `pages_manage_posts`, `pages_manage_metadata`, plus `public_profile`.
+  </Step>
+  <Step title="Copy the credentials">
+    **App settings → Basic** → copy the **App ID** and **App Secret**.
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **Facebook** → paste App ID + App Secret → toggle **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `pages_show_list,pages_read_engagement,pages_manage_posts,pages_manage_metadata,public_profile`.
+
+<Warning>
+While your Meta app is in **Development** mode it only works for users with a role on the app (admins/testers). To let real customers connect, complete **App Review** for the page-management permissions and switch the app to **Live**. Add your domain under **App Settings → Basic → App Domains** and complete Business Verification.
+</Warning>
+
+### Instagram (Business / Creator)
+
+Instagram publishing also runs through the **Meta Graph API**, so it requires an Instagram **Business or Creator** account that is linked to a Facebook **Page**. You can reuse the same Meta app as Facebook or create a separate one.
+
+<Steps>
+  <Step title="Use a Meta app with Instagram">
+    In your [Meta app](https://developers.facebook.com/apps), add **Facebook Login** (as above) and the **Instagram Graph API**.
+  </Step>
+  <Step title="Set the redirect URI">
+    Add to **Valid OAuth Redirect URIs**: `https://your-domain.com/app/social-media-studio/callback/instagram`
+  </Step>
+  <Step title="Add permissions">
+    Request: `instagram_basic`, `instagram_content_publish`, `pages_show_list`, `pages_read_engagement`, `business_management`.
+  </Step>
+  <Step title="Copy the credentials">
+    **App settings → Basic** → copy the **App ID** and **App Secret** (you can use the same values as Facebook if it's one app).
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **Instagram** → paste App ID + App Secret → toggle **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement,business_management`.
+
+<Warning>
+End users must have an Instagram **Business/Creator** account connected to a Facebook Page they administer, or no publishable account will be found. Instagram pulls the media from a public URL (see [Media & storage](#media--storage)). Personal Instagram accounts are not supported by the API.
+</Warning>
+
+### TikTok
+
+TikTok uses the **TikTok for Developers** Login Kit + Content Posting API.
+
+<Steps>
+  <Step title="Create a developer app">
+    Go to [TikTok for Developers](https://developers.tiktok.com/) → **Manage apps** → create an app.
+  </Step>
+  <Step title="Add Login Kit and Content Posting API">
+    Add the **Login Kit** and the **Content Posting API** products to the app.
+  </Step>
+  <Step title="Set the redirect URI">
+    Add the **Redirect URI**: `https://your-domain.com/app/social-media-studio/callback/tiktok`
+  </Step>
+  <Step title="Request scopes">
+    Enable: `user.info.basic`, `user.info.profile`, `video.upload`, `video.publish`, `photo.upload`.
+  </Step>
+  <Step title="Copy the credentials">
+    From the app's **Credentials**, copy the **Client Key** and **Client Secret**.
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **TikTok** → paste Client Key + Client Secret → toggle **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `user.info.basic,user.info.profile,video.upload,video.publish,photo.upload`.
+
+<Warning>
+Until your TikTok app is **audited/approved**, posts are created as **private (SELF_ONLY)** and only accounts added as test users can connect. Submit the app for review and complete URL-prefix verification of your domain to publish publicly for all users.
+</Warning>
+
+### YouTube & YouTube Shorts
+
+Both use one **Google Cloud OAuth client** and the **YouTube Data API v3**.
+
+<Steps>
+  <Step title="Create a Google Cloud project">
+    Go to the [Google Cloud Console](https://console.cloud.google.com/) → create (or select) a project.
+  </Step>
+  <Step title="Enable the YouTube Data API v3">
+    **APIs & Services → Library** → enable **YouTube Data API v3**.
+  </Step>
+  <Step title="Configure the OAuth consent screen">
+    **APIs & Services → OAuth consent screen** → choose **External**, fill in app name, support email and your domain. Add the scopes: `.../auth/youtube.upload`, `.../auth/youtube.readonly`, `.../auth/userinfo.profile`, `.../auth/userinfo.email`.
+  </Step>
+  <Step title="Create an OAuth client ID">
+    **APIs & Services → Credentials → Create credentials → OAuth client ID** → **Web application**. Under **Authorized redirect URIs**, add BOTH:
+    - `https://your-domain.com/app/social-media-studio/callback/youtube`
+    - `https://your-domain.com/app/social-media-studio/callback/youtube-shorts`
+  </Step>
+  <Step title="Copy the credentials">
+    Copy the **Client ID** and **Client Secret**.
+  </Step>
+  <Step title="Paste into the plugin">
+    Social Media Studio config → **YouTube & Shorts** → paste Client ID + Client Secret → toggle **on** → **Save**.
+  </Step>
+</Steps>
+
+**Scopes requested:** `youtube.upload`, `youtube.readonly`, `userinfo.profile`, `userinfo.email`.
+
+<Warning>
+A brand-new Google project is in **Testing** mode and only allows the test users you list. To serve real customers, submit the consent screen for **Google verification** (required for the `youtube.upload` sensitive scope) and publish the app. Until verified, uploads from unverified projects default to **private** visibility.
+</Warning>
+
+## Configure Social Media Studio
+
+Go to **Admin → General Settings → Plugins → Social Media Studio** (`/app/admin/general/plugins/social-media-studio`). The screen has these sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Social Media Studio** | Master switch. When on, the studio appears in user menus and becomes usable. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can use the studio. When off, only subscribers get access. |
+| **AI caption rate (credits per 1000 words)** | Cost of generating a caption with AI in the composer. Integer 1–999, default 2. Publishing itself is always free. |
+
+### Networks
+
+One card per network with an **enable switch**, the **Client ID / Secret** (or Client Key / Secret for TikTok) fields, and the **read-only callback URL(s)** to copy into that network's developer app (see [Register a developer app](#register-a-developer-app-for-each-network)). YouTube shows both the YouTube and Shorts callback URLs.
+
+A network only appears for users to connect when its switch is **on** and its credentials are filled.
+
+<Note>
+All client secrets are stored **encrypted** using your app `APP_KEY` — never in `.env` and never shown back in plain text after saving.
+</Note>
+
+Click **Save** to persist all sections.
+
+## Scheduling — cron requirement
+
+Immediate posts publish during the web request. **Scheduled** and **auto-repost** posts are published by a background command that the Laravel scheduler runs every minute.
+
+For scheduling to work, the host must run Laravel's single scheduler cron entry:
+
+```cron
+* * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
+```
+
+This is the same cron the rest of MagicAds (Avatar Studio, UGC Factory, etc.) already relies on — if those work, scheduling works. The plugin self-registers `social-media-studio:publish-due` (guarded so it only runs when installed); each minute it publishes everything that's due and re-arms the next run for auto-repost campaigns until their end date.
+
+<Warning>
+Without the cron, immediate posts still publish but scheduled and auto-repost posts will never go out. Confirm the cron is configured on production and VPS hosts.
+</Warning>
+
+## Grant access by plan
+
+Access is gated in two layers:
+
+1. **Platform layer** — the master **Enable Social Media Studio** switch must be on.
+2. **User layer** — who actually gets the studio:
+   - **Subscribed users** (on any plan): access is granted.
+   - **Non-subscribed users** (no plan): access only when both **Enable Social Media Studio** and **Free Tier Access** are on.
+
+<Note>
+When the studio is offered platform-wide but the current user isn't eligible, it appears as a **locked, upgrade-to-unlock** entry that nudges the user toward a plan rather than hiding it entirely.
+
+Because publishing is free and only AI caption generation spends credits, plan-based limits are enforced naturally through each user's credit balance.
+</Note>
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Social Media Studio → **Install**.
+  </Step>
+  <Step title="Register developer apps">
+    For each network you want to offer, register its OAuth app and whitelist the callback URL.
+  </Step>
+  <Step title="Add the credentials">
+    Social Media Studio config → paste each network's Client ID/Secret and toggle those networks **on**.
+  </Step>
+  <Step title="Add an OpenAI key (optional)">
+    For the in-composer AI caption writer, add an **OpenAI** key in Admin → AI Settings.
+  </Step>
+  <Step title="Set the AI caption rate">
+    Adjust **AI caption rate (credits per 1000 words)**, then **Save**.
+  </Step>
+  <Step title="Confirm the cron">
+    Ensure `php artisan schedule:run` runs every minute on the server.
+  </Step>
+  <Step title="Enable the feature">
+    Turn on **Enable Social Media Studio**. Enable **Free Tier Access** if desired.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as an eligible user → **Connections** → connect an account → **Compose** → publish a test post and confirm it lands on the network.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Social Media Studio is live. Proceed to the section below on how to use it.
+</Check>
+
+## How to Use
+
+All tools live under **Social Media Studio** in the user sidebar.
+
+### Connections
+
+Connect an account with one click — the user is sent to the network's OAuth consent screen and returned with an authorized, encrypted token. From here they can **pause** (temporarily exclude an account from publishing), **reactivate**, or **disconnect** it. Facebook yields one connection per Page; Instagram one per linked Business account; YouTube and Shorts are separate connections.
+
+### Compose
+
+The studio centerpiece:
+
+<Steps>
+  <Step title="Caption">
+    Load it from a saved **Ad Copy** variant, type it, or generate it with **AI** (pick a tone; this spends credits at the configured rate).
+  </Step>
+  <Step title="Media">
+    Attach an existing **Ad Creative** (image or video). Optional for networks that allow text-only.
+  </Step>
+  <Step title="Publish to">
+    Choose target accounts. The studio validates each account against the active content and **dims incompatible ones with the reason** (e.g. "Instagram requires an image or video", "YouTube does not support images"). Use **Select eligible** to pick all valid targets at once.
+  </Step>
+  <Step title="When">
+    Choose **Now**, **Schedule** (date & time), or **Auto-repost** (start, end, interval and which days).
+  </Step>
+  <Step title="Live preview">
+    A device-frame preview renders the post exactly as it will look on the selected network; switch networks with the icon row.
+  </Step>
+</Steps>
+
+#### Per-network content rules
+
+The composer enforces each network's capabilities automatically:
+
+| Network | Text-only | Image | Video | Caption limit |
+|---------|-----------|-------|-------|---------------|
+| X (Twitter) | Yes | Yes | Yes | 280 |
+| LinkedIn | Yes | Yes | Yes | 3,000 |
+| Facebook | Yes | Yes | Yes | 63,206 |
+| Instagram | No (media required) | Yes | Yes (Reels) | 2,200 |
+| TikTok | No (media required) | Yes | Yes | 2,200 |
+| YouTube | No (video required) | No | Yes | 5,000 |
+| YouTube Shorts | No (vertical video required) | No | Yes | 5,000 |
+
+Captions longer than a network's limit are trimmed automatically for that network only.
+
+### Calendar
+
+A two-column timeline: **Upcoming** (scheduled and auto-repost deliveries grouped by day, with the repost badge) and **Recently published** (with links to the live posts).
+
+### Posts
+
+A filterable history (Scheduled / Completed / Partial / Failed). Each row shows the caption, a chip per target network coloured by outcome, and the created time. Open any post for a per-network breakdown (status, publish time or error, and a link to the live post), or delete it.
+
+### Media & storage
+
+Networks that **pull media from a URL** (Facebook, Instagram, TikTok photos) need the creative to be reachable publicly. Local studio results are served from the public results disk and work out of the box. If you offload creatives to a cloud provider (Amazon S3 / Wasabi plugin), the studio resolves the provider's public/signed URL automatically; for binary-upload networks (X, LinkedIn, YouTube) it downloads the file server-side and streams it to the API.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Studio doesn't appear for a user | Master switch off, or a plan-less user with Free Tier off | Enable the master switch; enable Free Tier Access for plan-less users. |
+| A network isn't offered on Connections | Network switch off or credentials missing | Enable the network and add its Client ID/Secret in the config. |
+| "is not configured yet" when connecting | Credentials missing/incorrect for that network | Re-check the Client ID/Secret and the whitelisted callback URL. |
+| "Security verification failed" on callback | OAuth `state` mismatch / lost session | Retry the connection; ensure cookies/session work and the callback URL matches exactly. |
+| Connect fails with a redirect-URI error | The callback URL isn't whitelisted in the developer app | Copy the exact URL from the config screen into the network's redirect URI list. |
+| Only test users can connect | The developer app is in Development/Testing mode | Complete the network's App Review/verification and switch the app to Live. |
+| Scheduled posts never go out | Cron not running | Configure `* * * * * php artisan schedule:run`. |
+| "The account token expired — please reconnect" | OAuth token expired and couldn't refresh | The user reconnects the account from Connections. |
+| Instagram/TikTok says media unreachable | Creative not publicly reachable | Ensure the results disk is public, or enable a cloud storage plugin (S3/Wasabi). |
+| AI caption returns nothing / "not configured" | No OpenAI key in AI Settings, or insufficient credits | Add an `openai_key` in Admin → AI Settings; ensure the user has enough credits. |
+| Post shows **Partial** | Some networks succeeded, others failed | Open the post to see the per-network error and retry. |
+| X posting rejected / capped | X Free tier write limit reached | Posting on X effectively requires a paid API tier (Basic or higher); upgrade the X API plan. |
+
+<Note>
+Access/refresh tokens are stored encrypted. Publishing and scheduling are always free; only AI caption generation deducts credits, and only on a successful generation.
+</Note>

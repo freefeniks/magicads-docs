@@ -1,0 +1,208 @@
+---
+title: 'Amazon S3 Storage'
+icon: aws
+description: 'Offload your Image Studio and Video Studio results from the local server disk to your own Amazon S3 (or S3-compatible) bucket.'
+---
+
+<Warning>This is a **Paid** plugin that you can purchase and install via the in-app **Plugins** marketplace.</Warning>
+
+## Introduction
+
+**Amazon S3 Storage** lets you, the platform owner, **offload generated studio results** (Image Studio and Video Studio images and videos) from the local server disk to your own **Amazon S3** bucket — or any **S3-compatible** provider such as DigitalOcean Spaces, MinIO or Cloudflare R2.
+
+Unlike the studios, Amazon S3 Storage is an **infrastructure** plugin: it doesn't add any user-facing tool. It registers a new storage backend that the platform writes new results to, and serves those results back to users. It plugs into the same shared storage layer as the Wasabi, Cloudflare R2 and Google Cloud Storage plugins — so exactly **one** backend is active at a time, chosen by you.
+
+This guide covers the full lifecycle — where to buy it, how to install it, how to create a bucket and IAM credentials, how to configure and test the connection, how to make S3 the active storage, and how offloading behaves.
+
+<Card title="What it adds">
+- **Config screen** — an admin page under General Settings → Plugins to enter credentials, tune options and test the connection.
+- **Storage provider** — registers **Amazon S3** as an option in the platform's **Default Storage** selector.
+- **Automatic offload** — when S3 is the active storage, every newly finalized studio result is uploaded to your bucket, and the platform records that the file now lives in S3.
+- **Transparent serving** — reads, downloads and deletes for offloaded results resolve through S3 (or your CDN) automatically.
+</Card>
+
+<Note>
+The plugin only affects **where generated results are stored**. It doesn't change how anything is generated, priced or gated — it's purely a storage backend.
+</Note>
+
+## Purchase & Installation
+
+Amazon S3 Storage is distributed through the in-app plugin marketplace — purchasing and installation both happen inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Amazon S3 Storage** card in the marketplace catalog.
+  </Step>
+  <Step title="Purchase (if required)">
+    The card CTA depends on your license and purchase state:
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    <Tip>
+    If the page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Amazon S3 Storage (or upgrade your license) to install it.
+    </Tip>
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Amazon S3 Storage** card. The platform downloads the archive, unpacks it, runs its migration and activates the plugin. Its provider details (key, secret, region, bucket, endpoint, URL, path-style, prefix, delete-local) are stored as an **encrypted** settings entry, so adding storage providers never changes the schema.
+
+    <Warning>
+    On a fresh install everything stays on the local disk. Installation only makes the config screen and the storage provider exist. Nothing is offloaded until you **enter valid credentials**, **enable the provider**, and **select S3 as the Default Storage** (next sections).
+    </Warning>
+  </Step>
+</Steps>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Create a bucket and IAM credentials
+
+Before configuring the plugin, set up the bucket and credentials in the AWS Console.
+
+<Steps>
+  <Step title="Create an S3 bucket">
+    In the [AWS S3 Console](https://s3.console.aws.amazon.com/), create a bucket (e.g. `my-magicads-media`). Note the bucket name and its **Region** (e.g. `us-east-1`).
+  </Step>
+  <Step title="Create an IAM user with programmatic access">
+    In **IAM → Users → Create user**, add a user with programmatic (access key) access, and attach an S3 policy scoped to your bucket — it needs to read, write and delete objects (e.g. `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject`, `s3:ListBucket`).
+  </Step>
+  <Step title="Generate an access key">
+    Create an **Access key ID** and **Secret access key** for that user. Copy both now — AWS shows the secret only once.
+  </Step>
+  <Step title="Decide how files are served">
+    Generated results are served from the bucket's public URL (or a CDN in front of it). Make the bucket (or its objects) publicly readable, or put a CloudFront/CDN distribution in front and set its URL in the plugin's **Public / CDN URL** field.
+  </Step>
+</Steps>
+
+<Note>
+For strict least-privilege, scope the IAM policy to the exact bucket (and key prefix) you'll use. The access key and secret are stored **encrypted** by the plugin once saved.
+</Note>
+
+## Configure Amazon S3
+
+Go to **Admin → General Settings → Plugins → Amazon S3 Storage** (`/app/admin/general/plugins/amazon-s3`). The screen has these sections.
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Amazon S3** | Makes S3 a selectable option in the **Default Storage** list once credentials are valid. It does **not** by itself route uploads here — you still pick the active backend. |
+| **Delete local copy after upload** | When on, the local file is removed once it's safely stored in S3, reclaiming server disk space. Leave off to keep a local backup of every result. |
+
+### Bucket Credentials
+
+| Field | Notes |
+|-------|-------|
+| **Access Key ID** | From your IAM user (e.g. `AKIA…`). |
+| **Secret Access Key** | From your IAM user. Stored **encrypted**; leave blank on later edits to keep the existing one. |
+| **Region** | The bucket's AWS region (e.g. `us-east-1`). |
+| **Bucket** | The S3 bucket name. |
+
+### Advanced
+
+Only needed for **S3-compatible** providers (DigitalOcean Spaces, Cloudflare R2, MinIO) or a CDN in front of your bucket.
+
+| Field | Notes |
+|-------|-------|
+| **Custom Endpoint** | Leave blank for AWS. Set it to point at an S3-compatible provider (e.g. `https://nyc3.digitaloceanspaces.com`). |
+| **Public / CDN URL** | The base URL files are served from — a CloudFront/CDN domain, for example. |
+| **Key Prefix** | Optional folder inside the bucket (e.g. `magicads`), transparently prepended to every object key. |
+| **Use path-style endpoint** | Off for AWS. Enable it for providers that require path-style addressing (e.g. MinIO). |
+
+<Note>
+To enable the provider you need at minimum the **access key, secret, region and bucket**.
+</Note>
+
+### Connection
+
+Click **Test connection**. The plugin saves your settings, then **uploads, reads back and deletes a tiny probe object** to confirm the bucket is reachable and writable. A green toast means S3 is ready; a red toast surfaces the exact error (bad credentials, wrong region/bucket, permissions).
+
+Click **Save** to persist everything.
+
+## Make S3 the active storage
+
+Enabling the provider only adds it to the selector. To actually store new results in S3, set it as the platform's **Default Storage**:
+
+<Steps>
+  <Step title="Open General Settings">
+    Go to **Admin → General Settings → General**.
+  </Step>
+  <Step title="Select Amazon S3">
+    Set **Default Storage** to **Amazon S3**.
+  </Step>
+  <Step title="Save">
+    Save the change. From that point, every newly finalized studio result is offloaded to S3. Only enabled, fully-configured providers appear in this list, and "Local server (this machine)" is always the fallback.
+  </Step>
+</Steps>
+
+<Warning>
+Only **one** storage backend is active at a time. Selecting Amazon S3 here makes it authoritative for new results; it does **not** retroactively move files that were already stored locally or on another provider — those keep serving from wherever they already live.
+</Warning>
+
+## How offloading works
+
+The platform uses a single shared storage layer, so S3 behaves like the other storage plugins:
+
+1. A studio finishes generating an image or video and stores it on the local `results` disk.
+2. The platform checks which provider is **active**. If it's S3, the file is streamed up to your bucket under the same relative path it has locally (e.g. `images/gemini/uuid.png`), with your key prefix prepended if set.
+3. The creative is marked as living in S3, so future reads, downloads and deletes resolve through S3.
+4. If **Delete local copy after upload** is on, the local file is removed to reclaim space.
+
+Two important safety properties:
+
+- **Generation never breaks on storage errors.** If an upload fails, the result simply stays on the local disk and serves from there — the failure is logged, not surfaced to the user.
+- **Local is the safe default.** If S3 is later disabled, uninstalled, or misconfigured, the platform falls back to local storage for new results, and already-offloaded files keep serving from S3.
+
+<Note>
+Because offloaded objects are served from your bucket's public URL (or the Public / CDN URL when set), features that hand a media URL to a third party (for example, publishing a creative through Social Media Studio) automatically use the S3 URL. If the bucket isn't publicly readable and no CDN URL is set, those files won't be reachable.
+</Note>
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Amazon S3 Storage → **Install**.
+  </Step>
+  <Step title="Create the bucket and IAM credentials">
+    In AWS: create the S3 bucket and an IAM user with an S3 policy scoped to it, then generate an access key.
+  </Step>
+  <Step title="Enter the credentials">
+    Amazon S3 config → fill in Access Key ID, Secret, Region and Bucket (plus Endpoint / path-style for S3-compatible providers).
+  </Step>
+  <Step title="Enable the provider">
+    Turn on **Enable Amazon S3** and **Save**.
+  </Step>
+  <Step title="Test the connection">
+    Click **Test connection** and confirm the green success toast.
+  </Step>
+  <Step title="Set as Default Storage">
+    General Settings → General → set **Default Storage** to **Amazon S3** → Save.
+  </Step>
+  <Step title="Verify end-to-end">
+    Generate a new result in Image or Video Studio, then confirm the file appears in your bucket and still displays correctly in the app.
+  </Step>
+  <Step title="Decide on local cleanup">
+    Once you trust the setup, optionally turn on **Delete local copy after upload** to reclaim server disk.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, new studio results are stored in your S3 bucket.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| S3 doesn't appear in the Default Storage list | Provider not enabled, or credentials incomplete | Enable it and fill in access key, secret, region and bucket. |
+| "Connection failed" on test | Wrong keys, region or bucket name | Re-check the IAM key, the exact region, and the bucket name. |
+| "Upload succeeded but the object could not be read back" | IAM policy too narrow | Grant the user read access (e.g. `s3:GetObject`, `s3:ListBucket`) and retry. |
+| New results still stored locally | S3 enabled but not selected as Default Storage | Set Default Storage to Amazon S3 in General Settings → General. |
+| Offloaded images show broken in the app | Bucket not public and no CDN URL | Make the bucket/objects publicly readable, or set a Public / CDN URL. |
+| S3-compatible provider fails to connect | Missing endpoint or path-style setting | Set the Custom Endpoint and enable **Use path-style endpoint** if the provider needs it. |
+| Files served from the wrong path | Key prefix mismatch | Ensure the Key Prefix matches how objects are organized in the bucket. |
+| Secret field looks empty when editing | Secrets are never echoed back | Leave it blank to keep the stored secret; type a new value only to replace it. |
+| Old files didn't move to S3 | Offload only applies to new results | Selecting S3 doesn't migrate existing files; they keep serving from their current location. |
+
+<Note>
+The secret access key is stored **encrypted** using your app `APP_KEY`. Switching Default Storage back to local (or disabling the plugin) never deletes what's already in your bucket — those files keep serving from S3.
+</Note>
