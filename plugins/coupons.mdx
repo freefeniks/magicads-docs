@@ -1,0 +1,230 @@
+---
+title: 'Coupons'
+icon: ticket
+description: 'Hand customers percentage-off discount codes that apply at checkout on one-time plans — created, capped and tracked entirely inside your MagicAds admin.'
+---
+
+<Check>This is a **paid** plugin from the in-app **Plugins** marketplace. It installs **free for Extended License holders**; on a Regular License you purchase it (or upgrade your license) before installing.</Check>
+
+## Introduction
+
+**Coupons** lets you give customers percentage-off discount codes at checkout. You create the codes, set how much they take off, cap how often they can be used, and either publish them for everyone or share a private code with one customer.
+
+The discount is applied on the checkout page **before** any payment gateway is contacted, so it behaves the same across every gateway you have enabled. Coupons are deliberately simple and safe: they are **percentage-only** (so one code works in any currency) and apply to **one-time plans only** (prepaid and lifetime). Monthly and yearly subscriptions never show a coupon field.
+
+<Card title="What it adds">
+- **Coupons dashboard** — Admin hub under **Finance**: headline stats plus the full, searchable list of codes.
+- **Create Coupons** — generate one code or a whole batch, and set the discount, usage limits, expiry and code format.
+- **Redemptions log** — a running record of every successful coupon use across the platform.
+- **Checkout coupon field** — the "Have a coupon?" box customers see when buying a one-time plan.
+- **Profile section** — where customers find codes shared with them and their own redemption history.
+</Card>
+
+<Note>
+Coupons build on the platform's billing and checkout, which come from the **SaaS Business** plugin. If SaaS isn't installed and enabled there's no paid checkout for a coupon to discount — enable SaaS first.
+</Note>
+
+## Core concepts
+
+A few rules shape everything else. Understanding these first makes the rest obvious.
+
+- **Percentage only.** Each code takes off a fixed percentage from **1% to 100%** — there are no fixed-amount coupons, so currency never matters.
+- **One-time plans only.** Coupons apply to **prepaid** and **lifetime** plans. Monthly/yearly subscriptions are never eligible and never show the field.
+- **One use per customer.** A given customer can redeem a given code only once.
+- **Total-use cap.** Each code has a maximum number of redemptions across all customers.
+- **Recorded on success only.** A code is marked used only after checkout actually completes — an abandoned or failed payment never consumes it.
+- **Open vs private.** An open code can be used by any eligible customer up to its cap; a private code is tied to one customer's email and only they can see and use it.
+
+## Installation
+
+Coupons is distributed through the in-app plugin marketplace — installation happens inside your MagicAds admin. There's no third-party download.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Coupons** card in the marketplace catalog.
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Coupons** card. What happens depends on your license and purchase state:
+
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    Behind the scenes the platform downloads the archive, unpacks it, runs its setup, registers the admin routes, and adds the Coupons setting with a safe default (the customer-facing feature starts **off**).
+
+    <Warning>
+    Installation only makes the admin area and routes exist. The coupon field stays hidden from customers until you **enable the feature** (next section) — but you can still create codes in the admin right away.
+    </Warning>
+  </Step>
+</Steps>
+
+<Tip>
+If the Plugins page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Coupons (or upgrade your license) to install it.
+</Tip>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure Coupons
+
+There's no API key and no external service to set up — Coupons runs entirely inside MagicAds. Configuration is a single switch at **Admin → General Settings → Plugins → Coupons**.
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Coupons** | Master switch for the customer side. When on, the "Have a coupon?" field appears at checkout for one-time plans, and codes shared with a customer show on their profile. When off, the field and profile section are hidden — but admins can still create and manage codes. |
+
+Toggle **Enable Coupons** and click **Save**.
+
+<Note>
+Turning the feature off does not delete or deactivate any codes. It only hides the customer-facing field and profile section — existing codes simply stop being usable at checkout until you turn it back on.
+</Note>
+
+Once installed, a **Coupons** entry appears in the admin sidebar under the **Finance** group. That's where you create and manage every code.
+
+## Creating coupons
+
+Go to **Admin → Finance → Coupons → Create Coupons**. The form is grouped into three parts.
+
+### General
+
+| Field | Purpose |
+|-------|---------|
+| **Coupon Name** *(optional)* | An internal label, e.g. "Summer Sale". Customers never see it. |
+| **Discount Percentage** | How much the code takes off, from **1** to **100** — the whole discount, applied to the plan price at checkout. |
+| **Status** | **Active** codes can be used; **Inactive** codes are switched off without being deleted. |
+| **Valid Until** *(optional)* | An expiry date. Leave empty for a code that never expires. |
+| **Notes** *(optional)* | Internal notes about the batch. |
+
+### Quantity & usage rules
+
+| Field | Purpose |
+|-------|---------|
+| **Number of Coupons** | How many unique codes to generate in one go — a single code or a whole batch. |
+| **Total Uses per Coupon** | The maximum number of times each code can be redeemed across all customers. Each customer can still only use a code once. |
+| **Share with a User** *(optional)* | Enter a customer's email to make this a **private** code only they can see and use. Leave empty for an **open** code. |
+
+### Code format
+
+Control how the generated codes look. Ambiguous characters (like `0`/`O` and `1`/`I`) are excluded automatically so codes are easy to read and share aloud.
+
+| Field | Purpose |
+|-------|---------|
+| **Prefix** *(optional)* | A leading label, e.g. `SAVE` → `SAVE-4F9K2-QW7P1`. |
+| **Separator** | The character between segments: dash, underscore or dot. |
+| **Number of Segments** | How many blocks the code has. |
+| **Characters per Segment** | How long each block is. |
+
+A live **Preview** shows an example code as you adjust these. When you click **Generate**, the plugin creates the requested number of unique codes and returns you to the dashboard.
+
+<Tip>
+Generating a batch (e.g. 500 codes) with **Total Uses per Coupon** set to 1 gives you a set of single-use codes for a campaign — handy for one-per-person giveaways or influencer drops.
+</Tip>
+
+### Sharing a code with a specific customer
+
+You can tie a code to one customer so it only works for them and shows up on their profile. There are two ways to do it:
+
+- **At creation** — fill in **Share with a User** on the Create form with the customer's email.
+- **After creation** — on the Coupons dashboard, open a code's actions menu, choose **Share with user**, then enter the email.
+
+A shared code becomes **private**: only that customer can apply it at checkout, and it appears in the **Coupons** section of their profile so they can find and copy it. Open codes (no owner) can be used by any eligible customer, up to the total-use cap.
+
+## Using a coupon at checkout
+
+This is the customer-facing experience once the feature is enabled.
+
+When a customer chooses a **prepaid** or **lifetime** plan and lands on checkout, a **"Have a coupon?"** box appears alongside the billing details and payment method. On **monthly** or **yearly** plans the box doesn't appear at all — coupons don't apply there.
+
+<Steps>
+  <Step title="Enter the code">
+    The customer types the code into the coupon box and clicks **Apply**.
+  </Step>
+  <Step title="See the discount">
+    On success, the order summary updates to show the **subtotal**, the **coupon discount** (with the code and percentage), and the new **total due today**. If the code is wrong, expired, used up, or not theirs, a clear message explains why.
+  </Step>
+  <Step title="Pay the discounted amount">
+    The customer picks a payment method and pays. The gateway charges the **already-discounted** total — the discount is applied before the gateway is ever contacted, so it works the same on every provider.
+  </Step>
+</Steps>
+
+The customer can click **Remove** at any time to drop the coupon and return to the full price.
+
+<Note>
+A coupon can be used only once per customer. If the same customer tries to reuse a code they've already redeemed, checkout will tell them it has already been used.
+</Note>
+
+### When a coupon covers the full price (100%)
+
+If the applied code is for **100%**, the total becomes **zero** — so there's nothing to charge. In that case:
+
+- The payment-method section is replaced with a **"No payment required"** notice.
+- The button changes to **Activate plan**.
+- On confirm, the plan is granted **instantly without contacting any payment gateway**, avoiding zero-value charge errors.
+
+### After checkout
+
+Once the purchase completes:
+
+- The coupon is **marked used** — and only now, never before. An abandoned or failed payment never consumes it.
+- The order/transaction shows a small note with the coupon code and the percentage applied.
+- The code appears in the customer's **redeemed coupons** history on their profile.
+
+## Tracking usage & reporting
+
+### Admin dashboard
+
+**Admin → Finance → Coupons** shows headline stats at a glance:
+
+| Stat | Meaning |
+|------|---------|
+| **Total Coupons** | How many codes you've created in total. |
+| **Active Coupons** | How many are currently switched on. |
+| **Total Uses** | How many times codes have been applied to completed orders. |
+| **Total Discounted** | The total money value taken off across all orders. |
+
+Below the stats, the full list of codes is searchable and sortable, and each code shows its discount, uses against its cap, whether it's open or shared, its status and its expiry.
+
+### Per-code detail & customer profile
+
+Open any code to see its settings and the list of customers who have used it. A separate **Redemptions** log on the dashboard shows every use across all codes — who used it, which code, the percentage, the amount saved and when. Each customer's profile also has a **Coupons** section showing codes shared privately with them (which they can copy) and their history of redeemed codes.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Coupons → **Install**.
+  </Step>
+  <Step title="Enable the feature">
+    Coupons config → turn on **Enable Coupons** → **Save**.
+  </Step>
+  <Step title="Create a code">
+    Admin → Finance → Coupons → **Create Coupons**. Set the percentage, usage limits and code format, then **Generate**.
+  </Step>
+  <Step title="(Optional) Share it">
+    Share a private code with a specific customer by email, or leave it open for everyone.
+  </Step>
+  <Step title="Verify as a customer">
+    Log in as a customer, start checkout on a **one-time** plan (prepaid or lifetime), apply the code, and confirm the discounted total.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Coupons is live and customers can start redeeming codes.
+</Check>
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| The coupon field doesn't appear at checkout | Feature is off, the plan is monthly/yearly, or SaaS isn't enabled | Turn on **Enable Coupons**; confirm the customer is buying a **prepaid/lifetime** plan; make sure the SaaS plugin is installed and enabled. |
+| "This coupon code is not valid" | Typo, or the code is inactive or was deleted | Re-check the code; confirm it's **Active** in the admin. |
+| "This coupon has expired or is not yet valid" | The code is outside its validity window | Adjust or clear the **Valid Until** date on the code. |
+| "This coupon has been fully redeemed" | The total-use cap has been reached | Raise **Total Uses per Coupon**, or issue a new code. |
+| "This coupon belongs to another user" | The code was shared privately with a different customer | Share it with this customer, or use an open code. |
+| "You have already used this coupon" | One-use-per-customer rule | Issue a different code for repeat use. |
+| "Coupons can only be used on one-time plans" | The code was attempted on a monthly/yearly plan | Use the coupon on a prepaid or lifetime plan. |
+| The **Coupons** menu isn't in the sidebar | Plugin not installed, or the Finance/SaaS area isn't available | Install the plugin; ensure the SaaS plugin is enabled so the Finance group shows. |
+| Discount not reflected at payment | The coupon was removed or never applied before paying | Re-apply the code and confirm the summary shows the discounted **total due today** before clicking pay. |
+
+<Note>
+A coupon is only ever consumed on a **successful** checkout. Applying a code and then abandoning the purchase — or a payment that fails — never uses up the code.
+</Note>

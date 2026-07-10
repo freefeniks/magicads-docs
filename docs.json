@@ -109,7 +109,9 @@
           "plugins/wasabi-storage",  
           "plugins/cloudflare-r2-storage",  
           "plugins/google-cloud-storage",
-          "plugins/teams"
+          "plugins/teams",
+          "plugins/gift-cards",
+          "plugins/coupons"
         ]
       },
       {

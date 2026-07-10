@@ -1,0 +1,218 @@
+---
+title: 'Gift Cards'
+icon: gift
+description: 'Turn your credits into a redeemable, giftable currency — generate coded cards, assign them to customers, and let users redeem, gift and track them.'
+---
+
+<Check>This plugin runs entirely on your own installation and the platform's native credit engine — there are no external API accounts, keys or per-transaction fees. Install it from the in-app **Plugins** marketplace.</Check>
+
+## Introduction
+
+**Gift Cards** turns your credits into a redeemable, giftable currency. From the admin side you generate cards — in bulk, with a code format you control — set how much each is worth and how often it can be used, and either publish open codes anyone can redeem or hand a personal card to a specific customer.
+
+On the user side, customers redeem codes from their profile page, see the cards that belong to them, and can even pass a card on to someone else.
+
+<Card title="What it adds">
+- **Gift Cards dashboard** — admin hub with headline stats plus tables of all cards, redemptions and transfers.
+- **Create Gift Cards** — generate one or many cards with a configurable code format, credit value, usage rules and optional expiry.
+- **Edit / View card** — update value, status, limits, expiry and notes, or inspect a card's full redemption and transfer history.
+- **Assign to user** — hand a card to a specific existing customer by email, straight from the cards table.
+- **Plugin configuration** — a single switch that shows or hides the feature for your users.
+- **Profile redeem section** — the user-facing panel: redeem a code, view "My gift cards", transfer a card, and see redemption history.
+</Card>
+
+### What a gift card gives the user
+
+When a user redeems a valid code, its value is added to their **credit balance** as prepaid credits, spendable on any generation across the platform — image, video, copy and every studio — exactly like the credits that come with a plan.
+
+<Note>
+The one deliberate difference: gift credits are **not withdrawable**. They can be spent but never cashed out through the wallet, so gift value always stays gift value. That means you can hand out credits freely without them turning into a payout liability.
+</Note>
+
+## Core concepts
+
+A few rules govern every card, and they're worth understanding before you start handing them out.
+
+- **Value is measured in credits.** Each card grants a fixed number of credits when redeemed.
+- **Credits land instantly** in the user's balance and are spendable on any generation, just like plan credits.
+- **Gift credits can never be withdrawn.** They top up the spendable (prepaid) side of a balance, kept separate from any withdrawable wallet earnings.
+- **Credited once per redemption.** A user is only ever credited once per redemption, and a card can't be pushed past the limits you set.
+- **Safe under load.** Crediting is atomic, so two people hitting the same code at once can never push it past its allowed uses, and a user can never be over-credited.
+- **Fully logged.** Every redemption and transfer is recorded, giving you a complete audit trail on the dashboard.
+- **Open vs personal.** A card with no assigned user is an **open** code anyone can redeem; a card assigned to a customer is a **personal** card only they can redeem — and can transfer.
+
+## Installation
+
+Gift Cards is distributed through the in-app plugin marketplace — everything happens inside your MagicAds admin. Because the plugin is fully self-contained, there are no external API accounts, keys or per-transaction fees to worry about.
+
+<Steps>
+  <Step title="Open the Plugins marketplace">
+    Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Gift Cards** card in the marketplace catalog.
+  </Step>
+  <Step title="Install / activate">
+    Click **Install** on the **Gift Cards** card. The platform wires the plugin's routes into the app, adds the **Gift Cards** section to your admin sidebar, and registers a plugin configuration page. The feature starts **switched off** for users.
+
+    <Warning>
+    Installing only makes the admin tools available. Your customers won't see anything until you **enable the feature** in the plugin configuration (next section) — which lets you generate and stage cards privately before going live.
+    </Warning>
+  </Step>
+</Steps>
+
+<Tip>
+Gift Cards runs entirely on your own installation and the platform's native credit engine. There's nothing to connect to and no usage fees — once it's installed and switched on, it just works.
+</Tip>
+
+To remove the plugin later, click **Uninstall** on the same card.
+
+## Configure Gift Cards
+
+Once installed, the **Gift Cards** section appears in the admin sidebar and a **Gift Cards** card appears under **Admin → General Settings → Plugins**. Open the configuration page at **Admin → General Settings → Plugins → Gift Cards** (`/app/admin/general/plugins/giftcards`).
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Gift Cards** | Master switch for the customer-facing side. When on, the redeem section appears on every user's profile page. When off, users see nothing — but admin management stays fully available so you can prepare cards ahead of a launch. Off by default. |
+
+Flip it on when you're ready for customers to start redeeming, then click **Save**.
+
+<Note>
+The Gift Cards dashboard shows a live status banner — **Active** (green) when customers can see the redeem section, or **Hidden from users** (amber) when they can't — with a shortcut to the configuration page. Use it to confirm the current state at a glance.
+</Note>
+
+Everyone with an account can redeem and gift cards once the feature is on — access isn't tied to a specific plan or the free tier, so there's no per-plan setup to do.
+
+## Generating gift cards
+
+Go to **Admin → Gift Cards** (`/app/admin/gift-cards`) and click **Create Gift Cards**. The form is grouped into three parts.
+
+### General
+
+| Field | Purpose |
+|-------|---------|
+| **Card Name** *(optional)* | An internal label for the batch, e.g. "Summer Promo". Purely for your own organization. |
+| **Credits per Card** | How many credits each card grants on redemption. |
+| **Status** | **Active** cards can be redeemed; **Inactive** cards can't (useful for staging or pausing a batch). |
+| **Valid Until** *(optional)* | An expiry date. Leave blank for a card that never expires. |
+| **Notes** *(optional)* | Free-form internal notes about the batch. |
+
+### Quantity & usage rules
+
+| Field | Purpose |
+|-------|---------|
+| **Number of Cards** | How many unique codes to generate in this batch (each gets its own distinct code). |
+| **Redemptions per Card** | How many times a single card can be redeemed in total. Set to 1 for a one-time card, or higher for a shared campaign code. |
+| **Limit per User** | How many times one individual can redeem the same card. Usually 1, so a single person can't drain a multi-use code. |
+| **Assign to a User** *(optional)* | Enter an existing customer's email to make the whole batch **personal** cards owned by that user. Leave empty to create **open** codes anyone can redeem. |
+
+### Code format
+
+You control exactly how generated codes look, with a live preview updating as you type. Visually ambiguous characters are left out automatically so codes are easy to read aloud and type.
+
+| Field | Purpose |
+|-------|---------|
+| **Prefix** *(optional)* | Letters/numbers prepended to every code, e.g. `GIFT`. |
+| **Separator** | The character between segments: dash, underscore or dot. |
+| **Number of Segments** | How many blocks the code is split into (1–8). |
+| **Characters per Segment** | Length of each block (2–10). |
+
+For example, a prefix of `GIFT`, three segments of five characters and a dash separator produces codes like **`GIFT-4F9K2-QW7P1`**. When you click **Generate**, the platform mints the requested number of unique cards, guarantees no two codes collide, and returns you to the dashboard with a confirmation.
+
+<Tip>
+Generating many cards with **Redemptions per Card = 1** gives you a stack of single-use codes for a mailing or event. A single card with a high **Redemptions per Card** and **Limit per User = 1** gives you one shareable campaign code that each customer can use once.
+</Tip>
+
+### Card types: open vs personal
+
+Whether you fill in **Assign to a User** decides how a card behaves:
+
+- **Open codes** (no user assigned) — anyone who has the code can redeem it, subject to the total redemptions and per-user limit. Perfect for public promos, newsletters and social campaigns.
+- **Personal cards** (assigned to a user) — only that specific customer can redeem the card. Personal cards can also be **transferred**: the owner passes an unredeemed card to another user, at which point it becomes theirs. Great for individual rewards, support goodwill and person-to-person gifting.
+
+The dashboard's **Type** column labels each card **Open** or **Personal** so you can tell them apart at a glance.
+
+## Managing gift cards
+
+The **Gift Cards** dashboard is your control center.
+
+### Stats
+
+Four headline tiles summarize the whole system: **Total Gift Cards**, **Active Cards**, **Total Redemptions**, and **Credits Granted** (the total credits customers have redeemed).
+
+### All gift cards
+
+A searchable, sortable table of every card, showing its name, code, credit value, redemption progress (used / allowed), type, status, expiry and creation date. You can filter by status. Each row has an actions menu:
+
+| Action | What it does |
+|--------|--------------|
+| **View** | Open the card's detail page with its full redemption and transfer history. |
+| **Edit** | Change the value, status, limits, expiry or notes. |
+| **Assign to user** | Open a dialog to hand this card to a specific customer by email. Hidden once a card is fully redeemed. |
+| **Delete** | Permanently remove the card. |
+
+### Assigning a card to a user
+
+From any card's actions menu, choose **Assign to user**. A dialog asks for the email of an **existing** customer. On confirm, the card becomes a personal card owned by that user, and they receive a notification letting them know a gift card is waiting. If the email doesn't match a user, or the card is already fully redeemed, you'll get a clear message and nothing changes.
+
+### Redemptions & transfers
+
+Below the cards, the **Redemptions** table logs every redemption — who redeemed, which code, how many credits, and when. Removing a record only clears the log entry; it doesn't claw back credits already granted. The **Transfers** table logs every user-to-user hand-off — a reference ID, sender, recipient, card and date — so you always have a full picture of where cards have moved.
+
+## Go-live checklist
+
+<Steps>
+  <Step title="Install the plugin">
+    Admin → General Settings → Plugins → Gift Cards → **Install**.
+  </Step>
+  <Step title="Generate some cards">
+    Admin → Gift Cards → **Create Gift Cards**. Set the value, code format and usage rules, then **Generate**.
+  </Step>
+  <Step title="(Optional) Assign personal cards">
+    Use **Assign to user** on any card to hand it directly to a specific customer, or set the **Assign to a User** field during creation.
+  </Step>
+  <Step title="Enable the feature">
+    Admin → General Settings → Plugins → Gift Cards → turn on **Enable Gift Cards** and **Save**. Confirm the dashboard banner shows **Active**.
+  </Step>
+  <Step title="Verify as a user">
+    Log in as a customer, open the profile page, and redeem a test code to confirm the credits arrive.
+  </Step>
+</Steps>
+
+<Check>
+Once every step above is green, Gift Cards is live and customers can start redeeming codes.
+</Check>
+
+## Using gift cards as a customer
+
+Once the feature is enabled, every logged-in user gets a **Gift cards** section on their **profile page**. It has three parts.
+
+### Redeem a code
+
+The user enters a code and clicks **Redeem**. On success, the credits are added to their balance immediately and a confirmation appears. Clear messages handle every edge case — an unknown code, an expired or inactive card, a card that's already been fully redeemed, a card that belongs to someone else, or one they've already used.
+
+### My gift cards
+
+Any **personal** cards assigned to the user (and not yet redeemed) are listed here. For each one they can:
+
+- **Use** — drop the code straight into the redeem box.
+- **Transfer** — send the card to another user by email. Once transferred it becomes the recipient's, and they're notified. A user can't transfer a card to themselves, and only unredeemed cards they own can be passed on.
+
+### Redemption history
+
+A running list of the codes the user has redeemed, with the credits granted and the date. A small badge also shows the lifetime total of credits they've received via gift cards.
+
+## Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Users don't see the gift card section | The feature is switched off | Turn on **Enable Gift Cards** in the plugin configuration; confirm the dashboard banner reads **Active**. |
+| The **Gift Cards** admin section is missing | The plugin isn't installed | Install it from Admin → General Settings → Plugins. |
+| "This gift card code is not valid" | Typo, or the code doesn't exist | Re-check the code; codes omit ambiguous characters, so watch for look-alikes. |
+| "This gift card is no longer active" | The card's status is Inactive, or it just reached its redemption limit and auto-closed | Use a different card, or set the status back to Active (if within limits). |
+| "This gift card has expired or is not yet valid" | Current date is outside the card's validity window | Extend or clear the **Valid Until** date on the card. |
+| "This gift card has already been fully redeemed" | The card hit its total redemptions | Generate a new card or raise **Redemptions per Card** on a card that still has room. |
+| "This gift card belongs to another user" | It's a personal card assigned to someone else | Redeem it from the owner's account, or transfer/assign it to the right user first. |
+| "You have already redeemed this gift card" | The user hit the per-user limit | Raise **Limit per User**, or issue them a different card. |
+| "No user was found with that email address" (assign/transfer) | The email doesn't match an existing account | Confirm the recipient has registered, then use their exact account email. |
+
+<Note>
+Redeemed credits are added to the customer's spendable balance and can be used on any generation, but they can never be withdrawn as cash. Removing a redemption log entry does not remove credits that were already granted.
+</Note>
