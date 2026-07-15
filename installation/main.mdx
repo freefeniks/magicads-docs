@@ -55,6 +55,25 @@ Welcome to the Magic Ads installation guide. This tutorial will walk you through
   </Step>
 </Steps>
 
+## Next
+
+Installation gets Magic Ads running, but two more setup tasks are required before your platform works end to end. Complete both:
+
+<Steps>
+  <Step title="Configure SMTP (email delivery)">
+    Magic Ads sends transactional emails — account verification, password resets, notifications and invoices — through your own mail server. Until SMTP is configured, none of these emails will be delivered.
+
+    Follow the [SMTP guide](/advanced/smtp) to add your mail credentials and send a test email.
+  </Step>
+  <Step title="Configure the CRON job (scheduled tasks)">
+    A single scheduled task drives everything that runs in the background — subscription renewals, queued jobs, cleanups and plugin syncs. Without it, these tasks never run.
+
+    Follow the [CRON guide](/advanced/cron) to add the scheduler entry on your server.
+  </Step>
+</Steps>
+
+<Check>Once SMTP and the CRON job are both in place, your Magic Ads platform is fully operational.</Check>
+
 ## Troubleshooting 
 
 If you encounter any issues during the installation process:

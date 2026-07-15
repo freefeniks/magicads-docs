@@ -4,7 +4,7 @@ icon: gift
 description: 'Turn your credits into a redeemable, giftable currency — generate coded cards, assign them to customers, and let users redeem, gift and track them.'
 ---
 
-<Check>This plugin runs entirely on your own installation and the platform's native credit engine — there are no external API accounts, keys or per-transaction fees. Install it from the in-app **Plugins** marketplace.</Check>
+<Warning>This is a **paid** plugin from the in-app **Plugins** marketplace. It installs **free for Extended License holders**; on a Regular License you purchase it (or upgrade your license) before installing.</Warning>
 
 ## Introduction
 
@@ -50,7 +50,13 @@ Gift Cards is distributed through the in-app plugin marketplace — everything h
     Sign in as an **admin** and go to **Admin → General Settings → Plugins**. Find the **Gift Cards** card in the marketplace catalog.
   </Step>
   <Step title="Install / activate">
-    Click **Install** on the **Gift Cards** card. The platform wires the plugin's routes into the app, adds the **Gift Cards** section to your admin sidebar, and registers a plugin configuration page. The feature starts **switched off** for users.
+    Click **Install** on the **Gift Cards** card. What happens depends on your license and purchase state:
+
+    - **Free / already owned** → installs directly.
+    - **Paid** → routes you to the plugin checkout to complete the purchase.
+    - **Extended License holders** → plugins flagged "free for Extended License" install without an extra purchase.
+
+    Behind the scenes the platform wires the plugin's routes into the app, adds the **Gift Cards** section to your admin sidebar, and registers a plugin configuration page. The feature starts **switched off** for users.
 
     <Warning>
     Installing only makes the admin tools available. Your customers won't see anything until you **enable the feature** in the plugin configuration (next section) — which lets you generate and stage cards privately before going live.
@@ -59,8 +65,10 @@ Gift Cards is distributed through the in-app plugin marketplace — everything h
 </Steps>
 
 <Tip>
-Gift Cards runs entirely on your own installation and the platform's native credit engine. There's nothing to connect to and no usage fees — once it's installed and switched on, it just works.
+If the Plugins page shows "This plugin is free only for Extended License holders", you're on a Regular License and must purchase Gift Cards (or upgrade your license) to install it.
 </Tip>
+
+Once installed, Gift Cards runs entirely on your own installation and the platform's native credit engine — there's nothing to connect to and no usage fees.
 
 To remove the plugin later, click **Uninstall** on the same card.
 

@@ -111,7 +111,8 @@
           "plugins/google-cloud-storage",
           "plugins/teams",
           "plugins/gift-cards",
-          "plugins/coupons"
+          "plugins/coupons",
+          "plugins/ad-performance-analytics"
         ]
       },
       {
