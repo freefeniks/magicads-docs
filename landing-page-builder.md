@@ -1,0 +1,511 @@
+---
+title: "Landing Page Builder"
+description: "Purchase, install, configure and use the MagicAds Landing Page Builder extension — an AI studio that turns a product into an editable, exportable landing page."
+---
+
+# Landing Page Builder
+
+Landing Page Builder is a paid extension for the MagicAds platform. It closes the gap between making an ad and having somewhere to send the click. A user adds product photos and a few details, the AI studies them and writes a creative brief with three design directions, then builds a complete, animated landing page. Every word is editable on the live page, and the finished page exports as plain HTML, CSS and JavaScript that runs on any host.
+
+This guide covers the full lifecycle: where to buy it, how to install it, how to connect the AI engines, how to configure pricing and limits, how to grant access by plan, and how users build, edit and publish a page.
+
+<Frame caption="A finished landing page open in the Landing Page Builder.">
+  <img src="/images/landing-page-builder/builder-overview.png" alt="The Landing Page Builder editor showing the side panel and the live page preview" />
+</Frame>
+
+---
+
+## 1. What you get
+
+Landing Page Builder ships a page library, a three-step setup wizard, a visual editor and an admin configuration screen.
+
+| Tool | What it does |
+|------|--------------|
+| **My landing pages** | Library of every page a user has started. Search, rename, duplicate, delete, preview and export from one place. |
+| **Setup wizard** | Three steps: **Product** (photos, description, goal), **Strategy** (confirm what the AI understood) and **Design** (look, sections and imagery). |
+| **Visual editor** | The page itself, live. Click any text to edit it in place, with side panels for **Content**, **Design**, **Images** and **Settings**. |
+| **AI section rewrites** | Rewrite or write a single section with an instruction such as "make it more persuasive", without rebuilding the page. |
+| **AI imagery** | Optional hero, lifestyle, detail and banner images rendered around the user's real product. |
+| **Export** | A ZIP bundle (HTML, CSS, JavaScript, images and a README) or a single self-contained HTML file. |
+
+Each page is built from up to **13 sections**: Hero, Benefit ticker, Features, Showcase, Stats, How it works, Gallery, Testimonials, Comparison, Offer, FAQ, Closing call to action and Newsletter. Sections can be switched on or off, reordered, and some have alternate layouts.
+
+### AI engines
+
+Landing Page Builder has no API key of its own. It uses the engines you already configure in **AI Settings**:
+
+| Engine | Writes the copy | Renders the images | API key column |
+|--------|-----------------|--------------------|----------------|
+| **OpenAI** | GPT text model | GPT Image | `openai_key` |
+| **Google Gemini** | Gemini text model | Nano Banana | `gemini_key` |
+
+The admin picks a default engine and can let users choose between them. Everything runs on the admin's keys, so users never bring their own.
+
+<Note>
+Editing and exporting never use credits. Only the AI steps do: the product brief, the full page build, section rewrites and AI images. Credits are charged only after a step succeeds.
+</Note>
+
+---
+
+## 2. Where to purchase
+
+Landing Page Builder is a **paid plugin** distributed through the in-app plugin marketplace. Purchasing and installation both happen inside your MagicAds admin, so there is no third-party download.
+
+1. Sign in as an **admin**.
+2. Go to **Admin → Platform → Plugins** (`/app/admin/plugins`).
+3. Find the **Landing Page Builder** card in the marketplace catalog.
+4. The card button depends on your license and purchase state:
+   - **Buy Now** → opens the plugin checkout to complete the purchase.
+   - **Install** → shown once the plugin is purchased, or when it is free for your license.
+   - **Free for Extended** → plugins flagged "free for Extended License" install without an extra purchase. Your license tier comes from the activation you performed when setting up MagicAds.
+
+<Frame caption="The Landing Page Builder card in the plugin marketplace.">
+  <img src="/images/landing-page-builder/plugin-card.png" alt="Landing Page Builder card in the Plugins marketplace with the Buy Now button" />
+</Frame>
+
+<Tip>
+If the card shows **Buy Now** and you expected a free install, you are on a Regular License. Purchase Landing Page Builder, or upgrade your license, to install it.
+</Tip>
+
+---
+
+## 3. Install / activate
+
+Install it from the marketplace card:
+
+1. **Admin → Platform → Plugins → Landing Page Builder**.
+2. Click **Install** on the card.
+
+Behind the scenes the platform downloads the plugin archive, unpacks it and runs its migration. This creates:
+
+- The `landing_page_builder_pages` table, which holds every user's pages (their inputs, brief, design, copy and image references).
+- Landing Page Builder's settings columns on the shared extension settings record, with safe defaults (feature off, free tier off, automatic engine, up to 5 AI images and 6 photos per page, 10 MB upload cap).
+- A **Landing Page Builder** toggle on every pricing plan.
+
+<Warning>
+Installation only makes the routes and tables exist. The tool stays hidden from users until you **enable the feature**, and it can't generate anything until you **connect an AI engine** (next sections). On a fresh install everything is off by default.
+</Warning>
+
+To remove the plugin later, click the trash button on the same card.
+
+<Note>
+Uninstalling removes the plugin's files and hides the tool from everyone, but it does not delete the `landing_page_builder_pages` table. Existing pages stay in the database and are available again if you reinstall.
+</Note>
+
+---
+
+## 4. Connect the AI engines
+
+Landing Page Builder needs two things from **AI Settings**, and it checks them separately for each engine.
+
+| Need | Used for | Where to set it |
+|------|----------|-----------------|
+| An API key **and at least one enabled text (Copy Studio) model** for the vendor | Writing the brief, the page copy and section rewrites. Without this the engine counts as **Not configured**. | Admin → AI Settings → the vendor |
+| An API key and an **active image model** from the same vendor (GPT Image for OpenAI, Nano Banana for Gemini) | Optional AI images. Without this the engine still works, but only with the customer's own photos. | Admin → AI Settings → the vendor |
+
+Steps:
+
+1. Go to **Admin → AI Settings** (`/app/admin/ai`).
+2. Click the vendor card (**OpenAI** or **Google Gemini**). The vendor window opens.
+3. Paste the key into **API Key**.
+4. In the model list, switch on at least one **Copy Studio** model. If you want AI imagery, also switch on the vendor's **Image Studio** model.
+5. Click **Save Vendor**.
+
+<Frame caption="Adding a vendor key and enabling a Copy Studio model in AI Settings.">
+  <img src="/images/landing-page-builder/ai-settings-vendor.png" alt="AI Settings vendor window with the API key field and the Copy Studio model switches" />
+</Frame>
+
+Keys are saved encrypted in the database (using your app `APP_KEY`), not in `.env`.
+
+### Where to get each key
+
+- **Google Gemini**: create an API key in [Google AI Studio](https://aistudio.google.com/apikey).
+- **OpenAI**: create a secret key at [platform.openai.com/api-keys](https://platform.openai.com/api-keys). Your account needs a funded billing balance.
+
+<Tip>
+Pick a strong text model. A full page is a long, structured answer, so very small or very fast models can run out of room or return unreadable output.
+</Tip>
+
+---
+
+## 5. Configure Landing Page Builder
+
+Go to **Admin → General Settings → Plugins → Landing Page Builder** (`/app/admin/general/plugins/landing-page-builder`). The screen has four sections.
+
+<Frame caption="The Landing Page Builder configuration screen.">
+  <img src="/images/landing-page-builder/admin-config.png" alt="Landing Page Builder admin configuration with General and AI engines sections" />
+</Frame>
+
+### General
+
+| Setting | Purpose |
+|---------|---------|
+| **Enable Landing Page Builder** | Master switch. When on, the tool appears in user menus for plans that include it. Off by default. |
+| **Free Tier Access** | When on, users **without** a paid plan can build pages (they still need credits for the AI steps). When off, only users on a plan that includes the feature get access. |
+
+### AI engines
+
+One card per engine shows a **Ready** or **Not configured** badge, the text model it will use for copywriting, and the imagery model with its cost per image. If the engine has no image model, the card reads "Uses the customer's photos".
+
+| Setting | Purpose |
+|---------|---------|
+| **Default engine** | **Auto** uses the first engine that has a key and an enabled text model. Or pin **OpenAI** or **Google Gemini**. |
+| **Let users choose the engine** | Shows an engine picker in the setup wizard when more than one engine is ready. |
+| **OpenAI text model** / **Gemini text model** | The model used for copy. Leave on **Default** to use the first enabled model for that vendor. |
+
+### Limits
+
+| Setting | Range | Purpose |
+|---------|-------|---------|
+| **AI images per page** | 0 to 5 (default 5) | Caps how many AI images a page can hold. Set `0` to use customer photos only. |
+| **Photos per page** | 1 to 12 (default 6) | How many uploaded photos or Ad Creatives a page can hold. |
+| **Max upload size (MB)** | 1 to 50 (default 10) | Per-photo cap. Keep it within your PHP upload limits. |
+
+### Credit pricing
+
+A per-step credit price. Each value is the number of credits a user spends when that step **succeeds**. Set `0` to make a step free.
+
+| Step | Default | Covers |
+|------|---------|--------|
+| **AI product brief & design directions** | 1 | The "Analyze my product" step. |
+| **Full landing page copy & layout** | 5 | Building a page, and regenerating the whole page. |
+| **Section rewrite or new section** | 1 | Rewriting or writing a single section. |
+
+AI images are not part of this grid. Each one is billed at your platform's normal image rate for the engine's image model (set per model in AI Settings), once the image finishes rendering.
+
+Credit rules:
+
+- A user is **only charged on success**. Failed, timed-out or cancelled steps cost nothing.
+- Before a build starts, the user needs enough credits for the page **plus** all the AI images it will queue. If not, the step is blocked with a message stating the amount required.
+
+Click **Save** to persist all sections.
+
+---
+
+## 6. Grant access by plan
+
+Access is gated in two layers.
+
+1. **Platform layer**: the plugin must be installed and **Enable Landing Page Builder** must be on.
+2. **User layer**: who actually gets the tool:
+   - **Subscribed users** (on a plan): access is governed by the plan's **Landing Page Builder** toggle. Edit each plan and enable it for the plans that should include it.
+   - **Non-subscribed users** (no plan): access only when **Free Tier Access** is on.
+
+When the tool is offered platform-wide but the user's plan doesn't include it, it appears in the sidebar as a **locked, upgrade-to-unlock** entry rather than disappearing.
+
+To set it up:
+
+1. Enable the master switch in the Landing Page Builder config.
+2. Go to **Admin → Finance → Pricing Plans**, edit each plan and turn **Landing Page Builder** on for the plans that should include it.
+3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
+
+<Frame caption="The Landing Page Builder toggle on a pricing plan.">
+  <img src="/images/landing-page-builder/plan-toggle.png" alt="Pricing plan edit screen with the Landing Page Builder switch turned on" />
+</Frame>
+
+---
+
+## 7. Go-live checklist
+
+<Steps>
+<Step title="Install the plugin">
+Admin → Platform → Plugins → Landing Page Builder → **Install**.
+</Step>
+<Step title="Connect an AI engine">
+Admin → AI Settings → add an **OpenAI** and/or **Gemini** key and enable at least one Copy Studio model. Enable the vendor's image model if you want AI imagery.
+</Step>
+<Step title="Pick the engine">
+Landing Page Builder config → **AI engines** → confirm the card shows **Ready**, then choose the default engine and text model.
+</Step>
+<Step title="Set pricing & limits">
+Adjust the credit pricing, AI images per page, photos per page and upload size, then **Save**.
+</Step>
+<Step title="Enable the feature">
+Turn on **Enable Landing Page Builder**. Enable **Free Tier Access** if desired.
+</Step>
+<Step title="Grant plan access">
+Enable the Landing Page Builder toggle on the plans that should include it.
+</Step>
+<Step title="Verify as a user">
+Log in as a user on an eligible plan and build a page end to end: analyze a product, build the page, edit a line and export it.
+</Step>
+</Steps>
+
+---
+
+## 8. Using the Landing Page Builder
+
+The tool lives under **Creative Tools → Landing Page Builder** in the user sidebar.
+
+<Frame caption="Landing Page Builder in the Creative Tools section of the sidebar.">
+  <img src="/images/landing-page-builder/sidebar-entry.png" alt="User sidebar with Landing Page Builder under Creative Tools" />
+</Frame>
+
+### What each step costs
+
+| Action | Default cost | Charged when |
+|--------|--------------|--------------|
+| Analyze my product | 1 credit | The brief is ready. |
+| Build my landing page | 5 credits | The copy is written. |
+| Each AI image | Your platform image rate | That image finishes rendering. |
+| Rewrite or write a section | 1 credit | The section is saved. |
+| Regenerate the whole page | 5 credits plus any missing AI images | The new copy is written. |
+| Editing text, changing the design, reordering sections, previewing, duplicating, exporting | Free | Never charged. |
+
+Costs shown on the buttons always match the admin's current pricing.
+
+### My landing pages
+
+The library lists every page the user has started. Search by name, or click **New landing page**.
+
+<Frame caption="The My landing pages library.">
+  <img src="/images/landing-page-builder/my-pages.png" alt="Landing page library showing page cards with status badges" />
+</Frame>
+
+Each card shows a mini preview, the page name, a status badge and the number of sections:
+
+| Status | Meaning |
+|--------|---------|
+| **Draft** | Product details saved, brief not generated yet. |
+| **Brief ready** | The AI brief exists. Continue the setup to build the page. |
+| **Ready** | The page is built and open in the builder. |
+| **Needs attention** | The last build did not finish. The user was not charged. |
+
+The **...** menu on a card offers **Open builder** (or **Continue setup**), **Preview in new tab**, **Download ZIP**, **Download single HTML file**, **Rename**, **Duplicate** and **Delete**. Deleting removes the page and its uploaded photos. AI images stay in the user's Ad Creatives.
+
+### Step 1: Product
+
+Tell the AI about the product. The AI never invents prices, awards or claims you didn't give it.
+
+<Frame caption="Setup step 1: Product.">
+  <img src="/images/landing-page-builder/step-product.png" alt="Product step with name, description, price, button link and photo uploader" />
+</Frame>
+
+| Field | Limit | Notes |
+|-------|-------|-------|
+| **Product name** | 120 characters | Becomes the page name. |
+| **What is it, and why will people love it?** | 3,000 characters | Paste the product description or a few bullet points. Photos alone also work. |
+| **Price** and **Compare-at price** | 24 characters each | Copied exactly onto the Offer section. Leave empty to show no price. |
+| **Button link** | Full web address | Where the buttons send visitors: checkout, store or booking page. If empty, buttons link to sections on the page. |
+| **Photos** | Up to the admin's limit (default 6) | JPG, PNG or WebP. The AI studies them to match colours, mood and wording. |
+
+**Photos**: upload files, or click **Pick from Ad Creatives** to reuse images from the library. The first photo is the **Main** photo. Use the star button on another photo to make it the main one.
+
+**Goal** shapes the story and every call to action:
+
+| Goal | Default button wording |
+|------|------------------------|
+| **Sell online** | Buy now |
+| **Take pre-orders** | Pre-order now |
+| **Capture leads** | Get in touch |
+| **Grow a waitlist** | Join the waitlist |
+| **App downloads** | Download the app |
+| **Book demos** | Book a demo |
+
+Also choose the **Page language** (22 languages, including right-to-left Arabic and Hebrew), an optional **Brand** (adds your saved brand voice, colours and logo) and, when the admin allows it, the **AI engine**.
+
+Then click **Analyze my product**. The user needs a description or at least one photo. The AI reads the photos and text, which usually takes 15 to 40 seconds.
+
+### Step 2: Strategy
+
+The AI returns a creative brief. The user confirms or adjusts it before any copy is written.
+
+<Frame caption="Setup step 2: Strategy.">
+  <img src="/images/landing-page-builder/step-strategy.png" alt="Strategy step showing what the AI understood, selling points and tone of voice" />
+</Frame>
+
+- **What the AI understood**: product name, category, positioning (Budget-friendly, Mid-range, Premium or Luxury), a summary, **Who buys it** and **What moves them**. Click **Edit details** to go back and change the inputs.
+- **Selling points**: up to 6, 80 characters each. Keep the strongest and make them concrete. They steer the headline, features and FAQ.
+- **A few quick choices**: two or three questions that change the angle of the page. Tap an option, type your own answer (120 characters), or skip.
+- **Tone of voice**: pick up to three from Confident, Premium, Playful, Warm, Technical, Minimal, Bold and Eco-conscious.
+- **Anything the copy must mention?**: 400 characters for a launch date, promo code or shipping detail.
+
+Click **Continue to design**.
+
+### Step 3: Design
+
+Choose how the page looks. Everything here can be changed later in the builder.
+
+<Frame caption="Setup step 3: Design.">
+  <img src="/images/landing-page-builder/step-design.png" alt="Design step with creative directions, colour palettes, typography and the Build your page panel" />
+</Frame>
+
+**Look & feel**
+
+| Control | Options |
+|---------|---------|
+| **Creative direction** | Three complete art directions written for this product, each with its own palette, font pairing and theme. |
+| **Colour** | Light or dark theme, 10 palettes (Midnight, Linen, Forest, Ocean, Ember, Graphite, Sand, Mint, Cobalt, Noir) and colour pickers for buttons, accent, background, cards and text. Text colours adjust automatically so everything stays readable. |
+| **Typography** | 12 font pairings, from Modern and Editorial to Luxe, Tech and Fashion. |
+| **Corners** | Sharp, Soft or Round. |
+| **Motion** | Subtle, Balanced or Bold intensity. |
+| **Effects** | 11 effects to switch on or off: scroll reveal, parallax depth, 3D tilt, card spotlight, aurora glow, film grain, moving ticker, counting stats, magnetic buttons, reading progress and glow borders. |
+
+Visitors who prefer reduced motion always get a calm version of the page.
+
+**Sections**
+
+The AI proposes sections for the product and goal, with a reason for each. Switch sections on or off, reorder them with the arrows and pick a layout where one exists (Hero: Split, Centered or Immersive. Features: Cards or Bento. Testimonials: Grid or Marquee). **Hero** and **Closing call to action** are always on.
+
+**Imagery**
+
+| Option | What it does |
+|--------|--------------|
+| **My photos only** | Builds the page from the photos the user added. Free. |
+| **AI hero shot** | One cinematic hero image. |
+| **Story set** | A hero plus two lifestyle scenes. |
+| **Full art direction** | Hero, lifestyle, detail and banner imagery. |
+
+The AI options are capped by the admin's **AI images per page** limit, and they are unavailable (greyed out) when the engine has no image model.
+
+The **Build your page** panel lists the total cost: copy, layout and SEO, plus the cost of any AI images. Click **Build my landing page**. It takes about a minute, and AI images are only charged once they finish.
+
+<Frame caption="The page is being built.">
+  <img src="/images/landing-page-builder/building.png" alt="Progress screen showing the steps the AI is working through" />
+</Frame>
+
+<Note>
+Keep the tab open while the page builds. If a build fails, the user is not charged and can adjust anything and build again.
+</Note>
+
+### The visual editor
+
+When the build finishes, the builder opens. The page you see is the real page. All changes are saved automatically.
+
+The top bar has the **page name** (click to rename), a **Desktop / Tablet / Mobile** preview switch, the credit balance, **Preview** (opens the page in a new tab) and **Export**.
+
+The side panel has four tabs.
+
+#### Content
+
+Click any headline, paragraph or button label in the preview to edit it in place. The section list below the hint gives structural control:
+
+- **Show or hide** a section with its switch, and **move** it up or down.
+- Open a section to pick its **Layout**, add, remove or reorder **Entries** (features, testimonials, FAQ items and so on), change a feature's icon, set a testimonial's star rating, or mark a comparison row as **Us** or **Them**.
+- **Rewrite with AI**: type an instruction (up to 400 characters) or tap a chip such as "Make it shorter and punchier", "Make it more persuasive", "Make it feel more premium" or "Add gentle urgency", then click **Rewrite section**.
+- A section that is switched on but has no copy shows **Needs copy**. Open it and click **Write section**.
+
+<Frame caption="The Content panel with a section open and Rewrite with AI.">
+  <img src="/images/landing-page-builder/panel-content.png" alt="Content panel with the Features section expanded and the Rewrite with AI box" />
+</Frame>
+
+<Warning>
+Testimonials and stats are written as realistic placeholders, because the AI never invents customer quotes or numbers. Replace them with real ones before you publish.
+</Warning>
+
+#### Design
+
+The same controls as the setup Design step: creative direction, colour, typography, corners, motion and effects. Changes re-render the preview straight away. A **Revisit the strategy** link takes the user back to change the angle, audience or imagery set.
+
+<Frame caption="The Design panel.">
+  <img src="/images/landing-page-builder/panel-design.png" alt="Design panel with palettes, typography and motion options" />
+</Frame>
+
+#### Images
+
+- **Your photos**: add, remove or change the main photo.
+- **Image placements**: five slots, each of which can **Use a photo** the user uploaded, or **Render with AI** (with an optional scene note of up to 300 characters). Slots with no choice use the user's photos automatically. **Reset** returns a slot to automatic.
+- **Logo**: upload a PNG, JPG or WebP logo for the navigation and footer. Without one, the brand name is shown as text.
+
+| Slot | Shape | Where it appears |
+|------|-------|------------------|
+| **Hero** | 16:9 | Top of the page. |
+| **Lifestyle** | Square | Showcase and gallery. |
+| **Scene** | Square | Showcase and gallery. |
+| **Detail** | 4:5 | Showcase and gallery. |
+| **Banner** | 16:9 | Behind the closing call to action. |
+
+AI images render one at a time while the builder is open and appear in the preview as each one finishes. A counter shows how many of the page's AI images are used.
+
+<Frame caption="The Images panel with image placements and the logo.">
+  <img src="/images/landing-page-builder/panel-images.png" alt="Images panel with photo grid, image placements and logo upload" />
+</Frame>
+
+#### Settings
+
+| Setting | Purpose |
+|---------|---------|
+| **Main button link** | Where every buy or sign-up button goes. If empty, buttons scroll to the offer. |
+| **Secondary button link** | Used by the softer hero button. Defaults to a section on the page. |
+| **Newsletter form address** | The form action URL from Mailchimp, Kit, Formspree or similar, so the Newsletter section collects real sign-ups. |
+| **Page title** | Up to 70 characters. Shown in the browser tab and search results. |
+| **Meta description** | Up to 170 characters. |
+
+Links accept a full web address, an email link (`mailto:`) or a section link such as `#pricing`.
+
+Under **Start fresh**, **Regenerate page** rewrites every section from the brief (design, photos and finished images stay, but text edits are replaced), and **Edit strategy and rebuild** goes back to the Strategy step.
+
+<Frame caption="The Settings panel.">
+  <img src="/images/landing-page-builder/panel-settings.png" alt="Settings panel with link fields, SEO fields and the Start fresh actions" />
+</Frame>
+
+### Export and publish
+
+Landing Page Builder does not host pages. The **Preview** link works only while you are signed in and is not indexed, so it is not a public address. To share a page, export it.
+
+Click **Export** in the builder, or use the card menu in the library:
+
+| Format | What you get |
+|--------|--------------|
+| **ZIP bundle** | A folder with `index.html`, `assets/css/style.css`, `assets/js/main.js`, `assets/img/` (images optimised to a maximum of 2000 px) and a `README.txt`. |
+| **Single HTML file** | One self-contained file with the images embedded. |
+
+<Frame caption="The Export menu.">
+  <img src="/images/landing-page-builder/export-menu.png" alt="Export menu offering a ZIP bundle and a single HTML file" />
+</Frame>
+
+To publish, unzip the bundle and upload `index.html` together with the `assets` folder to any static host, such as Netlify, Vercel, GitHub Pages, Cloudflare Pages, cPanel/FTP or Amazon S3. You can also double-click `index.html` to preview it locally. There is no build step and no server-side code.
+
+Things to know about exported pages:
+
+- **Fonts** load from Google Fonts. To self-host them, download the families listed in the `<link>` tag of `index.html`.
+- **Share image**: the exported page has no `og:image`. Add one by hand if you want a preview image on social networks.
+- **Newsletter form**: without a **Newsletter form address** in Settings, the form only shows a thank-you message and collects nothing.
+- **Button links** come from **Main button link**. Search `index.html` for that address to change it later.
+
+---
+
+## 9. Tips for better pages
+
+The AI writes from what it is given, so concrete input gives concrete copy.
+
+- **Put facts in the description.** Specs, materials, what's in the box, shipping terms, the guarantee and any real numbers feed the Stats and Offer sections. The AI will not make them up.
+- **Use a clean main photo.** The first photo is treated as the product shot and fills the Offer section and the closing call to action when there is no banner image.
+- **Keep selling points short and specific.** "30-hour battery life" beats "great battery".
+- **Use the quick choices.** They change the angle of the page more than any other input.
+- **Rewrite one section, not the page.** A section rewrite costs a fraction of a full regeneration and keeps everything else you edited.
+
+An example of a good **Product** step:
+
+| Field | Example |
+|-------|---------|
+| **Product name** | Aurora ceramic pour-over set |
+| **Description** | Hand-glazed stoneware dripper and server with two cups. Dishwasher safe. Brews 2 to 4 cups. Ships in 2 days. 30-day money-back guarantee. |
+| **Price** | $49 |
+| **Compare-at price** | $69 |
+| **Goal** | Sell online |
+
+---
+
+## 10. Troubleshooting
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| Landing Page Builder doesn't appear for a user | Plugin not installed, master switch off, plan lacks the feature, or free tier off for a plan-less user | Install the plugin; enable the master switch; enable the toggle on their plan; or turn on Free Tier Access. |
+| It appears with a lock icon | The user's plan doesn't include the feature | Enable it on the plan, or the user upgrades. |
+| "No AI engine is configured yet" | No engine has both a key and an enabled text model | Add a key and enable a Copy Studio model in Admin → AI Settings. The engine card shows **Ready** when fixed. |
+| "You need N credits for this" | Balance is below the cost of the step | Top up credits or lower the price. A build needs credits for the page plus all its AI images. |
+| AI imagery options are greyed out | The engine has no active image model or key, or **AI images per page** is `0` | Enable the vendor's image model in AI Settings, or raise the limit. |
+| Images stay on "Waiting to render" | The builder tab was closed, or the background job is not running | Keep the builder open so it can render images one at a time. Make sure your scheduler/cron is running, since it finishes any deferred images. |
+| An image says "Did not render" | The image model rejected or failed the request | Failed images cost nothing. Click **New AI image**, optionally with a different scene note. |
+| "The AI took too long to respond" | The text model timed out | Try again. Choose a faster text model in the config if it keeps happening. No credits are charged. |
+| "The AI ran out of room before finishing" or "response could not be read" | The text model is too small or returned malformed output | Pick a stronger text model, shorten the description and try again. |
+| "The AI declined this request" | The vendor's safety filter blocked the input | Reword the product description. |
+| Photos are skipped or rejected | Wrong file type or over the size or count limit | Use JPG, PNG or WebP within the **Max upload size** and **Photos per page** limits. |
+| ZIP export fails with "The PHP zip extension is required" | The server's PHP `zip` extension is missing | Enable the `zip` extension. The single HTML export works without it. |
+| Newsletter form shows a thank-you but collects nothing | No **Newsletter form address** is set | Paste the form action URL from your email provider in the Settings panel. |
+| Exported images are not resized | The PHP `gd` extension is missing | Enable `gd`. Without it, photos are exported at their original size. |
+
+<Note>
+AI images are saved as ordinary Ad Creatives, so they stay in the user's library even if the page is deleted. Credits are never deducted for failed or cancelled work.
+</Note>
