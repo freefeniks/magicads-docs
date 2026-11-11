@@ -13,7 +13,7 @@ description: 'Turn a product into an editable, exportable landing page. The AI s
 This guide covers the full lifecycle: where to buy it, how to install it, how to connect the AI engines, how to configure pricing and limits, how to grant access by plan, and how users build, edit and publish a page.
 
 <Frame caption="A finished landing page open in the Landing Page Builder.">
-  <img src="/images/landing-page-builder/builder-overview.png" alt="The Landing Page Builder editor showing the side panel and the live page preview" />
+  <img src="/images/extensions/landing-page-builder/builder-overview.png" alt="The Landing Page Builder editor showing the side panel and the live page preview" />
 </Frame>
 
 <Card title="Included Tools">
@@ -53,23 +53,17 @@ Landing Page Builder is distributed through the in-app plugin marketplace. Purch
     Sign in as an **admin** and go to **Admin → Platform → Plugins** (`/app/admin/plugins`). Find the **Landing Page Builder** card in the marketplace catalog.
 
     <Frame caption="The Landing Page Builder card in the plugin marketplace.">
-      <img src="/images/landing-page-builder/plugin-card.png" alt="Landing Page Builder card in the Plugins marketplace with the Buy Now button" />
+      <img src="/images/extensions/landing-page-builder/plugin.png" alt="Landing Page Builder card in the Plugins marketplace with the Buy Now button" />
     </Frame>
   </Step>
   <Step title="Purchase (if required)">
     The card button depends on your license and purchase state:
     - **Buy Now** → opens the plugin checkout to complete the purchase.
     - **Install** → shown once the plugin is purchased, or when it is free for your license.
-    - **Free for Extended** → plugins flagged "free for Extended License" install without an extra purchase. Your license tier comes from the activation you performed when setting up MagicAds.
-
-    <Tip>
-    If the card shows **Buy Now** and you expected a free install, you are on a Regular License. Purchase Landing Page Builder, or upgrade your license, to install it.
-    </Tip>
   </Step>
   <Step title="Install / activate">
     Click **Install** on the **Landing Page Builder** card. The platform downloads the plugin archive, unpacks it and runs its migration. This creates:
 
-    - The `landing_page_builder_pages` table, which holds every user's pages (their inputs, brief, design, copy and image references).
     - Landing Page Builder's settings columns on the shared extension settings record, with safe defaults (feature off, free tier off, automatic engine, up to 5 AI images and 6 photos per page, 10 MB upload cap).
     - A **Landing Page Builder** toggle on every pricing plan.
 
@@ -109,12 +103,6 @@ Landing Page Builder needs two things from **AI Settings**, and it checks them s
   </Step>
 </Steps>
 
-<Frame caption="Adding a vendor key and enabling a Copy Studio model in AI Settings.">
-  <img src="/images/landing-page-builder/ai-settings-vendor.png" alt="AI Settings vendor window with the API key field and the Copy Studio model switches" />
-</Frame>
-
-Keys are saved encrypted in the database (using your app `APP_KEY`), not in `.env`.
-
 ### Where to get each key
 
 - **Google Gemini**: create an API key in [Google AI Studio](https://aistudio.google.com/apikey).
@@ -129,7 +117,7 @@ Pick a strong text model. A full page is a long, structured answer, so very smal
 Go to **Admin → General Settings → Plugins → Landing Page Builder** (`/app/admin/general/plugins/landing-page-builder`). The screen has four sections.
 
 <Frame caption="The Landing Page Builder configuration screen.">
-  <img src="/images/landing-page-builder/admin-config.png" alt="Landing Page Builder admin configuration with General and AI engines sections" />
+  <img src="/images/extensions/landing-page-builder/config.png" alt="Landing Page Builder admin configuration with General and AI engines sections" />
 </Frame>
 
 ### General
@@ -195,9 +183,6 @@ To set it up:
 2. Go to **Admin → Finance → Pricing Plans**, edit each plan and turn **Landing Page Builder** on for the plans that should include it.
 3. Optionally enable **Free Tier Access** if you want plan-less users to try it.
 
-<Frame caption="The Landing Page Builder toggle on a pricing plan.">
-  <img src="/images/landing-page-builder/plan-toggle.png" alt="Pricing plan edit screen with the Landing Page Builder switch turned on" />
-</Frame>
 
 ## Go-live checklist
 
@@ -233,9 +218,6 @@ Once every step above is green, Landing Page Builder is live. Proceed to the sec
 
 The tool lives under **Creative Tools → Landing Page Builder** in the user sidebar.
 
-<Frame caption="Landing Page Builder in the Creative Tools section of the sidebar.">
-  <img src="/images/landing-page-builder/sidebar-entry.png" alt="User sidebar with Landing Page Builder under Creative Tools" />
-</Frame>
 
 ### What each step costs
 
@@ -255,7 +237,7 @@ Costs shown on the buttons always match the admin's current pricing.
 The library lists every page the user has started. Search by name, or click **New landing page**.
 
 <Frame caption="The My landing pages library.">
-  <img src="/images/landing-page-builder/my-pages.png" alt="Landing page library showing page cards with status badges" />
+  <img src="/images/extensions/landing-page-builder/newlandingpage.png" alt="Landing page library showing page cards with status badges" />
 </Frame>
 
 Each card shows a mini preview, the page name, a status badge and the number of sections:
@@ -274,7 +256,7 @@ The **...** menu on a card offers **Open builder** (or **Continue setup**), **Pr
 Tell the AI about the product. The AI never invents prices, awards or claims you didn't give it.
 
 <Frame caption="Setup step 1: Product.">
-  <img src="/images/landing-page-builder/step-product.png" alt="Product step with name, description, price, button link and photo uploader" />
+  <img src="/images/extensions/landing-page-builder/productdetails.png" alt="Product step with name, description, price, button link and photo uploader" />
 </Frame>
 
 | Field | Limit | Notes |
@@ -307,7 +289,7 @@ Then click **Analyze my product**. The user needs a description or at least one 
 The AI returns a creative brief. The user confirms or adjusts it before any copy is written.
 
 <Frame caption="Setup step 2: Strategy.">
-  <img src="/images/landing-page-builder/step-strategy.png" alt="Strategy step showing what the AI understood, selling points and tone of voice" />
+  <img src="/images/extensions/landing-page-builder/strategy.png" alt="Strategy step showing what the AI understood, selling points and tone of voice" />
 </Frame>
 
 - **What the AI understood**: product name, category, positioning (Budget-friendly, Mid-range, Premium or Luxury), a summary, **Who buys it** and **What moves them**. Click **Edit details** to go back and change the inputs.
@@ -323,7 +305,10 @@ Click **Continue to design**.
 Choose how the page looks. Everything here can be changed later in the builder.
 
 <Frame caption="Setup step 3: Design.">
-  <img src="/images/landing-page-builder/step-design.png" alt="Design step with creative directions, colour palettes, typography and the Build your page panel" />
+  <img src="/images/extensions/landing-page-builder/design.png" alt="Design step with creative directions, colour palettes, typography and the Build your page panel" />
+  </Frame>
+<Frame caption="Setup step 3: Design.">
+<img src="/images/extensions/landing-page-builder/design2.png" alt="Design step with creative directions, colour palettes, typography and the Build your page panel" />
 </Frame>
 
 **Look & feel**
@@ -357,7 +342,7 @@ The AI options are capped by the admin's **AI images per page** limit, and they 
 The **Build your page** panel lists the total cost: copy, layout and SEO, plus the cost of any AI images. Click **Build my landing page**. It takes about a minute, and AI images are only charged once they finish.
 
 <Frame caption="The page is being built.">
-  <img src="/images/landing-page-builder/building.png" alt="Progress screen showing the steps the AI is working through" />
+  <img src="/images/extensions/landing-page-builder/builder-overview.png" alt="Progress screen showing the steps the AI is working through" />
 </Frame>
 
 <Note>
@@ -382,7 +367,7 @@ Click any headline, paragraph or button label in the preview to edit it in place
 - A section that is switched on but has no copy shows **Needs copy**. Open it and click **Write section**.
 
 <Frame caption="The Content panel with a section open and Rewrite with AI.">
-  <img src="/images/landing-page-builder/panel-content.png" alt="Content panel with the Features section expanded and the Rewrite with AI box" />
+  <img src="/images/extensions/landing-page-builder/final.png" alt="Content panel with the Features section expanded and the Rewrite with AI box" />
 </Frame>
 
 <Warning>
